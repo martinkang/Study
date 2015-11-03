@@ -1,5 +1,0 @@
-e makefile
-/RTLIB
-s/-lrt//
-w
-q

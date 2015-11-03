@@ -1,5 +1,0 @@
-e makefile
-/NETLIBS
-s/-lsocket -lnsl//
-w
-q

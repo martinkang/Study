@@ -1,1 +1,0 @@
-int signalthreadinit(int signo);

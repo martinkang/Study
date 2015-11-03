@@ -1,7 +1,0 @@
-e makefile
-/RTLIB
-s/ -lrt//
-/realtime
-s/realtime //
-w
-q

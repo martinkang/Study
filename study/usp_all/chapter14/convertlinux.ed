@@ -1,7 +1,0 @@
-e makefile
-/COPS
-s/=/=-D_GNU_SOURCE
-/named
-s/ named//
-w
-q
