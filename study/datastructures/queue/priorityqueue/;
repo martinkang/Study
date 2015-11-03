@@ -1,0 +1,23 @@
+#ifndef __HEAP_H__
+#define __HEAP_H__
+
+typedef int PrioriryComp( int d1, int d2 );
+
+typedef struct node
+{
+	int Prioriry;
+	int data;
+} node_t;
+
+typedef struct heap
+{
+	int numData;
+	PriorityComp *comp;
+	node_t *heapArr;
+} heap_t;
+
+#endif
+
+void initHeap( heap_t *hp, PriorityComp pc )
+{
+}

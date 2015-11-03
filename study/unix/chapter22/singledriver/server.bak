@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <semaphore.h>
+#include <pthread.h>
+#include <string.h>
+#include "reentry.h"
+#include "../uici.h"
+#include "../uiciname.h"
+
+typedef struct msg
+{
+	int pid;
+	int tid;
+	int msgno;
+} msg_t;
+
+#define BUFSIZE 255
+
+static sem_t gSerSem;
+static pthread_mutex_t gSerMutex = PTHREAD_MUTEX_INITIALIZER;
+
+int gMsgNo = 0;
+
+void *thread_fun( void *arg )
+{
+	int size = 0;
+	char buf[BUFSIZE] = {0, };
+
+	int fd = *((int*)(arg));
+	int msgno = 0;
+	msg_t msg;
+
+	size = read( fd, buf, BUFSIZE );
+	if ( size <= 0 )
+		return;
+	r_fprintf( stderr, "read msg from client\n%s\n", buf );
+
+	pthread_mutex_lock( &gSerMutex );
+
+	msg.pid = getpid();
+	msg.tid = pthread_self();
+	msg.msgno = gMsgNo;
+
+	size = write( fd, &msg, sizeof( msg ) );
+	if ( size != sizeof( msg ) )
+	{
+		r_fprintf( stderr, "msg packet write error\n" );
+		pthread_mutex_unlock( &gSerMutex );
+		return;
+	}
+	r_fprintf( stderr, "send %d msg success\n", gMsgNo );
+
+	gMsgNo++;
+
+	pthread_mutex_unlock( &gSerMutex );
+	
+	close( fd );
+
+	pthread_exit( NULL );
+}
+
+int handleresponse( int clntfd )
+{
+	int sRC = 0;
+
+	int fd[1];
+	pthread_t pth;
+
+	fd[0] = clntfd;
+	sRC = pthread_create( &pth, NULL, thread_fun, (void *)fd );
+	if ( sRC == -1 )
+		return -1;
+
+	sRC = pthread_detach( pth );
+	if ( sRC != 0 )
+		return -1;
+
+	return 0;
+}
+
+int main( int argc, char *argv[] )
+{
+	int sRC = 0;
+	int i = 0;
+
+	int port = 0;
+	int serfd = 0;
+	int clntfd = 0;
+
+
+	sRC = sem_init( &gSerSem, 1, 5 );
+	if ( sRC == -1 )
+		return -1;
+
+	if ( argc != 2 )
+	{
+		fprintf( stderr, "argument error\n" );
+		return -1;
+	}
+
+	port = atoi( argv[1] );
+	
+	serfd = u_open( port );
+
+	fprintf( stderr, "server start\nwait client....\n" );
+	while( 1 )
+	{
+		clntfd = u_accept( serfd );
+		r_fprintf( stderr, "client connected!\n" );
+		sRC = handleresponse( clntfd );
+		if ( sRC == -1 )
+			r_perror( "thread create error" );
+	}
+
+	close( serfd );
+
+	sem_destory( &gSerSem );
+	return 0;
+}

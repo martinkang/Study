@@ -1,0 +1,284 @@
+========== program is started ==========
+Fri Sep  4 23:57:51 2015
+
+signal initialize begin
+Fri Sep  4 23:57:51 2015
+
+signal mask block success
+Fri Sep  4 23:57:51 2015
+
+priority higher success
+Fri Sep  4 23:57:51 2015
+
+signal thread create success
+Fri Sep  4 23:57:51 2015
+
+init signal is success
+Fri Sep  4 23:57:51 2015
+
+signal thread is started
+Fri Sep  4 23:57:51 2015
+
+sigwait...
+Fri Sep  4 23:57:51 2015
+
+signal received
+Fri Sep  4 23:57:59 2015
+
+signal thread is ended
+Fri Sep  4 23:57:59 2015
+
+========== program is started ==========
+Sat Sep  5 00:38:19 2015
+
+signal initialize begin
+Sat Sep  5 00:38:19 2015
+
+signal mask block success
+Sat Sep  5 00:38:19 2015
+
+priority higher success
+Sat Sep  5 00:38:19 2015
+
+signal thread create success
+Sat Sep  5 00:38:19 2015
+
+init signal is success
+Sat Sep  5 00:38:19 2015
+
+signal thread is started
+Sat Sep  5 00:38:19 2015
+
+sigwait...
+Sat Sep  5 00:38:19 2015
+
+signal received
+Sat Sep  5 00:38:26 2015
+
+signal thread is ended
+Sat Sep  5 00:38:26 2015
+
+========== program is started ==========
+Sat Sep  5 00:40:56 2015
+
+signal initialize begin
+Sat Sep  5 00:40:56 2015
+
+signal mask block success
+Sat Sep  5 00:40:56 2015
+
+priority higher success
+Sat Sep  5 00:40:56 2015
+
+signal thread create success
+Sat Sep  5 00:40:56 2015
+
+init signal is success
+Sat Sep  5 00:40:56 2015
+
+signal thread is started
+Sat Sep  5 00:40:56 2015
+
+sigwait...
+Sat Sep  5 00:40:56 2015
+
+signal received
+Sat Sep  5 00:41:00 2015
+
+setDone 1
+signal thread is ended
+Sat Sep  5 00:41:00 2015
+
+========== program is started ==========
+Sat Sep  5 00:42:11 2015
+
+signal initialize begin
+Sat Sep  5 00:42:11 2015
+
+signal mask block success
+Sat Sep  5 00:42:11 2015
+
+priority higher success
+Sat Sep  5 00:42:11 2015
+
+signal thread create success
+Sat Sep  5 00:42:11 2015
+
+init signal is success
+Sat Sep  5 00:42:11 2015
+
+signal thread is started
+Sat Sep  5 00:42:11 2015
+
+sigwait...
+Sat Sep  5 00:42:11 2015
+
+========== program is started ==========
+Sat Sep  5 00:42:14 2015
+
+signal initialize begin
+Sat Sep  5 00:42:14 2015
+
+signal mask block success
+Sat Sep  5 00:42:14 2015
+
+priority higher success
+Sat Sep  5 00:42:14 2015
+
+signal thread create success
+Sat Sep  5 00:42:14 2015
+
+init signal is success
+Sat Sep  5 00:42:14 2015
+
+signal thread is started
+Sat Sep  5 00:42:14 2015
+
+sigwait...
+Sat Sep  5 00:42:14 2015
+
+signal received
+Sat Sep  5 00:42:19 2015
+
+setDone 1
+signal thread is ended
+Sat Sep  5 00:42:19 2015
+
+========== program is started ==========
+Sat Sep  5 00:47:05 2015
+
+signal initialize begin
+Sat Sep  5 00:47:05 2015
+
+signal mask block success
+Sat Sep  5 00:47:05 2015
+
+priority higher success
+Sat Sep  5 00:47:05 2015
+
+signal thread create success
+Sat Sep  5 00:47:05 2015
+
+init signal is success
+Sat Sep  5 00:47:06 2015
+
+signal thread is started
+Sat Sep  5 00:47:09 2015
+
+sigwait...
+Sat Sep  5 00:47:14 2015
+
+signal received
+Sat Sep  5 00:48:10 2015
+
+========== program is started ==========
+Sat Sep  5 00:49:09 2015
+
+signal initialize begin
+Sat Sep  5 00:49:09 2015
+
+signal mask block success
+Sat Sep  5 00:49:09 2015
+
+priority higher success
+Sat Sep  5 00:49:09 2015
+
+signal thread create success
+Sat Sep  5 00:49:09 2015
+
+init signal is success
+Sat Sep  5 00:49:09 2015
+
+signal thread is started
+Sat Sep  5 00:49:09 2015
+
+sigwait...
+Sat Sep  5 00:49:09 2015
+
+signal received
+Sat Sep  5 00:49:16 2015
+
+set doneflag
+Sat Sep  5 00:49:16 2015
+
+setDone 1
+signal thread is ended
+Sat Sep  5 00:49:16 2015
+
+========== program is ended ==========
+Sat Sep  5 00:49:17 2015
+
+========== program is started ==========
+Sat Sep  5 00:50:07 2015
+
+signal initialize begin
+Sat Sep  5 00:50:07 2015
+
+signal mask block success
+Sat Sep  5 00:50:07 2015
+
+priority higher success
+Sat Sep  5 00:50:07 2015
+
+signal thread create success
+Sat Sep  5 00:50:07 2015
+
+init signal is success
+Sat Sep  5 00:50:07 2015
+
+signal thread is started
+Sat Sep  5 00:50:07 2015
+
+sigwait...
+Sat Sep  5 00:50:07 2015
+
+signal received
+Sat Sep  5 00:50:13 2015
+
+set doneflag
+Sat Sep  5 00:50:13 2015
+
+setDone 1
+signal thread is ended
+Sat Sep  5 00:50:13 2015
+
+========== program is ended ==========
+Sat Sep  5 00:50:14 2015
+
+========== program is started ==========
+Sat Sep  5 00:50:28 2015
+
+signal initialize begin
+Sat Sep  5 00:50:28 2015
+
+signal mask block success
+Sat Sep  5 00:50:28 2015
+
+priority higher success
+Sat Sep  5 00:50:28 2015
+
+signal thread create success
+Sat Sep  5 00:50:28 2015
+
+init signal is success
+Sat Sep  5 00:50:28 2015
+
+signal thread is started
+Sat Sep  5 00:50:28 2015
+
+sigwait...
+Sat Sep  5 00:50:28 2015
+
+signal received
+Sat Sep  5 00:50:39 2015
+
+set doneflag
+Sat Sep  5 00:50:39 2015
+
+setDone 1
+signal thread is ended
+Sat Sep  5 00:50:39 2015
+
+========== program is ended ==========
+Sat Sep  5 00:50:40 2015
+
