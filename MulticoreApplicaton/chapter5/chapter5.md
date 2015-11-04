@@ -11,7 +11,11 @@
 
 
 ## 1. 스레드
-	**1. 스레드드의 생성**
+	* THREAD 란?
+		- CPU가 독립적으로 처리하는 하나의 작업 단위
+		- 컴퓨터 프로그램 수행 시 프로세스 내부에 존재하는 수행 경로, 즉 일련의 실행 코드
+
+	1. 스레드드의 생성
 		* int pthread_create ( pthread_t  *thread, pthread_attr_t *attr, void *(*start_routine)(void *), void *arg )
 			* pthread_t 구조체 포인터
 				- 스레드에 접근할 수 있는 핸들이 이 구조체에 저장된다.
@@ -45,24 +49,49 @@
 	
 	4. 분리된 스레드
 		* pthread_detach( pthread_t thread )
-	실행중인 쓰레드를 detached(분리)상태로 만든다
-	식별자th를 가지는 쓰레드를 메인쓰레드에서 분리 시킨다.
-	이것은 th를 가지는 쓰레드가 종료되는 즉시 쓰레드의 모든 자원을 되돌려(free)줄 것을 보증한다.
-	detach상태가 아닐경우 쓰레드가 종료한다고 하더라도 pthread_join()을 호출하지 않는 한 자원을 되돌려주지 않는다. 
+			* 실행중인 쓰레드를 detached(분리)상태로 만든다
+			* 식별자 thread 를 가지는 쓰레드를 메인쓰레드에서 분리 시킨다.
+			* 식별자 thread 를 가지는 쓰레드가 종료되는 즉시 쓰레드의 모든 자원을 되돌려(free)줄 것을 보증한다.
+			* detach상태가 아닐경우 쓰레드가 종료한다고 하더라도 pthread_join()을 호출하지 않는 한 자원을 되돌려주지 않는다. 
 
-	pthread 의 속성 설정 ( pthread_attr_t )
-	detach 여부를 제외한 스레드 속성은 한번 생성되고 나면 바꿀 수가 없다.
-	각 속성별로 존재하는 속성 설정 전용 API 를 이용해야 한다.
-	스택 크기 속성
-	pthread_attr_getstacksize( pthread_attr_t *attributes, int *size )
+	5. 스레드 속성 설정
+		* pthread_attr_t
+			* detach 여부를 제외한 스레드 속성은 한번 생성되고 나면 바꿀 수가 없다.
+			* 각  속성별로 존재하는 속성 설정 전용 API 를 이용해야 한다.
+		* 자주 쓰는 스택 속성
+			1. 스레드 분리
+				- int  pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
+					1. pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE)
+						- DETACHED 상태로 변경하고자 할때
+					2. pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)
+						- JOINABLE 상태로 변경하고자 할때 
+					* 반환 값
+						- 성공 : 0
+						- 실패 : 0 이 아닌 값
+			2. 스레드 스택
+				1. 스택 크기 가져오기
+					* int pthread_attr_getstacksize( pthread_attr_t *attributes, int *size )
+				* 반환 값
+					- 성공 : 0
+					- 실패 : 0 이 아닌 값
+				2. 스택 크기 조절
+					* int pthread_attr_setstacksize( const pthread_attr_t *attr, size_t *stacksize )
+					* 멀티 스레드에서 스레드 스택은 싱글 스레드에서 다이나믹한 크기인 것과 달리 크기가 고정된다.	
+					* 각 스레드는 다른 스레드으 스택에 바로 인접하여 할당되기 때문에 스레드의 수가 증가하거나 스레드 스택의 크기가 증가하면 힙으로 이용할 수 있는 영역이 줄어든다.
+						- 여러 개의 스레드가 각기 스택을 가지려면 메인 스레드의 초기 스택 크기를 제한해야만 하고 자식 스레드의 스택 크기도 제한받는다.
+				* 반환 값
+					- 성공 : 0
+					- 실패 : 0 이 아닌 값
 
-	여러 개의 스레드가 각기 스택을 가지려면 메인 스레드의 초기 스택 크기를 제한해야만 하고 자식 스레드의 스택 크기도 제한받는다.
+## 2. 멀티 스레드 코드 컴파일 하기
 
-	스레드 간의 데이터 공유
-	 
-	 
-	멀티 스레드를 이용하면 모든 스레드가 같은 주소 공간을 보이므로 데이터 공유가 자동적으로 된다.
-	적절한 관리 메커니즘 없이 스레드가 공유 데이터를 이용하면 데이터 레이스를 발생시킨다.
-	이를 방지하기 위해 POSIX 표준에서는 다양한 동기화 장치와 데이터 공유 방법을 지원한다.
-	뮤텍스 락을 이용한 접근 제어
+## 3. 프로세스의 종료
+
+## 4.스레드 간의 데이터 공유
+	 	 
+	* 멀티 스레드를 이용하면 모든 스레드가 같은 주소 공간을 보이므로 데이터 공유가 자동적으로 된다.
+	* 적절한 관리 메커니즘 없이 스레드가 공유 데이터를 이용하면 데이터 레이스를 발생시킨다.
+	* 이를 방지하기 위해 POSIX 표준에서는 다양한 동기화 장치와 데이터 공유 방법을 지원한다.
+	
+	1. 뮤텍스 락을 이용한 접근 제어
 	 
