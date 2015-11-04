@@ -11,7 +11,7 @@
 
 
 ## 1. 스레드
-	1. 스레드드의 생성
+	**1. 스레드드의 생성**
 		* int pthread_create ( pthread_t  *thread, pthread_attr_t *attr, void *(*start_routine)(void *), void *arg )
 			* pthread_t 구조체 포인터
 				- 스레드에 접근할 수 있는 핸들이 이 구조체에 저장된다.
