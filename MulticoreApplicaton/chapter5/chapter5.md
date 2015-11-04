@@ -10,38 +10,41 @@
 		* 이 장에서는 POSIX 표준 인터페이스를 이용하여 멀티스레드 프로그램을 개발하는 방법을 다룬다.
 
 
-1. 스레드
+## 1. 스레드
 	1. 스레드드의 생성
-		* pthread_create ( pthread_t  *  thread, pthread_attr_t * attr, void * (*start_routine)(void *), void * arg )
-	pthread_t 구조체 포인터
-	스레드에 접근할 수 있는 핸들이 이 구조체에 저장된다.
-	pthread_attr_t 구조체 포인터
-	스레드 속성 포인터. NULL 을 넘기면 디폴트
-	스레드로 실행될 함수 포인터
-	새 스레드가 구동될 때 시작 함수 포인터
-	리턴 값
-	성공 : 0
-	실패 : 에러 종류에 따른 0 이 아닌 값
+		* int pthread_create ( pthread_t  *thread, pthread_attr_t *attr, void *(*start_routine)(void *), void *arg )
+			* pthread_t 구조체 포인터
+				- 스레드에 접근할 수 있는 핸들이 이 구조체에 저장된다.
+			* pthread_attr_t 구조체 포인터
+				- 스레드 속성 포인터. NULL 을 넘기면 디폴트
+			* 스레드로 실행될 함수 포인터
+				- 새 스레드가 구동될 시작함수 포인터
+			* 반환 값
+				- 성공 : 0
+				- 실패 : 에러 종류에 따른 0 이 아닌 값
 
-	스레드의 종료
-	스레드를 생성할 때 등록했던 함수가 리턴을 하면 스레드 종료.
-	묵시적으로 pthread_exit( ) 호출
-	pthread_exit( void* var ), 부모 스레드가 받을 리턴 데이터를 var 에 저장 가능
-	스레드 함수가 리턴할 때 묵시적으로 pthread_exit 호출
-	명시적으로 스레드가 분리 ( detach ) 되지 않았다면 스레드가 종료되더라도 스레드에서 이용한 리소스는 해제되지 않고 남아 있게 된다.
-	이 리소스는 종료된 스레드의 핸들을 파라미터로 pthread_join()을 호출할 때까지 유지
+	2. 스레드의 종료
+		* void pthread_exit( void *var )
+			* 스레드를 생성할 때 등록했던 함수가 리턴을 하면 스레드 종료.
+				- 묵시적으로 pthread_exit( ) 호출
+			* void* var : 부모 스레드가 받을 리턴 데이터를 var 에 저장 가능
+			* 명시적으로 스레드가 분리 ( detach ) 되지 않았다면 스레드가 종료되더라도 스레드에서 이용한 리소스는 해제되지 않고 남아 있게 된다.
+				- 이 리소스는 종료된 스레드의 핸들을 파라미터로 pthread_join()을 호출할 때까지 유지
 
-	자식 스레드와의 데이터 교환
-	pthread_create 의 인자로 교환 ( void *arg )
-	포인터로 자식 스레드에 데이터를 전달하는 것은 가능하면 피하는 것이 좋다.
-	어느 시점에 어떤 값을 읽어갈지 명확하지 않으므로 메모리 영역이 스레드가 구동되는 동안 유효하다는 보증이 안 된다.
-	pthread_join( pthread_t th, void **thread_return )
-	자식 스레드를 기다림. 자식 스레드가 종료되어야만 리턴
-	만약 thread_return값이 NULL 이 아니라면, th의 리턴값이 저장된 영역이 전달되게 된다.
-	pthread_detach() 함수를 통해서 detached 상태가 되었거나 혹은 pthread_create()로 실행될때 PTHREAD_CREATE_DETACHED 특성으로 실행되었다면 join 으로 기다릴수 없게 된다.
-	반환값
-	성공할경우 쓰레드식별자인 thread에 쓰레드 식별번호를 저장하고, 0을 리턴한다. 실패했을경우 0 이 아닌 에러코드 값을 리턴한다
-	 pthread_detach( pthread_t th )
+	3. 자식 스레드와의 데이터 교환
+		1. pthread_create 의 인자로 교환 ( void *arg )
+			* 포인터로 자식 스레드에 데이터를 전달하는 것은 가능하면 피하는 것이 좋다.
+				- 어느 시점에 어떤 값을 읽어갈지 명확하지 않으므로 메모리 영역이 스레드가 구동되는 동안 유효하다는 보장이 없다..
+		2. pthread_join( pthread_t thread, void **thread_return )
+			* 자식 스레드를 기다림. 자식 스레드가 종료되어야만 리턴
+			* 만약 thread_return값이 NULL 이 아니라면,스레드 thread 의 리턴값이 저장된 영역이 전달되게 된다.
+			* pthread_detach() 함수를 통해서 detached 상태가 되었거나 혹은 pthread_create()로 실행될때 PTHREAD_CREATE_DETACHED 특성으로 실행되었다면 join 으로 기다릴수 없게 된다.
+		* 반환 값
+			* 성공할경우 쓰레드 식별자인 thread 에 쓰레드 식별번호를 저장하고, 0을 리턴한다
+			* 실패했을경우 0 이 아닌 에러코드 값을 리턴한다
+	
+	4. 분리된 스레드
+		* pthread_detach( pthread_t thread )
 	실행중인 쓰레드를 detached(분리)상태로 만든다
 	식별자th를 가지는 쓰레드를 메인쓰레드에서 분리 시킨다.
 	이것은 th를 가지는 쓰레드가 종료되는 즉시 쓰레드의 모든 자원을 되돌려(free)줄 것을 보증한다.
