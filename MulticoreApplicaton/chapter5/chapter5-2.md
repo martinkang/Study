@@ -2,7 +2,9 @@
 
 ## 4. 변수와 메모리
 	1. volatile
-	2. Thread Private Data
+	2. restrict
+		- pointer alias 가 없음을 한정해줌 -> 컴파일러 최적화
+	3. Thread Private Data
 		* Thread Local Storage( TLS )
 
 ## 5. 멀티 프로세스 프로그래밍
