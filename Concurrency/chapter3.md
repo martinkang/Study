@@ -3,13 +3,11 @@
 ### 3.2.6 Flexible locking with std::unique_lock
 
 std::unique_lock 은 std::lock_guard 보다 조금더 유연한 기능을 제공합니다. std::unique_lock 인스턴스는 mutex 를 선택적으로 소유하여 invariants 를 완화시킵니다.  
-첫째로, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 뮤텍스의 lock 을 관리하고, 두번째 인자로 std::defer_lock 을 전달하면 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.  
-lock 은 이후 std::unique_lock 객체 ( mutex 가 아닌 ) 의 락 또는 std::unique_lock 객체를 std::lock 자신에 전달함으로서 얻을 수 있습니다.  
+생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리하고, 두번째 인자로 std::defer_lock 을 전달하면 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.  
+lock 은 이후 std::unique_lock 객체 ( mutex 가 아닌 ) 의 lock 을 호출하거나 std::unique_lock 객체를 std::lock 자신에 전달함으로서 얻을 수 있습니다.  
 Listing 3.6 은 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다.  
-이 코드는 같은 라인수를 가지고, 크게 봤을 때  본질적으로 동일합니다. : 
-
-std::unique_lock takes more space and is a fraction slower to use than std::lock_guard. The flexibility of allowing a std::unique_lock instance not to own the mutex comes at a price: 
-std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 가지고 부분적으로 보다 느립니다. std::unique_lock 인스턴스의 유연함은 ( 뮤텍스에 대한 소유권을 가지지 않음 ) 비용을 유발하는데, 이 뮤텍스의 소유권 정보는 저장되고, 업데이트 되어야 합니다.
+이 코드는 같은 라인수를 가지고, 크게 봤을 때  본질적으로 동일합니다. :    
+std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 가지고 부분적으로 보다 느립니다. std::unique_lock 인스턴스가 mutex 에 대한 소유권을 가지지 않음으로서 허용된 유연함은 비용을 유발합니다 : 이 mutex 의 소유권 정보는 저장되고, 업데이트 되어야 합니다.
 
 
 ### Listing 3.9 Using std::lock() and std::unique_lock in a swap operation
@@ -39,29 +37,18 @@ class X
 ```
 
 Listing 3.9 에서, std::unique_lock 개체는 std::lock() 에 전달될 수 있습니다. 왜냐하면 std::unique_lock 은 lock(), try_lock() 그리고 unlock 멤버 함수를 지원하기 때문입니다.  
-이러한 같은 이름을 가진 뮤텍스 하위의 동일한 이름의  멤버 함수들은 실질적인 작업과 std::unique_lock 인스턴스의 플래그를 바로 업데이트 합니다. 이 플래그는 현재 인스턴스가 뮤텍스를 쇼유하는지를 나타냅니다.  
+이런 동일한 이름을 가진 mutex 하위의 멤버 함수들은 실질적인 작업을 하고 std::unique_lock 인스턴스 내부의 플래그를 ( 현재 인스턴스가 mutex 를 소유하는지 나타내는 ) 바로 갱신 합니다.   
 이 플래그는 소멸자에서 올바르게 unlock 이 호출되는 것을 보장하기 위해 필수적입니다.  
-만약 인스턴스가 뮤텍스를 소유한다면, 소멸자는 unlcok 을 반드시 호출해야 하고, 만약 인스턴스가 뮤텍스를 소유하지 않으면, 이것은 unlock 을 호출해선 안됩니다.
-
-This flag can be queried by calling the owns_lock()	member function.  
-이 플래그는 owns_lock 멤버 함수를 호출함으로서 쿼리할 수 있습니다.
-
-As you might expect, this flag has to be stored somewhere.   
+만약 인스턴스가 mutex 를 소유한다면, 소멸자는 unlcok 을 반드시 호출해야 하고, 만약 인스턴스가 mutex 를 소유하지 않으면, 이것은 unlock 을 호출해선 안됩니다. 
+이 플래그는 owns_lock 멤버 함수를 호출하여 조회할 수 있습니다. 
 당신이 예상하듯이, 이 플래그는 어딘가에 저장되어집니다.
-
-Therefore, the size of a std::unique_lock object is typically larger than that of a std::lock_guard object, and there’s also a slight performance penalty when using std::unique_lock over std::lock_guard because the flag has to be updated or checked, as appropriate.   
-그러므로, std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, 또한 이것은 std::unique_lock 성능의 페널티가 있습니다.
-std::lock_guard 위에 std::unique_lock 을 사용시 이런 플래그는 적절히 갱신되어야 하기 때문입니다.
-
-If std::lock_guard is sufficient for your needs, I’d therefore recommend using it in preference.  
-만약 std::lock_guard 가 당신의 needs 를 충분히 만족한다면, 저는 이것을 환경설정에서 사용 하기를 추천합니다. 
-
-
-That said, there are cases where std::unique_lock is a better fit for the task at hand,	because you need to make use of the additional flexibility.   
-이말은, std::unique_lock 이 수작업보다 유용한 케이스가 있다는 말입니다. 이는   당신의 needs 가 이러한 추가적인 유연함을 사용하도록 하기 때문입니다.
-
-One example is deferred	locking, as you’ve already seen; another case is where the ownership of the lock needs to be transferred from one scope to another.  
-이 예제는 앞에서 이미 보았던 deferred locking 입니다. 또다른 케이스는 락에 대한 소유권이 다른 범위로 이동하는 것 입니다.
+그러므로, std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, 또한 std::unique_lock 성능상 페널티로 작용합니다.
+이는 std::lock_guard 위에 std::unique_lock 을 사용시 플래그가 적절히 갱신되어야 하기 때문입니다.
+만약 std::lock_guard 가 당신의 필요성을 충분히 만족시킨다면, 이것을 환경설정에서 사용 하기를 추천합니다. 
+이말은, std::unique_lock 이 수작업보다 유용한 케이스가 있다는 말입니다. 
+이는 당신의 필요에 의해 추가적인 유연함을 사용하도록 하기 때문입니다.  
+이 예제는 앞에서 이미 보았던 deferred locking 입니다. 
+또다른 케이스는 락에 대한 소유권이 다른 범위로 이동하는 것 입니다.
 
 ### 3.2.7 Transferring mutex ownership between scopes
 
