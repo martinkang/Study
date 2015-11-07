@@ -299,25 +299,33 @@ there are alternatives that provide more appropriate protection in specific scen
 
 
 One particularly extreme (but remarkably common) case is where the shared data needs protection only from concurrent access while it’s being initialized, but after that no explicit synchronization is required. 
-
+극단적인 하나의 케이스는 ( 하지만 현저하게 일반적인  ) 공유 데이터가 오로지 초기화 과정에서 동시 접근할때만 보호가 필요합니다.
+하지만 이후 명시적인 동기화는 필요하지 않습니다.
 
 This might be because the data is read-only once created, and so there are no possible synchronization issues, or it might be
 because the necessary protection is performed implicitly as part of the operations on the data. 
-데이터
+이것은 데이터가 생성시 읽기 전용이기 때문입니다, 그리고 동기화 이슈에 관한 가능성이 전혀 없고, 
 
 
 In either case, locking a mutex after the data has been initialized, purely in order to protect the initialization, is unnecessary and a needless hit to performance.
-어느 경우에서도, 또 다른 케이스에선, 데이터가 초기화 된 이후의 mutex locking 은 초기화의 무결함을 보호하기 위한거고, 이
+어느 경우에나, 초기화를 온전히 보호하기 위해 데이터를 초기화 한 후에 mutex locking 하면, 이것은 불필요 하고, 필요없는 성능 히트? 이다.
 
 
 It’s for this reason that the C++ Standard provides a mechanism purely for protecting shared data during initialization.
+C++ 표준이 초기화 중 공유 데이터를 보호하기 위한 메커니즘을 제공하는 이유이다.
 
 ### 3.3.1 Protecting shared data during initialization
-Suppose you have a shared resource that’s so expensive to construct that you want to
-do so only if it’s actually required; maybe it opens a database connection or allocates a
-lot of memory. Lazy initialization such as this is common in single-threaded code—
-each operation that requires the resource first checks to see if it has been initialized
-and then initializes it before use if not:
+
+Suppose you have a shared resource that’s so expensive to construct that you want to do so only if it’s actually required; 
+당신에게 생성 비용이 비싸지만 정말 실제로 필요한 공유 자원이 있다고 가정해 봅니다. ??
+
+maybe it opens a database connection or allocates a lot of memory. 
+아마 이것은 데이터 베이스에 연결하거나 메모리의 많은 부분을 할당합니다.
+
+
+Lazy initialization such as this is common in single-threaded code each operation that requires the resource first checks to see if it has been initialized and then initializes it before use if not:
+이러한 Lazy 초기화는 싱글 스레드 코드와 공통적입니다. 이는 각 연산에서 필요로 하는 자원이 있을때 이 자원이 초기화 됬는지 검사를 하고, 이것이 사용되기 전에 초기화 합니다.
+
 
 ```c++
 std::shared_ptr<some_resource> resource_ptr;
@@ -325,17 +333,22 @@ void foo()
 {
 	if(!resource_ptr)
 	{
-		resource_ptr.reset(new some_resource);
+		resource_ptr.reset(new some_resource); /* (1) */
 	}
 	resource_ptr->do_something();
 }
 ```
 
-If the shared resource itself is safe for concurrent access, the only part that needs pro-
-tecting when converting this to multithreaded code is the initialization B , but a naïve
-translation such as that in the following listing can cause unnecessary serialization of
-threads using the resource. This is because each thread must wait on the mutex in
-order to check whether the resource has already been initialized.
+If the shared resource itself is safe for concurrent access, the only part that needs protecting when converting this to multithreaded code is the initialization (1) , 
+만약 공유 자원이 동시 접근에서 안전하다면, 이 코드를 멀티스레드 코드로 변경할 때 보호가 필요한 부분은 오직 초기화 부분 (1) 입니다. 
+   
+but a naïve translation such as that in the following listing can cause unnecessary serialization of threads using the resource. 
+하지만 다음에 나오는 listing 과 같은 순수번역? 은 자원을 이용하는?? 불필요한 스레드 직렬화를 야기 시킬 수 있습니다.
+
+
+This is because each thread must wait on the mutex in order to check whether the resource has already been initialized.
+이것이 스레드가 mutex 를 기다리는 이유입니다. 이는 리소스가 이미 초기화 됬는지 여부를 체크합니다.
+
 
 ####Listing 3.11 Thread-safe lazy initialization using a mutex
 ```c++
@@ -354,37 +367,56 @@ void foo()
 ```
 
 This code is common enough, and the unnecessary serialization problematic enough, that many people have tried to come up with a better way of doing this, including the infamous Double-Checked Locking pattern: 
+이코드는 충분히 일반적인 불필요한 직렬화 문제입니다. 이는 많은 사람들이 더 나은 방법을 위해 노력하는, locking 패턴을 두번씩 검사하게 하는 악명 높은 문제입니다.
 
-the pointer is first read without acquiring the lock B (in the code below), and the lock is acquired only if the pointer is NULL .
 
-The pointer is then checked again once the lock has been acquired c (hence the double checked part) in case another thread has done the initialization between the first check and this thread acquiring the lock:
+the pointer is first read without acquiring the lock (1) (in the code below), and the lock is acquired only if the pointer is NULL .
+포인터는 (1) 에서 우선 lock 획득 없이 읽고 ( 아래 코드 ), 그리고 포인터가 NULL 일 경우만 lock 을 획득합니다.
+
+
+The pointer is then checked again once the lock has been acquired (2) (hence the double checked part) in case another thread has done the initialization between the first check and this thread acquiring the lock:
+포인터는 lock 을 획득하기 전에 (2) 에서 다시 체크 합니다. ( 두번 체크 하는 부분입니다. ) 이 케이스에서 다른 스레드는 첫번째 체크와 이 스레드가 lock 을 획득하는 사이에 초기화를 마칩니다.
+
 
 ```c++
 void undefined_behaviour_with_double_checked_locking()
 {
-	if(!resource_ptr)
+	if(!resource_ptr) /* (1) */
 	{
 		std::lock_guard<std::mutex> lk(resource_mutex);
-		if(!resource_ptr)
+		if(!resource_ptr) /* (2) */
 		{
-			resource_ptr.reset(new some_resource);
+			resource_ptr.reset(new some_resource); /* (3) */
 		}
 	}
-	resource_ptr->do_something();
+	resource_ptr->do_something(); /* (4) */
 }
 ```
 
-Unfortunately, this pattern is infamous for a reason: it has the potential for nasty race conditions, because the read outside the lock B isn’t synchronized with the write done by another thread inside the lock d . 
+Unfortunately, this pattern is infamous for a reason: it has the potential for nasty race conditions, because the read outside the lock (1) isn’t synchronized with the write done by another thread inside the lock (3) . 
+불행히도, 이런 패턴은 다음과 같은 이유로 악명이 높습니다. 이것은 잠재적인 불쾌한? 교착 상태입니다, 왜냐하면 lock 없이 읽는 (1) 은 다른 스레드 안의 lock (3) 의 쓰기 작업으로 인해 동기화가 되지 않습니다.
+
 
 This therefore creates a race condition that covers not just the pointer itself but also the object pointed to; 
 even if a thread sees the pointer written by another thread, it might not see the newly created instance of some_resource , resulting in the call to do_something() e operating on incorrect values. 
+그러므로 이것은 교착 상태를 만들고 
 
-This is an example of the type of race condition defined as a data race by the C++ Standard and thus specified as undefined behavior. It’s is therefore quite definitely something to avoid. 
+This is an example of the type of race condition defined as a data race by the C++ Standard and thus specified as undefined behavior. 
+이는 C++ 에서 데이터 레이스로 정의되는 교착 상태의 한 타입의 예중 하나입니다. 따라서 정의되지 않은 행동으로 지정되었습니다.
+
+
+It’s is therefore quite definitely something to avoid. 
+
 
 See chapter 5 for a detailed discussion of the memory model, including what constitutes a data race.
 The C++ Standards Committee also saw that this was an important scenario, and so the C++ Standard Library provides std::once_flag and std::call_once to handle this situation. 
+챕터 5에서는 메모리 모델에 대한 상세와, 무엇이 데이터 레이스를 구성하는 가에 대해 논의합니다.
+C++ 표준 위원회 또한 이를 중요한 시나리오로 보고, 따라서 C++ 표준 라이브러리는 std::once_flag 와 std::call_once 를 제공하여 이런 상황을 조정할 수 있도록 제공합니다.
+
 
 Rather than locking a mutex and explicitly checking the pointer, every thread can just use std::call_once , safe in the knowledge that the pointer will have been initialized by some thread (in a properly synchronized fashion) by the time std::call_once returns.
+mutex 를 lokcing 하는 것 보다, 그리고 명시적으로 포인터를 검사하는 것 보다, 모든 스레드가 
+
 
 Use of std::call_once will typically have a lower overhead than using a mutex explicitly, especially when the initialization has already been done, so should be used in preference where it matches the required functionality.
 
@@ -602,25 +634,45 @@ those circumstances.
 
 ## Summary
 
-In this chapter I discussed how problematic race conditions can be disastrous when
-sharing data between threads and how to use std::mutex and careful interface design
-to avoid them. You saw that mutexes aren’t a panacea and do have their own problems
-in the form of deadlock, though the C++ Standard Library provides a tool to help
-avoid that in the form of std::lock() . You then looked at some further techniques
-for avoiding deadlock, followed by a brief look at transferring lock ownership and
-issues surrounding choosing the appropriate granularity for locking. Finally, I covered
-the alternative data-protection facilities provided for specific scenarios, such as std::
-call_once() , and boost::shared_mutex .
-One thing that I haven’t covered yet, however, is waiting for input from other
-threads. Our thread-safe stack just throws an exception if the stack is empty, so if one
-thread wanted to wait for another thread to push a value on the stack (which is, after
-		all, one of the primary uses for a thread-safe stack), it would have to repeatedly try to
-pop a value, retrying if an exception gets thrown. This consumes valuable processing
-time in performing the check, without actually making any progress; indeed, the con-
-stant checking might hamper progress by preventing the other threads in the system
-from running. What’s needed is some way for a thread to wait for another thread to
-complete a task without consuming CPU time in the process. Chapter 4 builds on the
-facilities I’ve discussed for protecting shared data and introduces the various mecha-
-nisms for synchronizing operations between threads in C++; chapter 6 shows how
-these can be used to build larger reusable data structures.
+In this chapter I discussed how problematic race conditions can be disastrous when sharing data between threads and how to use std::mutex and careful interface design to avoid them. 
+이번 챕터에서 저는 스레드 간 데이터 공유할 때 발생할 수 있는 교착 상태 문제와, std::mutex 사용법 그리고 이런 문제를 피할 인터페이스 구축을 하는 방법에 대하여 논의하였습니다.
 
+
+You saw that mutexes aren’t a panacea and do have their own problems in the form of deadlock, though the C++ Standard Library provides a tool to help avoid that in the form of std::lock() . 
+당신은 mutex 들이 만병 통치약이 아닌 것을 보았습니다. 또한 이것들이 가진 문제를 데드락 이란 형태로 보았습니다.
+그래도 C++ 표준 라이브러리가 제공하는 std::lock() 란 형태의 도구를 제공하여 이를 피하는 방법을 보여주었습니다.
+
+
+You then looked at some further techniques for avoiding deadlock, followed by a brief look at transferring lock ownership and issues surrounding choosing the appropriate granularity for locking. 
+당신은 데드락을 피하는 몇가지 테크닉인 소유권 이전과 적절한 locking 범위를 선택하는 이슈를 간략히 보았습니다.
+
+
+Finally, I covered the alternative data-protection facilities provided for specific scenarios, such as std::call_once() , and boost::shared_mutex .
+마지막으로, 저는 대안으로서 특정 상황에서 제공하는 데이터 보호 기능인 std::call_once() 와 boost::shared_mutex 와 같은 기능을을 다뤘습니다.
+
+
+One thing that I haven’t covered yet, however, is waiting for input from other threads. 
+하지만 한가지 제가 아직 다루지 않은 것은, 다른 스레드 부터의 입력을 기다리는 것 입니다.
+
+
+Our thread-safe stack just throws an exception if the stack is empty, so if one thread wanted to wait for another thread to push a value on the stack (which is, after all, one of the primary uses for a thread-safe stack), it would have to repeatedly try to pop a value, retrying if an exception gets thrown. 
+우리의 스레드 안정적인 스택은 만약 스택이 비어있다면 예외상황을 일으킬 것이고, 만약 한 스레드중 하나가 다른 스레드가 스택에 데이터를 넣기를 기다리고 있다면 ( 한 주요 유저가 스레드 세이프한 스택을 사용 ), 데이터를 반복적으로 pop 하는 것을 시도하고, 만약 에러가 발생하면 재시도를 합니다
+
+
+
+This consumes valuable processing time in performing the check, without actually making any progress; 
+이런 소비는 어떤 실제적인 작업을 진행하지 않고, 검사를 수행하는데 시간을 소비합니다.
+
+indeed, the constant checking might hamper progress by preventing the other threads in the system from running. 
+실제로, 실행중인 시스템에서 일정한 검사는 다른 스레드의 작업을 방해할 수 있습니다.
+                                                                                                                                      
+
+What’s needed is some way for a thread to wait for another thread to complete a task without consuming CPU time in the process. 
+필요한 것은 다른 스레드가 작업을 완료시킬때 CPU 의 자원 소비없이 기다리는 방법 입니다.
+
+
+Chapter 4 builds on the facilities I’ve discussed for protecting shared data and introduces the various mechanisms for synchronizing operations between threads in C++; 
+챕터 4는 공유 데이터를 보호하기 위한 기능의 생성에 대해 논의하고, C++ 에서 스레드 간의 동기화 작업에 대한 다양한 메커니즘을 소개합니다.
+
+chapter 6 shows how these can be used to build larger reusable data structures.
+챕터 6 에서는 이러한 재사용 가능한 데이터 구조를 어떻게 만드는지 보여줍니다.
