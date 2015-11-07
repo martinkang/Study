@@ -10,7 +10,7 @@ Listing 3.6 은 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std
 std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 가지고 부분적으로 보다 느립니다. std::unique_lock 인스턴스가 mutex 에 대한 소유권을 가지지 않음으로서 허용된 유연함은 비용을 유발합니다 : 이 mutex 의 소유권 정보는 저장되고, 업데이트 되어야 합니다.
 
 
-#### Listing 3.9 Using std::lock() and std::unique_lock in a swap operation
+##### Listing 3.9 Using std::lock() and std::unique_lock in a swap operation
 ```c++
 class some_big_object;
 void swap(some_big_object& lhs,some_big_object& rhs);
@@ -27,9 +27,9 @@ class X
 		{
 			if(&lhs==&rhs)
 				return;
-			std::unique_lock<std::mutex> lock_a(lhs.m,std::defer_lock);
-			std::unique_lock<std::mutex> lock_b(rhs.m,std::defer_lock);
-			std::lock(lock_a,lock_b);
+			std::unique_lock<std::mutex> lock_a(lhs.m,std::defer_lock); /* (1) */
+			std::unique_lock<std::mutex> lock_b(rhs.m,std::defer_lock); /* (1) */
+			std::lock(lock_a,lock_b); /* (2) */
 			swap(lhs.some_detail,rhs.some_detail);
 		}
 };
@@ -49,8 +49,9 @@ Listing 3.9 에서, std::unique_lock 개체는 std::lock() 에 전달될 수 있
 이 예제는 앞에서 이미 보았던 deferred locking 입니다. 
 또다른 케이스는 락에 대한 소유권이 다른 범위로 이동하는 것 입니다.
 
-### 3.2.7 Transferring mutex ownership between scopes
 
+
+### 3.2.7 Transferring mutex ownership between scopes
 
 std::unique_lock 인스턴스는 그들 자신의 mutex 를 소유할 수 없기 때문에, mutex 의 소유권은 인스턴스 사이에 이동을 통해 전달 가능합니다.
 몇몇 케이스에서 이러한 전송은 함수로부터 인스턴스의 리턴을 통해 자동적으로 전송되고, 또다른 케이스에서는 명시적으로 std::move() 함수 호출을 통해 이루어집니다.
@@ -70,11 +71,11 @@ std::unique_lock<std::mutex> get_lock()
 	extern std::mutex some_mutex;
 	std::unique_lock<std::mutex> lk(some_mutex);
 	prepare_data();
-	return lk;
+	return lk; /* (1) */
 }
 void process_data()
 {
-	std::unique_lock<std::mutex> lk(get_lock());
+	std::unique_lock<std::mutex> lk(get_lock()); /* (1) */
 	do_something();
 }
 ```
@@ -126,72 +127,103 @@ std::unique_lock 객체가 파괴되기전 lock 을 해제하는 기능은 당�
 This can be important for the performance of the application; holding a lock for longer than required can cause a drop in performance, because other threads waiting for the lock are prevented from proceeding for longer than necessary.
 이것은 애플리케이션의 퍼포먼스에 매우 중요한 요소가 됩니다. 필요 이상으로 lock 을 잡고 있으면, lock 을 대기하는 다른 스레드가 필요이상으로 오래 진행을 방해 받기 때문입니다. 
 
+
+
 ### 3.2.8 Locking at an appropriate granularity
 
 The granularity of a lock is something I touched on earlier, in section 3.2.3: the lock granularity is a hand-waving term to describe the amount of data protected by a single lock. 
-lock 의 단위
+lock 의 단위는 이전 섹션 3.2.3 말한 썸띵? 이다. : lock 의 단위는 single lock 에 의해 보호되는 데이터의 양을 설명하기 위한 hand-waving 용어입니다.
 
 A fine-grained lock protects a small amount of data, and a coarse-grained lock protects a large amount of data. 
+세밀한 lock 은 작은 양의 데이터를 보호하고, 대단위 lock 은 많은 양의 데이터를 보호합니다.
 
 
 Not only is it important to choose a sufficiently coarse lock granularity to ensure the required data is protected, but it’s also important to ensure that a lock is held only for the operations that actually require it. 
+대단위 lock 을 선택하는 것은 데이터의 보호를 보장하는 것 뿐 아니라, lock 이 실제적으로 필요한 작업만 유지마을 보장하는 것 또한 중요합니다.
 
 
 We all know the frustration of waiting in the checkout line in a supermarket with a cart full of groceries only for the person currently being served to suddenly realize that they forgot some cranberry sauce and then leave everybody waiting while they go and find some, or for the cashier to be ready for payment and the customer to only then start rummaging in their purse for their wallet.
+야채로 꽉찬 카트를 가지고 점원의 체크아웃 줄에서 기다리고 있는데, 현재 계산을 하는 하는 사람이 몇몇 크랜베리 소스를 빠뜨린 것을 깨닿고는 모두가 기다린다는 사실을 뒤로 한채 그것을 찾으로 떠나는 상황, 또는 계산원은 계산할 준비를 하고 있고 손님의 돈을 지불하기 위해 지갑을 찾기 시작하는 상황이라면 우리 모두는 좌절할 것입니다.
 
 Everything proceeds much more easily if everybody gets to the checkout with everything they want and with an appropriate means of payment ready.
+만약 모든 사람이 원하던 모든 것을 이미 준비하였고, 적절한 지불 수단을 미리 준비한 상태에서 체크아웃을 한다면 모든 작업 진행이 더 쉬워질 것 입니다.
 
 The same applies to threads: 
+이와 같은 일은 스레드에도 적용됩니다.
 
 if multiple threads are waiting for the same resource (the cashier at the checkout), then if any thread holds the lock for longer than necessary, it will increase the total time spent waiting (don’t wait until you’ve reached the checkout to start looking for the cranberry sauce). 
+만약 다중 스레드가 같은 자원을 기다리고 있다면 ( 계산하는 직원 ), 그리고 어떠한 스레드도 필요 이상으로 lock 을 하지 않는다면, 
 
 
 Where possible, lock a mutex only while actually accessing the shared data; try to do any processing of the data outside the lock. 
+가능한 방법은, 공유 데이터를 실제로 접근할때만 mutex 를 lock 하는 것입니다; 
 
 In particular, don’t do any really time-consuming activities like file I/O while holding a lock. 
+특히, 파일 I/O 와 같은 시간을 오래 지체하는 작업은 lock 을 잡고 하지 말아야 합니다.
 
 File I/O is typically hundreds (if not thousands) of times slower than reading or writing the same volume of data from memory. 
+파일 I/O 는 전형적으로 메모리에서 같은 양의 데이터를 읽거나 쓰는 것보다 수백배 ( 또는 수천 ) 느립니다.
+
 
 So unless the lock is really intended to protect access to the file, performing I/O while holding the lock will delay other threads unnecessarily (because they’ll block while waiting to acquire the lock), potentially eliminating any performance gain from the use of multiple threads.
+그렇기 때문에 만약 파일로의 접근을 막는게 정말로 의도한게 아니라면, lock 을 한 채 I/O 를 수행하는 것은 다른 스레드들을 불필요한 지연을 겪게 할 것 입니다 ( 왜냐하면 다른 스레드들은 그동안 lock 을 얻기위해 대기할 것 입니다. ), 그리고 다중 스레드로 얻을 수 있는 잠재적 가능성을 없앨 것 입니다.
 
- std::unique_lock works well in this situation, because you can call unlock() when the code no longer needs access to the shared data and then call lock() again if	access is required later in the code:
+ std::unique_lock works well in this situation, because you can call unlock() when the code no longer needs access to the shared data and then call lock() again if access is required later in the code:
+std::unique_lock 는 이런 상황에 유용합니다. 왜냐하면 코드가 더이상 공유 데이터에 접근할 필요가 없을 때 unlock 을 호출할 수 있고, 다시 접근이 필요할 때 다시 lock() 을 호출할 수 있기 때문입니다.
+
 
 ```c++
 void get_and_process_data()
 {
 	std::unique_lock<std::mutex> my_lock(the_mutex);
 	some_class data_to_process=get_next_data_chunk();
-	my_lock.unlock();
+	my_lock.unlock(); /* (1) */
 	result_type result=process(data_to_process);
-	my_lock.lock();
+	my_lock.lock(); /* (2) */
 	write_result(data_to_process,result);
 }
 ```
 
-You don’t need the mutex locked across the call to process() , so you manually unlock it before the call B and then lock it again afterward c .
+You don’t need the mutex locked across the call to process() , so you manually unlock it before the call (1) and then lock it again afterward (2) .
+당신은 process() 를 호출하기 위해 mutex 를 locked across 할 필요하 없기 때문에, 당신은 (1) 을 호출하기 전에 lock 을 수동적으로 해제해야 하고 lock 은 (2) 이후 다시 호출 될 것입니다.
 
 Hopefully it’s obvious that if you have one mutex protecting an entire data structure, not only is there likely to be more contention for the lock, but also the potential or reducing the time that the lock is held is less. 
+희망적으로 이것은 명백할 것입니다. 만약 당신이 하나의 mutex 를 가지고 전체 데이터 구조를 보호한다면, 더 많은 lock 경합 뿐만 아니라, lock 이 유지되는 시간을 줄일 가능성이 있습니다.
 
 More of the operation steps will require a lock on the same mutex, so the lock must be held longer. 
+같은 mutex 에 대한 lock 을 필요로 할 것이고, lock 은 더 오랜 시간 유지될 것입니다.
 
 This double whammy of a cost is thus also a double incentive to move toward finer-grained locking wherever possible.
-
+두배의 비용은, 두배의 
 
 As this example shows, locking at an appropriate granularity isn’t only about the amount of data locked; it’s also about how long the lock is held and what operations are performed while the lock is held. 
+예로 보였듯이, 적절한 범위의 locking 이란 데이터 양에 대한 lock 뿐 아니라, lock 의 유지 시간과, lock 유지 동안에 어떤 작업을 할 것인가 입니다.
 
 In general, a lock should be held for only the minimum possible time needed to perform the required operations. 
+일반적으로, lock 은 가능한 필요한 작업을 하는데 걸리는 최소 시간만을 유지합니다.
+
 
 This also means that time consuming operations such as acquiring another lock (even if you know it won’t deadlock) or waiting for I/O to complete shouldn’t be done while holding a lock unless absolutely necessary.
+이것을 또한 lock 이후 또 다른 lock ( 심지어 이것이 데드락에 빠지지 않는 다는 사실을 알고 있어도 ) 을 하거나, I/O 가 끝나는 것을 기다리는 것과 같은 시간을 많이 먹는 작업은 절대적으로 필요하지 않는한 해선 안된다는 뜻입니다.
+
 
 In listings 3.6 and 3.9, the operation that required locking the two mutexes was a swap operation, which obviously requires concurrent access to both objects. 
+Listing 3.6 과 3.9 에서 명백하게 각각의 객체에 대한 접근이 동시에 필요할 때 
 
 Suppose instead you were trying to compare a simple data member that was just a plain int .
+당신이 그저 int 형의 데이터 멤버를 비교하는 작업을 시도한다고 가정해 봅시다.
+
 
 Would this make a difference? int s are cheap to copy, so you could easily copy the data for each object being compared while only holding the lock for that object and then compare the copied values. 
+이것은 차이를 만들 까요? int s 는 복사 비용이 매우 적습니다, 그렇기 때문에 당신은 lock 이 유지되는 동안 
+쉽게 각각 객체에 있는 data 를 복사할 수 있
 
 This would mean that you were holding the lock on each mutex for the minimum amount of time and also that you weren’t holding one lock while locking another. 
+이것은 당신이 각각의 mutex 를 최소한의 양만큼 lock 을 유지했다는 것을 뜻하고, 또한 locking 중 다른 lock 을 하지 않았다는 것을 뜻합니다.
 
 The following listing shows a class Y for which this is the case and a sample implementation of the equality comparison operator.
+다음의 listing 에서 보여주는 것에 따르면 클래스 Y 는 이런 케이스를 보여주며, 평등 비교 연산을 하는 예를 보여줍니다.
+
 
 ####Listing 3.10 Locking one mutex at a time in a comparison operator
 ```c++
@@ -202,7 +234,7 @@ class Y
 		mutable std::mutex m;
 		int get_detail() const
 		{
-			std::lock_guard<std::mutex> lock_a(m);
+			std::lock_guard<std::mutex> lock_a(m); /* (1) */
 			return some_detail;
 		}
 	public:
@@ -211,49 +243,74 @@ class Y
 			{
 				if(&lhs==&rhs)
 					return true;
-				int const lhs_value=lhs.get_detail();
-				int const rhs_value=rhs.get_detail();
-				return lhs_value==rhs_value;
+				int const lhs_value=lhs.get_detail(); /* (2) */
+				int const rhs_value=rhs.get_detail(); /* (3) */
+				return lhs_value==rhs_value; /* (4) */
 			}
 };
 ```
-In this case, the comparison operator first retrieves the values to be compared by calling the get_detail() member function c , d . 
+In this case, the comparison operator first retrieves the values to be compared by calling the get_detail() member function (2), (3) .
+이 예제에서, 비교 연산자는 (2)와 (3) 의 멤버 함수 get_detail() 에서 비교될 값을 첫번째로 검색합니다.
 
-This function retrieves the value while protecting it with a lock B . 
 
-The comparison operator then compares the retrieved values e . 
+This function retrieves the value while protecting it with a lock (1) . 
+이 함수는 (1) 이 lock 으로 보호되는 동안에 값을 검색합니다.
+
+The comparison operator then compares the retrieved values (4).
+비교 연산자는 검색한 값들을 비교합니다. (4)
+
 
 Note, however, that as well as reducing the locking periods so that only one lock is held at a time (and thus eliminating the possibility of deadlock), this has subtly changed the semantics of the operation compared to holding both locks together. 
+하지만 locking 기간이 줄어들어 한 순간에 오직 하나의 lock 이 유지하는 만큼 ( 이것은 데드락의 가능성을 줄입니다. ), 이것은 미묘하게 ???
 
 In listing 3.10, if the operator returns true , it means that the value of lhs.some_detail at one point in time is equal to the value of rhs.some_detail at another point in time.
+listing 3.10 에서, 만약 연산자가 참을 반환하면, 이 시점에 하나의 포인트 값 lhs.some_detail 는 또다른 포인트 값rhs.some_detail 이 같다는 것을 의미합니다.
 
-The two values could have been changed in any way in between the two reads; the values could have been swapped in between c and d , for example, thus rendering the comparison meaningless. 
+The two values could have been changed in any way in between the two reads; the values could have been swapped in between (2) and (3) , for example, thus rendering the comparison meaningless. 
+이 값은 두 읽기과정 사이에서 변경되었을 수 있습니다; 
+예를 들어, 이 값은 (2)와 (3) 사이에 무의미한 비교 렌더링 사이에서 교환되었을 수 있습니다.
+
 
 The equality comparison might thus return true to indicate that the values were equal, even though there was never an instant in time when the values were actually equal. 
+동이 값들이 실제로 같은 순간이 없었음에도 불구하고 동등 연산자는 값들이 같다는 뜻인 참을 리턴할 것입니다.
 
 It’s therefore important to be careful when making such changes that the semantics of the operation are not changed in a problematic fashion: 
+이런 문제적 상황에서는 조심하는게 중요하다? 
 
 if you don’t hold the required locks for the entire duration of an operation, you’re exposing yourself to race conditions.
+만약에 전체 과정중에 필요한 순간에 lock 을 가지고 있지 않는다면, 당신은 당신 자신을 교착 상태에 빠뜨릴 것입니다.
+
 
 Sometimes, there just isn’t an appropriate level of granularity because not all accesses to the data structure require the same level of protection. 
+때때로 데이터 구조로의 모든 접근이 같은 수준의 보호를 필요하기 때문에 적절한 수준의 범위가 존재하지 않을 수 있습니다.
 
 In this case, it might be appropriate to use an alternative mechanism, instead of a plain std::mutex .
+이런 상황에서는, 일반적인 std::mutex 대신에 다른 방식을 쓰는 것이 적절할 수 있습니다.
+
 
 
 ## 3.3 Alternative facilities for protecting shared data
 
-Although they’re the most general mechanism, mutexes aren’t the only game in town
-when it comes to protecting shared data; there are alternatives that provide more
-appropriate protection in specific scenarios.
-One particularly extreme (but remarkably common) case is where the shared data
-needs protection only from concurrent access while it’s being initialized, but after that
-no explicit synchronization is required. This might be because the data is read-only
-once created, and so there are no possible synchronization issues, or it might be
-because the necessary protection is performed implicitly as part of the operations on
-the data. In either case, locking a mutex after the data has been initialized, purely in
-order to protect the initialization, is unnecessary and a needless hit to performance.
-It’s for this reason that the C++ Standard provides a mechanism purely for protecting
-shared data during initialization
+Although they’re the most general mechanism, mutexes aren’t the only game in town when it comes to protecting shared data; 
+이것들이 가장 일반적인 방식임에도 불구하고, mutex 들은 공유 데이터를 보호하는데 관한한 유일한 방법이 아닙니다.
+
+there are alternatives that provide more appropriate protection in specific scenarios.
+이런 특정한 시나리오를 적절히 보호해 줄 대안들이 존재합니다.
+
+
+One particularly extreme (but remarkably common) case is where the shared data needs protection only from concurrent access while it’s being initialized, but after that no explicit synchronization is required. 
+
+
+This might be because the data is read-only once created, and so there are no possible synchronization issues, or it might be
+because the necessary protection is performed implicitly as part of the operations on the data. 
+데이터
+
+
+In either case, locking a mutex after the data has been initialized, purely in order to protect the initialization, is unnecessary and a needless hit to performance.
+어느 경우에서도, 또 다른 케이스에선, 데이터가 초기화 된 이후의 mutex locking 은 초기화의 무결함을 보호하기 위한거고, 이
+
+
+It’s for this reason that the C++ Standard provides a mechanism purely for protecting shared data during initialization.
 
 ### 3.3.1 Protecting shared data during initialization
 Suppose you have a shared resource that’s so expensive to construct that you want to
