@@ -83,7 +83,7 @@ void process_data()
 lk 는 함수안에서 automatic 변수로 선언되었기 때문에, 이것은 std:move 없이 직접적으로 반환 가능합니다.  
 컴파일러는 move constructor 호출을 담당합니다.
 
-The process_data() function can then transfer ownership directly into its own std::unique_lock instance (2) , and the call to do_something() can rely on the data being correctly prepared without another thread altering the data in the meantime.  
+The process_data() function can then transfer ownership directly into its own std::unique_lock instance (2) , and the call to do_something() can rely on the data being correctly prepared without another thread altering the data in the meantime.    
 process_data() 함수는 std::unique_lock 인스턴스가 소유하고 있던 소유권을 직접적으로 이전시킬 수 있습니다. 
 그리고 do_somthing() 의 호출은 작업 시간 동안에 다른 스레드에 의해 데이터가 변질 없이 데이터가 준비되어야 하는 것에 의존적입니다.  
 
@@ -91,15 +91,15 @@ process_data() 함수는 std::unique_lock 인스턴스가 소유하고 있던 �
 또 다른 용법은 직접적으로 lock 을 리턴하지는 않지만 gateway 의 클래스의 데이터 멤버는 보호된 데이터로의 접근에 대한 lock 이 정확하다는 것을 보장합니다.
 이런 케이스에서, 데이터로의 모든 접근은 이런 gateway class 를 통합니다.
 
-when you wish to access the data, you obtain an instance of the gateway class (by calling a function such as get_lock() in the preceding example), which	acquires the lock.   
+when you wish to access the data, you obtain an instance of the gateway class (by calling a function such as get_lock() in the preceding example), which	acquires the lock.     
 당신이 데이터에 접근하기를 원할 때, 당신은 락을 걸 수 있는 gateway class ( 앞선 예제에서 get_lock() 과 같은 함수 ) 의 객체를 획득 합니다.
 
 
-You can then access the data through member functions of the gateway object.   
+You can then access the data through member functions of the gateway object.    
 당신은 gateway 객체의 멤버 함수를 통해 데이터에 접근할 수 있습니다.
 
 
-When you’re finished, you destroy the gateway object, which releases the lock and allows other threads to access the protected data.   
+When you’re finished, you destroy the gateway object, which releases the lock and allows other threads to access the protected data.    
 당신의 작업이 끝났을 때, 당신은 gateway 객체를 파괴하여, 락을 해제하고, 다른 스레드가 보호 데이터에 접근할 수 있도록 허용합니다.
 
 Such a gateway object may well be movable (so that it can be returned from a function), in which case the lock object data member also needs to be movable.  
@@ -131,44 +131,50 @@ This can be important for the performance of the application; holding a lock for
 
 ### 3.2.8 Locking at an appropriate granularity
 
-The granularity of a lock is something I touched on earlier, in section 3.2.3: the lock granularity is a hand-waving term to describe the amount of data protected by a single lock. 
+The granularity of a lock is something I touched on earlier, in section 3.2.3: the lock granularity is a hand-waving term to describe the amount of data protected by a single lock.   
 lock 의 단위는 이전 섹션 3.2.3 말한 썸띵? 이다. : lock 의 단위는 single lock 에 의해 보호되는 데이터의 양을 설명하기 위한 hand-waving 용어입니다.
 
-A fine-grained lock protects a small amount of data, and a coarse-grained lock protects a large amount of data. 
+A fine-grained lock protects a small amount of data, and a coarse-grained lock protects a large amount of data.   
 세밀한 lock 은 작은 양의 데이터를 보호하고, 대단위 lock 은 많은 양의 데이터를 보호합니다.
 
 
-Not only is it important to choose a sufficiently coarse lock granularity to ensure the required data is protected, but it’s also important to ensure that a lock is held only for the operations that actually require it. 
+Not only is it important to choose a sufficiently coarse lock granularity to ensure the required data is protected, but it’s also important to ensure that a lock is held only for the operations that actually require it.   
 대단위 lock 을 선택하는 것은 데이터의 보호를 보장하는 것 뿐 아니라, lock 이 실제적으로 필요한 작업만 유지마을 보장하는 것 또한 중요합니다.
 
 
-We all know the frustration of waiting in the checkout line in a supermarket with a cart full of groceries only for the person currently being served to suddenly realize that they forgot some cranberry sauce and then leave everybody waiting while they go and find some, or for the cashier to be ready for payment and the customer to only then start rummaging in their purse for their wallet.
-야채로 꽉찬 카트를 가지고 점원의 체크아웃 줄에서 기다리고 있는데, 현재 계산을 하는 하는 사람이 몇몇 크랜베리 소스를 빠뜨린 것을 깨닿고는 모두가 기다린다는 사실을 뒤로 한채 그것을 찾으로 떠나는 상황, 또는 계산원은 계산할 준비를 하고 있고 손님의 돈을 지불하기 위해 지갑을 찾기 시작하는 상황이라면 우리 모두는 좌절할 것입니다.
+We all know the frustration of waiting in the checkout line in a supermarket with a cart full of groceries only for the person currently being served to suddenly realize that they forgot some cranberry sauce and then leave everybody waiting while they go and find some,   
+야채로 꽉찬 카트를 가지고 점원의 체크아웃 줄에서 기다리고 있는데, 현재 계산을 하는 하는 사람이 몇몇 크랜베리 소스를 빠뜨린 것을 깨닿고는 모두가 기다린다는 사실을 뒤로 한채 그것을 찾으로 떠나는 상황,   
 
-Everything proceeds much more easily if everybody gets to the checkout with everything they want and with an appropriate means of payment ready.
+
+or for the cashier to be ready for payment and the customer to only then start rummaging in their purse for their wallet.    
+또는 계산원은 계산할 준비를 하고 있고 손님의 돈을 지불하기 위해 지갑을 찾기 시작하는 상황이라면 우리 모두는 좌절할 것입니다.
+
+
+Everything proceeds much more easily if everybody gets to the checkout with everything they want and with an appropriate means of payment ready.  
 만약 모든 사람이 원하던 모든 것을 이미 준비하였고, 적절한 지불 수단을 미리 준비한 상태에서 체크아웃을 한다면 모든 작업 진행이 더 쉬워질 것 입니다.
 
-The same applies to threads: 
+The same applies to threads:  
 이와 같은 일은 스레드에도 적용됩니다.
 
-if multiple threads are waiting for the same resource (the cashier at the checkout), then if any thread holds the lock for longer than necessary, it will increase the total time spent waiting (don’t wait until you’ve reached the checkout to start looking for the cranberry sauce). 
+
+if multiple threads are waiting for the same resource (the cashier at the checkout), then if any thread holds the lock for longer than necessary, it will increase the total time spent waiting (don’t wait until you’ve reached the checkout to start looking for the cranberry sauce).   
 만약 다중 스레드가 같은 자원을 기다리고 있다면 ( 계산하는 직원 ), 그리고 어떠한 스레드도 필요 이상으로 lock 을 하지 않는다면, 
 
 
-Where possible, lock a mutex only while actually accessing the shared data; try to do any processing of the data outside the lock. 
+Where possible, lock a mutex only while actually accessing the shared data; try to do any processing of the data outside the lock.  
 가능한 방법은, 공유 데이터를 실제로 접근할때만 mutex 를 lock 하는 것입니다; 
 
-In particular, don’t do any really time-consuming activities like file I/O while holding a lock. 
+In particular, don’t do any really time-consuming activities like file I/O while holding a lock.   
 특히, 파일 I/O 와 같은 시간을 오래 지체하는 작업은 lock 을 잡고 하지 말아야 합니다.
 
-File I/O is typically hundreds (if not thousands) of times slower than reading or writing the same volume of data from memory. 
+File I/O is typically hundreds (if not thousands) of times slower than reading or writing the same volume of data from memory.  
 파일 I/O 는 전형적으로 메모리에서 같은 양의 데이터를 읽거나 쓰는 것보다 수백배 ( 또는 수천 ) 느립니다.
 
 
-So unless the lock is really intended to protect access to the file, performing I/O while holding the lock will delay other threads unnecessarily (because they’ll block while waiting to acquire the lock), potentially eliminating any performance gain from the use of multiple threads.
+So unless the lock is really intended to protect access to the file, performing I/O while holding the lock will delay other threads unnecessarily (because they’ll block while waiting to acquire the lock), potentially eliminating any performance gain from the use of multiple threads.   
 그렇기 때문에 만약 파일로의 접근을 막는게 정말로 의도한게 아니라면, lock 을 한 채 I/O 를 수행하는 것은 다른 스레드들을 불필요한 지연을 겪게 할 것 입니다 ( 왜냐하면 다른 스레드들은 그동안 lock 을 얻기위해 대기할 것 입니다. ), 그리고 다중 스레드로 얻을 수 있는 잠재적 가능성을 없앨 것 입니다.
 
- std::unique_lock works well in this situation, because you can call unlock() when the code no longer needs access to the shared data and then call lock() again if access is required later in the code:
+ std::unique_lock works well in this situation, because you can call unlock() when the code no longer needs access to the shared data and then call lock() again if access is required later in the code:   
 std::unique_lock 는 이런 상황에 유용합니다. 왜냐하면 코드가 더이상 공유 데이터에 접근할 필요가 없을 때 unlock 을 호출할 수 있고, 다시 접근이 필요할 때 다시 lock() 을 호출할 수 있기 때문입니다.
 
 
@@ -184,44 +190,45 @@ void get_and_process_data()
 }
 ```
 
-You don’t need the mutex locked across the call to process() , so you manually unlock it before the call (1) and then lock it again afterward (2) .
+You don’t need the mutex locked across the call to process() , so you manually unlock it before the call (1) and then lock it again afterward (2) .  
 당신은 process() 를 호출하기 위해 mutex 를 locked across 할 필요하 없기 때문에, 당신은 (1) 을 호출하기 전에 lock 을 수동적으로 해제해야 하고 lock 은 (2) 이후 다시 호출 될 것입니다.
 
-Hopefully it’s obvious that if you have one mutex protecting an entire data structure, not only is there likely to be more contention for the lock, but also the potential or reducing the time that the lock is held is less. 
+Hopefully it’s obvious that if you have one mutex protecting an entire data structure, not only is there likely to be more contention for the lock, but also the potential or reducing the time that the lock is held is less.   
 희망적으로 이것은 명백할 것입니다. 만약 당신이 하나의 mutex 를 가지고 전체 데이터 구조를 보호한다면, 더 많은 lock 경합 뿐만 아니라, lock 이 유지되는 시간을 줄일 가능성이 있습니다.
 
-More of the operation steps will require a lock on the same mutex, so the lock must be held longer. 
+More of the operation steps will require a lock on the same mutex, so the lock must be held longer.   
 같은 mutex 에 대한 lock 을 필요로 할 것이고, lock 은 더 오랜 시간 유지될 것입니다.
 
-This double whammy of a cost is thus also a double incentive to move toward finer-grained locking wherever possible.
+This double whammy of a cost is thus also a double incentive to move toward finer-grained locking wherever possible.  
 두배의 비용은, 두배의 
 
-As this example shows, locking at an appropriate granularity isn’t only about the amount of data locked; it’s also about how long the lock is held and what operations are performed while the lock is held. 
+As this example shows, locking at an appropriate granularity isn’t only about the amount of data locked; it’s also about how long the lock is held and what operations are performed while the lock is held.   
 예로 보였듯이, 적절한 범위의 locking 이란 데이터 양에 대한 lock 뿐 아니라, lock 의 유지 시간과, lock 유지 동안에 어떤 작업을 할 것인가 입니다.
 
-In general, a lock should be held for only the minimum possible time needed to perform the required operations. 
+In general, a lock should be held for only the minimum possible time needed to perform the required operations.   
 일반적으로, lock 은 가능한 필요한 작업을 하는데 걸리는 최소 시간만을 유지합니다.
 
 
-This also means that time consuming operations such as acquiring another lock (even if you know it won’t deadlock) or waiting for I/O to complete shouldn’t be done while holding a lock unless absolutely necessary.
-이것을 또한 lock 이후 또 다른 lock ( 심지어 이것이 데드락에 빠지지 않는 다는 사실을 알고 있어도 ) 을 하거나, I/O 가 끝나는 것을 기다리는 것과 같은 시간을 많이 먹는 작업은 절대적으로 필요하지 않는한 해선 안된다는 뜻입니다.
+This also means that time consuming operations such as acquiring another lock (even if you know it won’t deadlock) or waiting for I/O to complete shouldn’t be done while holding a lock unless absolutely necessary.  
+이것을 또한 lock 이후 또 다른 lock ( 심지어 이것이 데드락에 빠지지 않는 다는 사실을 알고 있어도 ) 을 하거나, I/O 가 끝나는 것을 기다리는 것과 같은 시간을 많이 먹는 작업은 절대적으로 필요하지 않는한 해선 안된다는 뜻입니다. 
 
 
-In listings 3.6 and 3.9, the operation that required locking the two mutexes was a swap operation, which obviously requires concurrent access to both objects. 
-Listing 3.6 과 3.9 에서 명백하게 각각의 객체에 대한 접근이 동시에 필요할 때 
+In listings 3.6 and 3.9, the operation that required locking the two mutexes was a swap operation, which obviously requires concurrent access to both objects.      
+Listing 3.6 과 3.9 에서 교환 연산은 두개의 mutex 들에 대한 locking 을 필요로 합니다.   
+명백하게 각각의 객체에 대한 접근이 동시에 필요할 한  ??
 
-Suppose instead you were trying to compare a simple data member that was just a plain int .
+Suppose instead you were trying to compare a simple data member that was just a plain int .    
 당신이 그저 int 형의 데이터 멤버를 비교하는 작업을 시도한다고 가정해 봅시다.
 
 
-Would this make a difference? int s are cheap to copy, so you could easily copy the data for each object being compared while only holding the lock for that object and then compare the copied values. 
+Would this make a difference? int s are cheap to copy, so you could easily copy the data for each object being compared while only holding the lock for that object and then compare the copied values.   
 이것은 차이를 만들 까요? int s 는 복사 비용이 매우 적습니다, 그렇기 때문에 당신은 lock 이 유지되는 동안 
 쉽게 각각 객체에 있는 data 를 복사할 수 있
 
-This would mean that you were holding the lock on each mutex for the minimum amount of time and also that you weren’t holding one lock while locking another. 
+This would mean that you were holding the lock on each mutex for the minimum amount of time and also that you weren’t holding one lock while locking another.   
 이것은 당신이 각각의 mutex 를 최소한의 양만큼 lock 을 유지했다는 것을 뜻하고, 또한 locking 중 다른 lock 을 하지 않았다는 것을 뜻합니다.
 
-The following listing shows a class Y for which this is the case and a sample implementation of the equality comparison operator.
+The following listing shows a class Y for which this is the case and a sample implementation of the equality comparison operator.  
 다음의 listing 에서 보여주는 것에 따르면 클래스 Y 는 이런 케이스를 보여주며, 평등 비교 연산을 하는 예를 보여줍니다.
 
 
@@ -249,81 +256,80 @@ class Y
 			}
 };
 ```
-In this case, the comparison operator first retrieves the values to be compared by calling the get_detail() member function (2), (3) .
+In this case, the comparison operator first retrieves the values to be compared by calling the get_detail() member function (2), (3) .  
 이 예제에서, 비교 연산자는 (2)와 (3) 의 멤버 함수 get_detail() 에서 비교될 값을 첫번째로 검색합니다.
 
 
-This function retrieves the value while protecting it with a lock (1) . 
-이 함수는 (1) 이 lock 으로 보호되는 동안에 값을 검색합니다.
+This function retrieves the value while protecting it with a lock (1) .  
+이 함수는 (1) 이 lock 으로 보호되는 동안에 값을 검색합니다. 
 
-The comparison operator then compares the retrieved values (4).
+The comparison operator then compares the retrieved values (4).  
 비교 연산자는 검색한 값들을 비교합니다. (4)
 
 
-Note, however, that as well as reducing the locking periods so that only one lock is held at a time (and thus eliminating the possibility of deadlock), this has subtly changed the semantics of the operation compared to holding both locks together. 
+Note, however, that as well as reducing the locking periods so that only one lock is held at a time (and thus eliminating the possibility of deadlock), this has subtly changed the semantics of the operation compared to holding both locks together.   
 하지만 locking 기간이 줄어들어 한 순간에 오직 하나의 lock 이 유지하는 만큼 ( 이것은 데드락의 가능성을 줄입니다. ), 이것은 미묘하게 ???
 
-In listing 3.10, if the operator returns true , it means that the value of lhs.some_detail at one point in time is equal to the value of rhs.some_detail at another point in time.
+In listing 3.10, if the operator returns true , it means that the value of lhs.some_detail at one point in time is equal to the value of rhs.some_detail at another point in time.  
 listing 3.10 에서, 만약 연산자가 참을 반환하면, 이 시점에 하나의 포인트 값 lhs.some_detail 는 또다른 포인트 값rhs.some_detail 이 같다는 것을 의미합니다.
 
-The two values could have been changed in any way in between the two reads; the values could have been swapped in between (2) and (3) , for example, thus rendering the comparison meaningless. 
+The two values could have been changed in any way in between the two reads; the values could have been swapped in between (2) and (3) , for example, thus rendering the comparison meaningless.   
 이 값은 두 읽기과정 사이에서 변경되었을 수 있습니다; 
 예를 들어, 이 값은 (2)와 (3) 사이에 무의미한 비교 렌더링 사이에서 교환되었을 수 있습니다.
 
 
-The equality comparison might thus return true to indicate that the values were equal, even though there was never an instant in time when the values were actually equal. 
+The equality comparison might thus return true to indicate that the values were equal, even though there was never an instant in time when the values were actually equal.  
 동이 값들이 실제로 같은 순간이 없었음에도 불구하고 동등 연산자는 값들이 같다는 뜻인 참을 리턴할 것입니다.
 
-It’s therefore important to be careful when making such changes that the semantics of the operation are not changed in a problematic fashion: 
+It’s therefore important to be careful when making such changes that the semantics of the operation are not changed in a problematic fashion:   
 이런 문제적 상황에서는 조심하는게 중요하다? 
 
-if you don’t hold the required locks for the entire duration of an operation, you’re exposing yourself to race conditions.
+if you don’t hold the required locks for the entire duration of an operation, you’re exposing yourself to race conditions.  
 만약에 전체 과정중에 필요한 순간에 lock 을 가지고 있지 않는다면, 당신은 당신 자신을 교착 상태에 빠뜨릴 것입니다.
 
 
-Sometimes, there just isn’t an appropriate level of granularity because not all accesses to the data structure require the same level of protection. 
+Sometimes, there just isn’t an appropriate level of granularity because not all accesses to the data structure require the same level of protection.   
 때때로 데이터 구조로의 모든 접근이 같은 수준의 보호를 필요하기 때문에 적절한 수준의 범위가 존재하지 않을 수 있습니다.
 
-In this case, it might be appropriate to use an alternative mechanism, instead of a plain std::mutex .
+In this case, it might be appropriate to use an alternative mechanism, instead of a plain std::mutex .  
 이런 상황에서는, 일반적인 std::mutex 대신에 다른 방식을 쓰는 것이 적절할 수 있습니다.
 
 
 
 ## 3.3 Alternative facilities for protecting shared data
 
-Although they’re the most general mechanism, mutexes aren’t the only game in town when it comes to protecting shared data; 
+Although they’re the most general mechanism, mutexes aren’t the only game in town when it comes to protecting shared data;  
 이것들이 가장 일반적인 방식임에도 불구하고, mutex 들은 공유 데이터를 보호하는데 관한한 유일한 방법이 아닙니다.
 
-there are alternatives that provide more appropriate protection in specific scenarios.
+there are alternatives that provide more appropriate protection in specific scenarios.  
 이런 특정한 시나리오를 적절히 보호해 줄 대안들이 존재합니다.
 
 
-One particularly extreme (but remarkably common) case is where the shared data needs protection only from concurrent access while it’s being initialized, but after that no explicit synchronization is required. 
+One particularly extreme (but remarkably common) case is where the shared data needs protection only from concurrent access while it’s being initialized, but after that no explicit synchronization is required.   
 극단적인 하나의 케이스는 ( 하지만 현저하게 일반적인  ) 공유 데이터가 오로지 초기화 과정에서 동시 접근할때만 보호가 필요합니다.
 하지만 이후 명시적인 동기화는 필요하지 않습니다.
 
-This might be because the data is read-only once created, and so there are no possible synchronization issues, or it might be
-because the necessary protection is performed implicitly as part of the operations on the data. 
+This might be because the data is read-only once created, and so there are no possible synchronization issues, or it might be because the necessary protection is performed implicitly as part of the operations on the data.   
 이것은 데이터가 생성시 읽기 전용이기 때문입니다, 그리고 동기화 이슈에 관한 가능성이 전혀 없고, 
 
 
-In either case, locking a mutex after the data has been initialized, purely in order to protect the initialization, is unnecessary and a needless hit to performance.
+In either case, locking a mutex after the data has been initialized, purely in order to protect the initialization, is unnecessary and a needless hit to performance.  
 어느 경우에나, 초기화를 온전히 보호하기 위해 데이터를 초기화 한 후에 mutex locking 하면, 이것은 불필요 하고, 필요없는 성능 히트? 이다.
 
 
-It’s for this reason that the C++ Standard provides a mechanism purely for protecting shared data during initialization.
+It’s for this reason that the C++ Standard provides a mechanism purely for protecting shared data during initialization.  
 C++ 표준이 초기화 중 공유 데이터를 보호하기 위한 메커니즘을 제공하는 이유이다.
 
 ### 3.3.1 Protecting shared data during initialization
 
-Suppose you have a shared resource that’s so expensive to construct that you want to do so only if it’s actually required; 
+Suppose you have a shared resource that’s so expensive to construct that you want to do so only if it’s actually required;   
 당신에게 생성 비용이 비싸지만 정말 실제로 필요한 공유 자원이 있다고 가정해 봅니다. ??
 
-maybe it opens a database connection or allocates a lot of memory. 
+maybe it opens a database connection or allocates a lot of memory.   
 아마 이것은 데이터 베이스에 연결하거나 메모리의 많은 부분을 할당합니다.
 
 
-Lazy initialization such as this is common in single-threaded code each operation that requires the resource first checks to see if it has been initialized and then initializes it before use if not:
+Lazy initialization such as this is common in single-threaded code each operation that requires the resource first checks to see if it has been initialized and then initializes it before use if not:   
 이러한 Lazy 초기화는 싱글 스레드 코드와 공통적입니다. 이는 각 연산에서 필요로 하는 자원이 있을때 이 자원이 초기화 됬는지 검사를 하고, 이것이 사용되기 전에 초기화 합니다.
 
 
@@ -339,14 +345,14 @@ void foo()
 }
 ```
 
-If the shared resource itself is safe for concurrent access, the only part that needs protecting when converting this to multithreaded code is the initialization (1) , 
+If the shared resource itself is safe for concurrent access, the only part that needs protecting when converting this to multithreaded code is the initialization (1) ,  
 만약 공유 자원이 동시 접근에서 안전하다면, 이 코드를 멀티스레드 코드로 변경할 때 보호가 필요한 부분은 오직 초기화 부분 (1) 입니다. 
    
-but a naïve translation such as that in the following listing can cause unnecessary serialization of threads using the resource. 
+but a naïve translation such as that in the following listing can cause unnecessary serialization of threads using the resource.   
 하지만 다음에 나오는 listing 과 같은 순수번역? 은 자원을 이용하는?? 불필요한 스레드 직렬화를 야기 시킬 수 있습니다.
 
 
-This is because each thread must wait on the mutex in order to check whether the resource has already been initialized.
+This is because each thread must wait on the mutex in order to check whether the resource has already been initialized.  
 이것이 스레드가 mutex 를 기다리는 이유입니다. 이는 리소스가 이미 초기화 됬는지 여부를 체크합니다.
 
 
@@ -366,15 +372,15 @@ void foo()
 }
 ```
 
-This code is common enough, and the unnecessary serialization problematic enough, that many people have tried to come up with a better way of doing this, including the infamous Double-Checked Locking pattern: 
+This code is common enough, and the unnecessary serialization problematic enough, that many people have tried to come up with a better way of doing this, including the infamous Double-Checked Locking pattern:   
 이코드는 충분히 일반적인 불필요한 직렬화 문제입니다. 이는 많은 사람들이 더 나은 방법을 위해 노력하는, locking 패턴을 두번씩 검사하게 하는 악명 높은 문제입니다.
 
 
-the pointer is first read without acquiring the lock (1) (in the code below), and the lock is acquired only if the pointer is NULL .
+the pointer is first read without acquiring the lock (1) (in the code below), and the lock is acquired only if the pointer is NULL .  
 포인터는 (1) 에서 우선 lock 획득 없이 읽고 ( 아래 코드 ), 그리고 포인터가 NULL 일 경우만 lock 을 획득합니다.
 
 
-The pointer is then checked again once the lock has been acquired (2) (hence the double checked part) in case another thread has done the initialization between the first check and this thread acquiring the lock:
+The pointer is then checked again once the lock has been acquired (2) (hence the double checked part) in case another thread has done the initialization between the first check and this thread acquiring the lock:   
 포인터는 lock 을 획득하기 전에 (2) 에서 다시 체크 합니다. ( 두번 체크 하는 부분입니다. ) 이 케이스에서 다른 스레드는 첫번째 체크와 이 스레드가 lock 을 획득하는 사이에 초기화를 마칩니다.
 
 
@@ -393,42 +399,49 @@ void undefined_behaviour_with_double_checked_locking()
 }
 ```
 
-Unfortunately, this pattern is infamous for a reason: it has the potential for nasty race conditions, because the read outside the lock (1) isn’t synchronized with the write done by another thread inside the lock (3) . 
+Unfortunately, this pattern is infamous for a reason: it has the potential for nasty race conditions, because the read outside the lock (1) isn’t synchronized with the write done by another thread inside the lock (3) .   
 불행히도, 이런 패턴은 다음과 같은 이유로 악명이 높습니다. 이것은 잠재적인 불쾌한? 교착 상태입니다, 왜냐하면 lock 없이 읽는 (1) 은 다른 스레드 안의 lock (3) 의 쓰기 작업으로 인해 동기화가 되지 않습니다.
 
 
-This therefore creates a race condition that covers not just the pointer itself but also the object pointed to; 
-even if a thread sees the pointer written by another thread, it might not see the newly created instance of some_resource , resulting in the call to do_something() e operating on incorrect values. 
+This therefore creates a race condition that covers not just the pointer itself but also the object pointed to;   
+even if a thread sees the pointer written by another thread, it might not see the newly created instance of some_resource , resulting in the call to do_something() e operating on incorrect values.   
 그러므로 이것은 교착 상태를 만들고 
 
-This is an example of the type of race condition defined as a data race by the C++ Standard and thus specified as undefined behavior. 
+
+
+This is an example of the type of race condition defined as a data race by the C++ Standard and thus specified as undefined behavior.  
 이는 C++ 에서 데이터 레이스로 정의되는 교착 상태의 한 타입의 예중 하나입니다. 따라서 정의되지 않은 행동으로 지정되었습니다.
 
 
-It’s is therefore quite definitely something to avoid. 
+It’s is therefore quite definitely something to avoid.   
 
 
-See chapter 5 for a detailed discussion of the memory model, including what constitutes a data race.
-The C++ Standards Committee also saw that this was an important scenario, and so the C++ Standard Library provides std::once_flag and std::call_once to handle this situation. 
+See chapter 5 for a detailed discussion of the memory model, including what constitutes a data race.  
 챕터 5에서는 메모리 모델에 대한 상세와, 무엇이 데이터 레이스를 구성하는 가에 대해 논의합니다.
+
+The C++ Standards Committee also saw that this was an important scenario, and so the C++ Standard Library provides std::once_flag and std::call_once to handle this situation.   
 C++ 표준 위원회 또한 이를 중요한 시나리오로 보고, 따라서 C++ 표준 라이브러리는 std::once_flag 와 std::call_once 를 제공하여 이런 상황을 조정할 수 있도록 제공합니다.
 
 
-Rather than locking a mutex and explicitly checking the pointer, every thread can just use std::call_once , safe in the knowledge that the pointer will have been initialized by some thread (in a properly synchronized fashion) by the time std::call_once returns.
-mutex 를 lokcing 하는 것 보다, 그리고 명시적으로 포인터를 검사하는 것 보다, 모든 스레드가 
+Rather than locking a mutex and explicitly checking the pointer, every thread can just use std::call_once , safe in the knowledge that the pointer will have been initialized by some thread (in a properly synchronized fashion) by the time std::call_once returns.  
+mutex 를 lokcing 하는 것 보다, 그리고 명시적으로 포인터를 검사하는 것 보다, 모든 스레드가 std::call_once 를 사용ㅎ는 것만으로도, 포인터가 몇몇 스레드에 의해 초기화가 될 것임을 ( 적절한 동기화 아래 )  ????
 
 
-Use of std::call_once will typically have a lower overhead than using a mutex explicitly, especially when the initialization has already been done, so should be used in preference where it matches the required functionality.
+Use of std::call_once will typically have a lower overhead than using a mutex explicitly, especially when the initialization has already been done, so should be used in preference where it matches the required functionality.  
+std::call_once 의 사용은 전형적으로 명시적인 mutex 의 사용보다 오버헤드가 적고, 특히 초기화가 이미 끝나 우선 함수적으로 매치가 필요할 때 ???
 
- The following example shows the same operation as listing 3.11, rewritten to use std::call_once . 
+The following example shows the same operation as listing 3.11, rewritten to use std::call_once .   
+다음의 예는 listing 3.11 과 같은 작업을 하지만, std::call_cone 를 이용하여 다시 쓰였습니다.
+
+In this case, the initialization is done by calling a function, but it could just as easily have been done with an instance of a class with a function call operator.   
+이런 케이스에서, 초기화는 함수의 호출로 인해 끝났지만, 호출자 함수의 클래스 인스턴스 ??
  
- In this case, the initialization is done by calling a function, but it could just as easily have been done with an instance of a class with a function call operator. 
- 
- Like most of the functions in the standard library that take functions or predicates as arguments, std::call_once works with any function or callable object.
+Like most of the functions in the standard library that take functions or predicates as arguments, std::call_once works with any function or callable object.  
+인수로 함수나 조건을 받는 표준 라이브러리의 대부분 함수들과 마찬가지로, std::call_once 는 어떠한 함수나 호출 가능한 객체?? 없이 수행합니다.
 
 ```c++
 std::shared_ptr<some_resource> resource_ptr;
-std::once_flag resource_flag;
+std::once_flag resource_flag; /* (1) */
 void init_resource()
 {
 	resource_ptr.reset(new some_resource);
@@ -440,9 +453,9 @@ void foo()
 }
 ```
 
-In this example, both the std::once_flag B and data being initialized are
-namespace-scope objects, but std::call_once() can just as easily be used for lazy ini-
-tialization of class members, as in the following listing.
+In this example, both the std::once_flag (1) and data being initialized are namespace-scope objects, but std::call_once() can just as easily be used for lazy initialization of class members, as in the following listing.  
+이 예제에서, 초기화 되는 std::once_flag (1) 과 데이터는 네임스페이스 범위 영역 객체입니다, 하지만 std::call_once 는 다음의 listing 에서와 같이 lazy 초기화 클래스 멤버로서 쉽게 쓸 수 있습니다.
+
 
 ####Listing 3.12 Thread-safe lazy initialization of a class member using std::call_once
 ```c++
@@ -460,111 +473,156 @@ class X
 		X(connection_info const& connection_details_):
 			connection_details(connection_details_)
 	{}
-		void send_data(data_packet const& data)
+		void send_data(data_packet const& data) /* (1) */
 		{
-			std::call_once(connection_init_flag,&X::open_connection,this);
+			std::call_once(connection_init_flag,&X::open_connection,this); /* (2) */
 			connection.send_data(data);
 		}
-		data_packet receive_data()
+		data_packet receive_data() /* (3) */
 		{
-			std::call_once(connection_init_flag,&X::open_connection,this);
+			std::call_once(connection_init_flag,&X::open_connection,this); /* (4) */
 			return connection.receive_data();
 		}
 };
 ```
 
-In that example, the initialization is done either by the first call to send_data() B
-or by the first call to receive_data() d . The use of the member function open_
-connection() to initialize the data also requires that the this pointer be passed in.
-Just as for other functions in the Standard Library that accept callable objects, such as
-the constructor for std::thread and std::bind() , this is done by passing an addi-
-tional argument to std::call_once() c .
+In that example, the initialization is done either by the first call to send_data() (1) or by the first call to receive_data() (3) .   
+이 예제에서, 초기화는 (1) send_data() 의 첫 호출 또는 (3) receive_data() 의 첫 호출 때 이루어 집니다.
 
-It’s worth noting that, like std::mutex , std::once_flag instances can’t be copied
-or moved, so if you use them as a class member like this, you’ll have to explicitly
-define these special member functions should you require them.
 
-One scenario where there’s a potential race condition over initialization is that of a
-local variable declared with static . 
+The use of the member function open_connection() to initialize the data also requires that the this pointer be passed in.  
+데이터 초기화를 위한 멤버 함수 open_connection() 의 사용은 패스드 인 된 포인터를 필요로 합니다 ??
 
-The initialization of such a variable is defined to
-occur the first time control passes through its declaration; for multiple threads calling
-the function, this means there’s the potential for a race condition to define first. 
+Just as for other functions in the Standard Library that accept callable objects, such as the constructor for std::thread and std::bind() ,   
+표준 라이브러리에서 std::thread 나 std::bind() 의 생성자와 같은 호출가능한 객체의 접근 하는 다른 함수와 같이 ??
 
-On many pre-C++11 compilers this race condition is problematic in practice, because
-multiple threads may believe they’re first and try to initialize the variable, or threads
-may try to use it after initialization has started on another thread but before it’s fin-
-ished. In C++11 this problem is solved: the initialization is defined to happen on
-exactly one thread, and no other threads will proceed until that initialization is com-
-plete, so the race condition is just over which thread gets to do the initialization rather
-than anything more problematic. 
+	 
+this is done by passing an additional argument to std::call_once() (2) .  
+이것은 (2) std::call_once() 에 추가적인 인자를 전달함으로서 이루어집니다.
 
-This can be used as an alternative to std::call_once for those cases where a single global instance is required:
+
+It’s worth noting that, like std::mutex , std::once_flag instances can’t be copied or moved,   
+이것은 말할필요도 없이 std::mutex 처럼 std::once_flage 인스턴스는 복사할수도 이동할수도 없습니다.
+
+so if you use them as a class member like this, you’ll have to explicitly define these special member functions should you require them.  
+그렇기 때문에 당신이 이처럼 클래스 멤버로 사용한다면, 당신은 명시적으로 이러한 특별한 멤버 함수가 필요하다는 것을 정의해야 합니다?
+
+
+One scenario where there’s a potential race condition over initialization is that of a local variable declared with static .   
+초기화 상황에서의 잠재적 교착 상태에 대한 시나리오는 정적으로 지역 변수를 선언하는 것 입니다.
+
+
+The initialization of such a variable is defined to occur the first time control passes through its declaration;   
+이러한 변수의 초기화는 처음 선언때 제어가 발생하도록 정의되어 있습니다. ??
+
+for multiple threads calling the function, this means there’s the potential for a race condition to define first.   
+함수에서 멀티 스레드를 부르기 위해서, ??
+
+On many pre-C++11 compilers this race condition is problematic in practice, because multiple threads may believe they’re first and try to initialize the variable, or threads may try to use it after initialization has started on another thread but before it’s finished.    
+멀티 스레드는 자신들이 처음으로 변수를 초기화 하고 있다고 믿고 있거나, 다른 스레드가 초기화가 미쳐 끝마치기 이전에 이 것을 사용하려고 합니다. 따라서 이런 교착 상태는 많은 C++11 이전의 컴파일러들에게 실질적 문제입니다.
+
+   
+In C++11 this problem is solved: the initialization is defined to happen on exactly one thread, and no other threads will proceed until that initialization is complete,   
+C++11 에서 이런 문제가 해결되었습니다. : 초기화는 정확히 한 스레드에서 일어나도록 정의하고, 다른 어떤 스레드도 초기화가 마치기 전까지 진행하지 안습니다.
+   
+
+so the race condition is just over which thread gets to do the initialization rather than anything more problematic.   
+그렇기 때문에 이런 초기화에서의 교착 상태는 어떤 문제도 되지 않습니다. ??
+
+
+This can be used as an alternative to std::call_once for those cases where a single global instance is required:  
+이것은 단일 전역 인스턴스가 필요로 하는 std::call_once 의 대안으로 사용 가능합니다.  ???? 
+
 
 ```c++
 class my_class;
 my_class& get_my_class_instance()
 {
-	static my_class instance;
+	static my_class instance; (1)
 	return instance;
 }
 ```
 
-Multiple threads can then call get_my_class_instance() safely B , without having to
-worry about race conditions on the initialization.
-Protecting data only for initialization is a special case of a more general scenario:
-that of a rarely updated data structure. For most of the time, such a data structure is
+Multiple threads can then call get_my_class_instance() safely (1) , without having to worry about race conditions on the initialization.  
+멀티 스레드는 초기화 과정에서의 교착 상태에 대한 어떠한 걱정없이 (1) get_my_class_instance() 를 안전하게 호출할 수 있습니다.
 
-read-only and can therefore be merrily read by multiple threads concurrently, but on
-occasion the data structure may need updating. What’s needed here is a protection
-mechanism that acknowledges this fact.
+
+Protecting data only for initialization is a special case of a more general scenario:  
+초기화 과정에서만의 데이터 보호는 좀더 일반적인 시나리오에서의 특별한 케이스입니다. ??
+
+
+that of a rarely updated data structure. For most of the time, such a data structure is read-only and can therefore be merrily read by multiple threads concurrently, 
+	 
+	 
+but on occasion the data structure may need updating. What’s needed here is a protection mechanism that acknowledges this fact.
+
 
 ### 3.3.2 Protecting rarely updated data structures
 
-Consider a table used to store a cache of DNS entries for resolving domain names to
-their corresponding IP addresses. Typically, a given DNS entry will remain unchanged
-for a long period of time—in many cases DNS entries remain unchanged for years.
-Although new entries may be added to the table from time to time as users access dif-
-ferent websites, this data will therefore remain largely unchanged throughout its life.
-It’s important that the validity of the cached entries be checked periodically, but this
-still requires an update only if the details have actually changed.
-Although updates are rare, they can still happen, and if this cache is to be accessed
-from multiple threads, it will need to be appropriately protected during updates to
-ensure that none of the threads reading the cache see a broken data structure.
-In the absence of a special-purpose data structure that exactly fits the desired
-usage and that’s specially designed for concurrent updates and reads (such as those in
-		chapters 6 and 7), such an update requires that the thread doing the update have
-exclusive access to the data structure until it has completed the operation. Once the
-change is complete, the data structure is again safe for multiple threads to access con-
-currently. Using a std::mutex to protect the data structure is therefore overly pessi-
-mistic, because it will eliminate the possible concurrency in reading the data structure
-when it isn’t undergoing modification; what’s needed is a different kind of mutex.
-This new kind of mutex is typically called a reader-writer mutex, because it allows for
-two different kinds of usage: exclusive access by a single “writer” thread or shared,
-	concurrent access by multiple “reader” threads.
-	The new C++ Standard Library doesn’t provide such a mutex out of the box,
-	although one was proposed to the Standards Committee. 3 Because the proposal
-	wasn’t accepted, the examples in this section use the implementation provided by the
-	Boost library, which is based on the proposal. As you’ll see in chapter 8, the use of
-	such a mutex isn’t a panacea, and the performance is dependent on the number of
-	processors involved and the relative workloads of the reader and updater threads. It’s
-	therefore important to profile the performance of the code on the target system to
-	ensure that there’s actually a benefit to the additional complexity.
-	Rather than using an instance of std::mutex for the synchronization, you use an
-	instance of boost::shared_mutex . For the update operations, std::lock_guard
-	<boost::shared_mutex> and std::unique_lock<boost::shared_mutex> can be used
-	for the locking, in place of the corresponding std::mutex specializations. These
-	ensure exclusive access, just as with std::mutex . Those threads that don’t need to
-	update the data structure can instead use boost::shared_lock<boost::shared_mutex>
+Consider a table used to store a cache of DNS entries for resolving domain names to their corresponding IP addresses. 
 
-	to obtain shared access. This is used just the same as std::unique_lock , except that
-	multiple threads may have a shared lock on the same boost::shared_mutex at the
-	same time. The only constraint is that if any thread has a shared lock, a thread that
-	tries to acquire an exclusive lock will block until all other threads have relinquished
-	their locks, and likewise if any thread has an exclusive lock, no other thread may
-	acquire a shared or exclusive lock until the first thread has relinquished its lock.
-	The following listing shows a simple DNS cache like the one just described, using a
-	std::map to hold the cached data, protected using a boost::shared_mutex .
+
+Typically, a given DNS entry will remain unchanged for a long period of time—in many cases DNS entries remain unchanged for years.
+
+
+Although new entries may be added to the table from time to time as users access different websites, this data will therefore remain largely unchanged throughout its life.
+
+
+It’s important that the validity of the cached entries be checked periodically, but this still requires an update only if the details have actually changed.
+
+
+Although updates are rare, they can still happen, and if this cache is to be accessed from multiple threads, it will need to be appropriately protected during updates to ensure that none of the threads reading the cache see a broken data structure.
+
+
+In the absence of a special-purpose data structure that exactly fits the desired usage and that’s specially designed for concurrent updates and reads (such as those in chapters 6 and 7),
+   
+
+such an update requires that the thread doing the update have exclusive access to the data structure until it has completed the operation. 
+
+
+
+Once the change is complete, the data structure is again safe for multiple threads to access concurrently. 
+
+
+Using a std::mutex to protect the data structure is therefore overly pessimistic, because it will eliminate the possible concurrency in reading the data structure when it isn’t undergoing modification; what’s needed is a different kind of mutex.
+
+
+
+This new kind of mutex is typically called a reader-writer mutex, because it allows for two different kinds of usage: exclusive access by a single “writer” thread or shared, concurrent access by multiple “reader” threads.
+
+
+The new C++ Standard Library doesn’t provide such a mutex out of the box, although one was proposed to the Standards Committee. 
+
+
+Because the proposal wasn’t accepted, the examples in this section use the implementation provided by the Boost library, which is based on the proposal. 
+
+
+As you’ll see in chapter 8, the use of such a mutex isn’t a panacea, and the performance is dependent on the number of processors involved and the relative workloads of the reader and updater threads. 
+
+
+It’s therefore important to profile the performance of the code on the target system to ensure that there’s actually a benefit to the additional complexity.
+
+
+Rather than using an instance of std::mutex for the synchronization, you use an	instance of boost::shared_mutex . 
+
+
+For the update operations, std::lock_guard <boost::shared_mutex> and std::unique_lock<boost::shared_mutex> can be used for the locking, in place of the corresponding std::mutex specializations. 
+
+
+These ensure exclusive access, just as with std::mutex . 
+
+
+Those threads that don’t need to update the data structure can instead use boost::shared_lock<boost::shared_mutex>	to obtain shared access. 
+
+
+This is used just the same as std::unique_lock , except that multiple threads may have a shared lock on the same boost::shared_mutex at the same time. 
+
+
+The only constraint is that if any thread has a shared lock, a thread that tries to acquire an exclusive lock will block until all other threads have relinquished their locks, and likewise if any thread has an exclusive lock, no other thread may acquire a shared or exclusive lock until the first thread has relinquished its lock.
+
+
+The following listing shows a simple DNS cache like the one just described, using a	std::map to hold the cached data, protected using a boost::shared_mutex .
+
 
 ####Listing 3.13 Protecting a data structure with a boost::shared_mutex
 ```c++
@@ -578,10 +636,10 @@ class dns_cache
 {
 	std::map<std::string,dns_entry> entries;
 	mutable boost::shared_mutex entry_mutex;
-	public:
+public:
 	dns_entry find_entry(std::string const& domain) const
 	{
-		boost::shared_lock<boost::shared_mutex> lk(entry_mutex);
+		boost::shared_lock<boost::shared_mutex> lk(entry_mutex); /* (1) */
 		std::map<std::string,dns_entry>::const_iterator const it=
 			entries.find(domain);
 		return (it==entries.end())?dns_entry():it->second;
@@ -589,90 +647,112 @@ class dns_cache
 	void update_or_add_entry(std::string const& domain,
 			dns_entry const& dns_details)
 	{
-		std::lock_guard<boost::shared_mutex> lk(entry_mutex);
+		std::lock_guard<boost::shared_mutex> lk(entry_mutex); /* (1) */
 		entries[domain]=dns_details;
 	}
 };
 ```
-In listing 3.13, find_entry() uses an instance of boost::shared_lock<> to protect it
-for shared, read-only access B ; multiple threads can therefore call find_entry()
-simultaneously without problems. On the other hand, update_or_add_entry() uses
-an instance of std::lock_guard<> to provide exclusive access while the table is
-updated c ; not only are other threads prevented from doing updates in a call update_
-or_add_entry() , but threads that call find_entry() are blocked too.
+In listing 3.13, find_entry() uses an instance of boost::shared_lock<> to protect it for shared, read-only access (1) ; 
+
+
+multiple threads can therefore call find_entry() simultaneously without problems. 
+
+
+On the other hand, update_or_add_entry() uses an instance of std::lock_guard<> to provide exclusive access while the table is updated (2) ; 
+
+
+not only are other threads prevented from doing updates in a call update_or_add_entry() , but threads that call find_entry() are blocked too.
+
+
 
 ### 3.3.3 Recursive locking
 
-With std::mutex , it’s an error for a thread to try to lock a mutex it already owns, and
-attempting to do so will result in undefined behavior. However, in some circumstances it
-would be desirable for a thread to reacquire the same mutex several times without
-having first released it. For this purpose, the C++ Standard Library provides
-std::recursive_mutex . It works just like std::mutex , except that you can acquire
-multiple locks on a single instance from the same thread. You must release all your
-locks before the mutex can be locked by another thread, so if you call lock() three
-times, you must also call unlock() three times. Correct use of std::lock_guard
-<std::recursive_mutex> and std::unique_lock<std::recursive_mutex> will han-
-dle this for you.
-Most of the time, if you think you want a recursive mutex, you probably need to
-change your design instead. A common use of recursive mutexes is where a class is
-designed to be accessible from multiple threads concurrently, so it has a mutex pro-
-tecting the member data. Each public member function locks the mutex, does the
-work, and then unlocks the mutex. However, sometimes it’s desirable for one public
-member function to call another as part of its operation. In this case, the second
-member function will also try to lock the mutex, thus leading to undefined behav-
-ior. The quick-and-dirty solution is to change the mutex to a recursive mutex. This
-will allow the mutex lock in the second member function to succeed and the func-
-tion to proceed.
-However, such usage is not recommended, because it can lead to sloppy thinking
-and bad design. In particular, the class invariants are typically broken while the lock
-is held, which means that the second member function needs to work even when
-called with the invariants broken. It’s usually better to extract a new private member
-function that’s called from both member functions, which does not lock the mutex
-(it expects it to already be locked). You can then think carefully about the circum-
-stances under which that new function can be called and the state of the data under
-those circumstances.
+With std::mutex , it’s an error for a thread to try to lock a mutex it already owns, and attempting to do so will result in undefined behavior. However, in some circumstances it would be desirable for a thread to reacquire the same mutex several times without having first released it. 
+
+
+
+For this purpose, the C++ Standard Library provides std::recursive_mutex . It works just like std::mutex , except that you can acquire multiple locks on a single instance from the same thread. 
+
+
+You must release all your locks before the mutex can be locked by another thread, so if you call lock() three times, you must also call unlock() three times. 
+
+
+
+Correct use of std::lock_guard <std::recursive_mutex> and std::unique_lock<std::recursive_mutex> will handle this for you.
+
+
+Most of the time, if you think you want a recursive mutex, you probably need to change your design instead. 
+
+
+
+A common use of recursive mutexes is where a class is designed to be accessible from multiple threads concurrently, so it has a mutex protecting the member data. 
+
+
+
+Each public member function locks the mutex, does the work, and then unlocks the mutex. However, sometimes it’s desirable for one public member function to call another as part of its operation. In this case, the second member function will also try to lock the mutex, thus leading to undefined behavior. 
+
+
+
+The quick-and-dirty solution is to change the mutex to a recursive mutex. 
+
+
+This will allow the mutex lock in the second member function to succeed and the function to proceed.
+
+
+However, such usage is not recommended, because it can lead to sloppy thinking and bad design. 
+
+
+In particular, the class invariants are typically broken while the lock is held, which means that the second member function needs to work even when called with the invariants broken. 
+
+
+It’s usually better to extract a new private member function that’s called from both member functions, which does not lock the mutex (it expects it to already be locked). 
+
+
+You can then think carefully about the circumstances under which that new function can be called and the state of the data under those circumstances.
+
+
 
 ## Summary
 
-In this chapter I discussed how problematic race conditions can be disastrous when sharing data between threads and how to use std::mutex and careful interface design to avoid them. 
+In this chapter I discussed how problematic race conditions can be disastrous when sharing data between threads and how to use std::mutex and careful interface design to avoid them.   
 이번 챕터에서 저는 스레드 간 데이터 공유할 때 발생할 수 있는 교착 상태 문제와, std::mutex 사용법 그리고 이런 문제를 피할 인터페이스 구축을 하는 방법에 대하여 논의하였습니다.
 
 
-You saw that mutexes aren’t a panacea and do have their own problems in the form of deadlock, though the C++ Standard Library provides a tool to help avoid that in the form of std::lock() . 
+You saw that mutexes aren’t a panacea and do have their own problems in the form of deadlock, though the C++ Standard Library provides a tool to help avoid that in the form of std::lock() .   
 당신은 mutex 들이 만병 통치약이 아닌 것을 보았습니다. 또한 이것들이 가진 문제를 데드락 이란 형태로 보았습니다.
 그래도 C++ 표준 라이브러리가 제공하는 std::lock() 란 형태의 도구를 제공하여 이를 피하는 방법을 보여주었습니다.
 
 
-You then looked at some further techniques for avoiding deadlock, followed by a brief look at transferring lock ownership and issues surrounding choosing the appropriate granularity for locking. 
+You then looked at some further techniques for avoiding deadlock, followed by a brief look at transferring lock ownership and issues surrounding choosing the appropriate granularity for locking.   
 당신은 데드락을 피하는 몇가지 테크닉인 소유권 이전과 적절한 locking 범위를 선택하는 이슈를 간략히 보았습니다.
 
 
-Finally, I covered the alternative data-protection facilities provided for specific scenarios, such as std::call_once() , and boost::shared_mutex .
+Finally, I covered the alternative data-protection facilities provided for specific scenarios, such as std::call_once() , and boost::shared_mutex .  
 마지막으로, 저는 대안으로서 특정 상황에서 제공하는 데이터 보호 기능인 std::call_once() 와 boost::shared_mutex 와 같은 기능을을 다뤘습니다.
 
 
-One thing that I haven’t covered yet, however, is waiting for input from other threads. 
-하지만 한가지 제가 아직 다루지 않은 것은, 다른 스레드 부터의 입력을 기다리는 것 입니다.
+One thing that I haven’t covered yet, however, is waiting for input from other threads.   
+하지만 한가지 제가 아직 다루지 않은 것이 있는데, 다른 스레드 부터의 입력을 기다리는 것 입니다.
 
 
-Our thread-safe stack just throws an exception if the stack is empty, so if one thread wanted to wait for another thread to push a value on the stack (which is, after all, one of the primary uses for a thread-safe stack), it would have to repeatedly try to pop a value, retrying if an exception gets thrown. 
+Our thread-safe stack just throws an exception if the stack is empty, so if one thread wanted to wait for another thread to push a value on the stack (which is, after all, one of the primary uses for a thread-safe stack), it would have to repeatedly try to pop a value, retrying if an exception gets thrown.    
 우리의 스레드 안정적인 스택은 만약 스택이 비어있다면 예외상황을 일으킬 것이고, 만약 한 스레드중 하나가 다른 스레드가 스택에 데이터를 넣기를 기다리고 있다면 ( 한 주요 유저가 스레드 세이프한 스택을 사용 ), 데이터를 반복적으로 pop 하는 것을 시도하고, 만약 에러가 발생하면 재시도를 합니다
 
 
 
-This consumes valuable processing time in performing the check, without actually making any progress; 
+This consumes valuable processing time in performing the check, without actually making any progress;   
 이런 소비는 어떤 실제적인 작업을 진행하지 않고, 검사를 수행하는데 시간을 소비합니다.
 
-indeed, the constant checking might hamper progress by preventing the other threads in the system from running. 
+indeed, the constant checking might hamper progress by preventing the other threads in the system from running.   
 실제로, 실행중인 시스템에서 일정한 검사는 다른 스레드의 작업을 방해할 수 있습니다.
                                                                                                                                       
 
-What’s needed is some way for a thread to wait for another thread to complete a task without consuming CPU time in the process. 
+What’s needed is some way for a thread to wait for another thread to complete a task without consuming CPU time in the process.   
 필요한 것은 다른 스레드가 작업을 완료시킬때 CPU 의 자원 소비없이 기다리는 방법 입니다.
 
 
-Chapter 4 builds on the facilities I’ve discussed for protecting shared data and introduces the various mechanisms for synchronizing operations between threads in C++; 
+Chapter 4 builds on the facilities I’ve discussed for protecting shared data and introduces the various mechanisms for synchronizing operations between threads in C++;   
 챕터 4는 공유 데이터를 보호하기 위한 기능의 생성에 대해 논의하고, C++ 에서 스레드 간의 동기화 작업에 대한 다양한 메커니즘을 소개합니다.
 
-chapter 6 shows how these can be used to build larger reusable data structures.
+chapter 6 shows how these can be used to build larger reusable data structures.  
 챕터 6 에서는 이러한 재사용 가능한 데이터 구조를 어떻게 만드는지 보여줍니다.
