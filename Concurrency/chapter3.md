@@ -617,77 +617,101 @@ Protecting data only for initialization is a special case of a more general scen
 초기화 과정에서만의 데이터 보호는 좀더 일반적인 시나리오에서의 특별한 케이스입니다. ??
 
 
-that of a rarely updated data structure. For most of the time, such a data structure is read-only and can therefore be merrily read by multiple threads concurrently, 
-	 
-	 
-but on occasion the data structure may need updating. What’s needed here is a protection mechanism that acknowledges this fact.
+that of a rarely updated data structure. For most of the time, such a data structure is read-only and can therefore be merrily read by multiple threads concurrently, but on occasion the data structure may need updating. 
+가끔씩 갱신되는 데이터 구조가 있습니다. 대부분의 경우, 이러한 데이터 구조는 읽기 전용이고, 멀티 스레드에 의해 동시적으로 쉽게 읽혀 집니다, 하지만 때때로 데이터 구조의 갱신이 필요할 때가 있습니다.
+
+
+What’s needed here is a protection mechanism that acknowledges this fact.
+이러한 사실을 인정하고 보호 메커니즘을 필요로 합니다.
+
 
 
 ### 3.3.2 Protecting rarely updated data structures
 
 Consider a table used to store a cache of DNS entries for resolving domain names to their corresponding IP addresses. 
+도메인 네임을 올바른 IP 주소로 풀어주는 DNS 엔트리의 캐시를 저장하는 테이블을 생각해 봅시다.
 
 
 Typically, a given DNS entry will remain unchanged for a long period of time—in many cases DNS entries remain unchanged for years.
+전형적으로 주어진 DNS 엔트리는 대부분의 경우 오랜시간 동안 변함 없이 몇년동안 남겨져 있을 것 입니다.
 
 
 Although new entries may be added to the table from time to time as users access different websites, this data will therefore remain largely unchanged throughout its life.
+그럼에도 불구하고, 유저이 다른 웹 사이트에 방문함에 따라 새로운 엔트리는 시간이 갈수록 테이블에 쌓여가고, 그러므로 데이터는 큰 변함없이 남아있을 것 입니다.
 
 
 It’s important that the validity of the cached entries be checked periodically, but this still requires an update only if the details have actually changed.
+이것이 바로 주기적인 캐시 엔트리의 유효성 검사의 중요성 입니다, 하지만 이것은 여전히 실질적 변화가 있을 때 갱신을 필요로 합니다.
 
 
 Although updates are rare, they can still happen, and if this cache is to be accessed from multiple threads, it will need to be appropriately protected during updates to ensure that none of the threads reading the cache see a broken data structure.
+정보의 갱신이 매우 적음에도 불구하고, 그 일은 여전히 발생하며, 만약 이 캐시에 멀티스레드가 접근한다면, 어떤 스레드도 broken 데이터 구조를 읽지 않음을 보장하도록 데이터 갱신동안의 적절한 보호를 필요로 할 것입니다.
 
 
 In the absence of a special-purpose data structure that exactly fits the desired usage and that’s specially designed for concurrent updates and reads (such as those in chapters 6 and 7),
-   
+읽기와 갱신의 동시성을 고려하여 이에 맞게 디자인 ( 6 장과 7 장에 나온 ) 되거나 목적에 맞는 데이터 구조의 부재에서, 
+
 
 such an update requires that the thread doing the update have exclusive access to the data structure until it has completed the operation. 
+이러한 종류의 업데이트는 스레드가 작업이 완료될 때 까지 데이터 구조에 상호 배제적으로 접근하는 방식이 필요로 합니다.
 
 
 
 Once the change is complete, the data structure is again safe for multiple threads to access concurrently. 
+변경이 끝나면, 데이터 구조는 다시금 멀티 스레드의 동시적인 접근에서 안전해 집니다.
 
 
 Using a std::mutex to protect the data structure is therefore overly pessimistic, because it will eliminate the possible concurrency in reading the data structure when it isn’t undergoing modification; what’s needed is a different kind of mutex.
-
+std::mutex 를 데이터 구조 보호에 사용하는 것은 지나치게 비관적인 방법입니다, 데이터 구조가 수정 없이 읽기만 한다면 이는 데이터의 동시적 읽기의 가능성을 제거하게 됩니다. 따라서 우리는 다른 종류의 mutex 가 필요합니다.
 
 
 This new kind of mutex is typically called a reader-writer mutex, because it allows for two different kinds of usage: exclusive access by a single “writer” thread or shared, concurrent access by multiple “reader” threads.
+이러한 종류의 mutex 는 전형적으로 리더스-라이트 mutex 라고 부릅니다. 이는 두가지 종류의 사용법이 있는데 배타적으로 단 하나의 "wirter" 또는 공유 스레드만 접근 가능한 방법과, 동시적으로 읽기 가능한 "reader"  멀티 스레드 들 입니다.
+
 
 
 The new C++ Standard Library doesn’t provide such a mutex out of the box, although one was proposed to the Standards Committee. 
+새로운 C++ 표준 라이브러리는 표준 위원회에 제시되었음에도 불구하고, 이런 특별한 mutex 를 제공하지 않습니다.
 
 
 Because the proposal wasn’t accepted, the examples in this section use the implementation provided by the Boost library, which is based on the proposal. 
+이런 제안이 받아들여지지 않았기 때문에, 이번 섹션의 예제에서 Boost 라이브러리를 사용합니다. 이 Boost 라이브러리는 이런 제안에 기반됩니다.
 
 
 As you’ll see in chapter 8, the use of such a mutex isn’t a panacea, and the performance is dependent on the number of processors involved and the relative workloads of the reader and updater threads. 
+챕터 8 에서 다루게 되듯이, 이런 뮤텍스의 사용은 만변 통치약이 아닙니다, 그리고 성능은 프로세서의 갯수와 읽기와 갱신을 가진 스레드의 업무량에 좌우 됩니다.
 
 
 It’s therefore important to profile the performance of the code on the target system to ensure that there’s actually a benefit to the additional complexity.
+타겟 시스템에서 추가적인 복잡성이 실제로 이득이 있는지 확신하기 위해선, 코드의 성능을 프로파일링 하는 것은 매우 중요합니다.
 
 
-Rather than using an instance of std::mutex for the synchronization, you use an	instance of boost::shared_mutex . 
+Rather than using an instance of std::mutex for the synchronization, you use an	instance of boost::shared_mutex .   
+동기화를 위하여 std::mutex 인스턴스를 사용하기 보단, boost::shard_mutex 인스턴스를 사용하세요.
 
 
-For the update operations, std::lock_guard <boost::shared_mutex> and std::unique_lock<boost::shared_mutex> can be used for the locking, in place of the corresponding std::mutex specializations. 
+For the update operations, std::lock_guard <boost::shared_mutex> and std::unique_lock<boost::shared_mutex> can be used for the locking, in place of the corresponding std::mutex specializations.   
+갱신 작업을 위해서는, std::lock__guard <bosst::shared_mutex> 와 std::unique_lock<boost::shared_mutex> 는 std::mutex 를 대신하여 locking 할 수 있습니다.
 
 
 These ensure exclusive access, just as with std::mutex . 
+이는 std::mutex 와 같인 배타적인 접근을 보장합니다.
 
 
 Those threads that don’t need to update the data structure can instead use boost::shared_lock<boost::shared_mutex>	to obtain shared access. 
+이러한 스레드들은 boost::shared_lock<bost::shared_mutex> 를 사용하여 공유 접근을 얻음으로서 갱신이 필요 없습니다.
 
 
 This is used just the same as std::unique_lock , except that multiple threads may have a shared lock on the same boost::shared_mutex at the same time. 
+이는 std::unique_lock 처럼 쓰이는데, 차이점은 boost::shared_mutex 에서는 멀티 스레드가 동시에 공유 lock 을 가질 수 있습니다.
 
 
 The only constraint is that if any thread has a shared lock, a thread that tries to acquire an exclusive lock will block until all other threads have relinquished their locks, and likewise if any thread has an exclusive lock, no other thread may acquire a shared or exclusive lock until the first thread has relinquished its lock.
+공유 lock 의 유일한 제약조건은, 스레드가 배타적인 lock 을 획득하려고 하면 다른 모든 스레드가 lock 을 해제 하기 전까지 블록 당할 것 입니다. 그리고 스레드가 배타 lock 을 가지고 있다면, 다른 어느 스레드도 이 배타 lock 이 해제되기 전까진 공유 lock 이나 배타 lock 을 가질 수 없습니다.
 
 
 The following listing shows a simple DNS cache like the one just described, using a	std::map to hold the cached data, protected using a boost::shared_mutex .
+다음의 listing 은 위에서 묘사했던 간단한 DNS 캐시를 보여주며, std::map 을 이용하여 캐시 데이터를 보유하고, boost::shared_mutex 를 이용하여 보호합니다.
 
 
 ####Listing 3.13 Protecting a data structure with a boost::shared_mutex
@@ -718,63 +742,78 @@ public:
 	}
 };
 ```
+
 In listing 3.13, find_entry() uses an instance of boost::shared_lock<> to protect it for shared, read-only access (1) ; 
+listing 3.13 에서 find_entry() 는 boost::shraed_lock<> 인스턴스를 이용하여, 공유, (1) read-only 접근 를 합니다.
 
 
 multiple threads can therefore call find_entry() simultaneously without problems. 
+그렇기 때문에 다른 멀티 스레드들도 문제 없이 find_entry() 를 동시적으로 호출 가능합니다.
 
 
 On the other hand, update_or_add_entry() uses an instance of std::lock_guard<> to provide exclusive access while the table is updated (2) ; 
+반면에, update_or_add_entry() 는 std::lock_guard<> 인스턴스를 사용하는데, 이는 테이블이 (2) 갱신되는 동안 배타적인 접근을 제공합니다;
 
 
 not only are other threads prevented from doing updates in a call update_or_add_entry() , but threads that call find_entry() are blocked too.
+이는 다른 스레드가 update_or_add_entry() 를 호출하여 데이터를 갱신하는 것을 방지할뿐만 아니라, find_entry() 를 호출하는 다른 스레드 모두를 블록합니다.
 
 
 
 ### 3.3.3 Recursive locking
 
 With std::mutex , it’s an error for a thread to try to lock a mutex it already owns, and attempting to do so will result in undefined behavior. However, in some circumstances it would be desirable for a thread to reacquire the same mutex several times without having first released it. 
-
+std::mutex 에서는, mutex 가 lock 을 이미 가진 상태에서 다시금 lock 을 시도하면 에러가 발생합니다, 그리고 이는 정의되지 않은 결과를 발생시킬 것 입니다. 하지만, 스레드가 같은 mutex 를 기존 lock 의 해제 없이 얻어야 하는 상황이 있습니다. 
 
 
 For this purpose, the C++ Standard Library provides std::recursive_mutex . It works just like std::mutex , except that you can acquire multiple locks on a single instance from the same thread. 
+이런 경우를 위해, C++ 표준 라이브러리는 std::recursive_mutex 를 제공합니다. 이거는 std::mutex 와 동일한 기능을 하지만, 같은 스레드의 단일 인스턴스에 대해서 반복적으로  lock 을 획득 할 수 있습니다.
 
 
-You must release all your locks before the mutex can be locked by another thread, so if you call lock() three times, you must also call unlock() three times. 
-
-
-
-Correct use of std::lock_guard <std::recursive_mutex> and std::unique_lock<std::recursive_mutex> will handle this for you.
-
-
-Most of the time, if you think you want a recursive mutex, you probably need to change your design instead. 
+You must release all your locks before the mutex can be locked by another thread, so if you call lock() three times, you must also call unlock() three times.  
+다른 스레드의 mutex 를 lock 하기 위해선 당신이 획득한 모든 lock 을 해제해야 합니다. 만약 lock() 을 세번 호출했다면, unlock() 역시 3번 호출해야 합니다.
 
 
 
-A common use of recursive mutexes is where a class is designed to be accessible from multiple threads concurrently, so it has a mutex protecting the member data. 
+Correct use of std::lock_guard <std::recursive_mutex> and std::unique_lock<std::recursive_mutex> will handle this for you.  
+올바른 std::lock_gurad<std::recursivd_mutex> 와 std::unique_lock<std::recursive_mutex> 의 사용은 이러한 문제를 해결합니다.
 
+
+Most of the time, if you think you want a recursive mutex, you probably need to change your design instead.  
+만약 당신이 recursive mutex 를 사용하기 원한다면, 당신의 디자인을 바꿔야 할 것입니다.
+
+
+A common use of recursive mutexes is where a class is designed to be accessible from multiple threads concurrently, so it has a mutex protecting the member data.   
+일반적으로  recursive mutex 는 클래스에서 멤버 데이터에 대한 멀티 스레드의 동시적 접근으로부터 보호하기 위해 사용합니다.
 
 
 Each public member function locks the mutex, does the work, and then unlocks the mutex. However, sometimes it’s desirable for one public member function to call another as part of its operation. In this case, the second member function will also try to lock the mutex, thus leading to undefined behavior. 
+각각의 퍼블릭 멤버 함수는 mutex 를 lock 합니다. 그리고 mutex 를 unlock 합니다. 하지만 때때로, 하나의 퍼블릭 멤버 함수가 오퍼레이션의 한 일부분으로 서 불려지기를 원합니다. 이런 케이스에서, 두번째 멤버 함수는 mutex 에 lock 을 시도하고, 이로인해 정의 되지 않은 결과로 이끕니다.
 
 
 
-The quick-and-dirty solution is to change the mutex to a recursive mutex. 
+The quick-and-dirty solution is to change the mutex to a recursive mutex.  
+quick-and-dirty 한 해결 방법은 mutex 를 recursive mutex 로 바꾸는 것 입니다.
 
 
 This will allow the mutex lock in the second member function to succeed and the function to proceed.
+이것은 mutex lock 이 두번째 멤버 함수에 성공하고, 이 함수가 진행을 계속 하는 것을 허용합니다.
 
 
-However, such usage is not recommended, because it can lead to sloppy thinking and bad design. 
+However, such usage is not recommended, because it can lead to sloppy thinking and bad design.  
+하지만, 이러한 방법은 추천할 만한 방법은 아닌데, 안좋은 설계와 엉성한 생각으로 이끌 수 있기 때문입니다.
 
 
 In particular, the class invariants are typically broken while the lock is held, which means that the second member function needs to work even when called with the invariants broken. 
+클래스의 invariants 는 전형적으로  lock 이 유지되는 동안에 broken 되는데, 이것은 두번째 멤버 함수는 invariants 가 broken 된 상황에서 work 하기를 원한 다는 것을 뜻합니다. ????
 
 
 It’s usually better to extract a new private member function that’s called from both member functions, which does not lock the mutex (it expects it to already be locked). 
+이것은 대체로 새로운 private 멤버 함수를 extrat 하는 것이 mutex 가 lock 되지 않은 ( 이미 lock 되어 있을 거라고 예상하는 ) 함수를 호출하는 것보다 낫습니다.  ??
 
 
 You can then think carefully about the circumstances under which that new function can be called and the state of the data under those circumstances.
+이러한 상황에서의 새로운 함수나 데이터의 호출은 다시금 생각해 봐야 합니다.
 
 
 
