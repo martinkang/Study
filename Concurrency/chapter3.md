@@ -101,13 +101,13 @@ class X
 - 소유권 전달은 인스턴스의 리턴을 통해 자동적으로 전달되거나, 명시적으로 std::move() 함수 호출을 통해 이루어집니다.  
 	- 기본적으로 이런 소유권 전달은 source 의 종류에 따라 정해집니다.
 		1. lvalue( 실제 값 또는 참조자 ) 
-			- 변수로부터 소유권이 의도치 않게 전달 되는 것을 피하기 위해 명시적으로 소유권ㅇ르 전달해야 합니다.
+			- 변수로부터 소유권이 의도치 않게 전달 되는 것을 피하기 위해 명시적으로 소유권을 전달해야 합니다.
 		2. rvalue ( 임시적인 값의 한종류 ) 
 			- 자동적으로 소유권이 전달됩니다.
 
 			
 std::unique_lock 은 이동가능하지만 복사 불가능한 타입 중 하나입니다. 
-부록 A 의 섹션 A.1.1 보면 에 더 많은 move semantic 에 대해 알 수 있습니다.  
+	- 부록 A 의 섹션 A.1.1 보면 에 더 많은 move semantic 에 대해 알 수 있습니다.  
 가능한 사용 방법 중 하나는 함수가 mutex 에 대한 lock 과 호출자에 대한 lock 의 소유권 이전을 허용하는 것 입니다, 
 그래서 호출자는 동일한 lock 의 보호아래 추가적인 작업 수행이 가능해집니다.  
 아래의 코드는 이러한 예제 중 하나입니다. get_lock() 함수는 mutex 의 lock 을 획득 하고 호출자에게 lock 을 반환하기 전에 prepare_date() 를 수행합니다.
@@ -128,27 +128,18 @@ void process_data()
 }
 ```
 
-lk 는 함수안에서 automatic 변수로 선언되었기 때문에, 
-이것은 std:move() 없이 직접적으로 반환 가능합니다; 
+lk 는 함수안에서 automatic 변수로 선언되었기 때문에, 이것은 std:move() 없이 직접적으로 반환 가능합니다; 
 > 컴파일러는 move constructor 호출을 담당합니다.
 
 
-
-The process_data() function can then transfer ownership directly into its own std::unique_lock instance (2) , 
-and the call to do_something() can rely on the data being correctly prepared without another thread altering the data in the meantime.    
-process_data() 함수는 (2) 의 std::unique_lock 인스턴스가 소유하고 있던 소유권을 직접적으로 이전시킬 수 있습니다,
-그리고 do_somthing() 의 호출은 작업 시간 동안에 다른 스레드에 의해 데이터가 변질 없이 데이터가 준비되어야 합니다  ???
-
-
-전형적으로 이런 mutex 가 lock 을 어디서 획득하지에 대한 문제는 현재 프로그램의 상태 또는 std::unique_lock 객체를 반환하는 함수의 전달 인자에 따릅니다.
-
-One such usage is where the lock isn’t returned directly but is a data member of a gateway class used to ensure correctly locked access to some protected data.   
-lock 획득에 대한 방법 중 하나는 직접적으로 lock 을 리턴하지는 않지만 클래스의 데이터 멤버는 보호된 데이터로의 접근에 대한 lock 이 정확하다는 것을 보장하는 gateway 클래스의 사용입니다. ??
-
-
-이 케이스에서, 데이터로의 모든 접근은 이 gateway 클래스를 통합니다.
-데이터에 접근하기를 원할 때, 락을 걸 수 있는 gateway class ( 앞선 예제에서 get_lock() 과 같은 함수 ) 의 객체를 획득 합니다.
-그러면 gateway 객체의 멤버 함수를 통해 데이터에 접근할 수 있습니다.
+- process_data() 함수는 (2) 의 std::unique_lock 인스턴스가 소유하고 있던 소유권을 직접적으로 전달 받을 수 있습니다,
+그리고 호출되는 do_somthing() 함수는 작업 시간 동안 다른 스레드로 인해 데이터가 변질 되지 않을 것이라고 신뢰 할 수 있습니다.
+	- 전형적으로 이런 mutex 의 lock 획득 위치 선정 문제는, 현재 프로그램의 상태 또는 std::unique_lock 객체를 반환하는 함수의 전달 인자에 따릅니다.
+- lock의 소유권 획득에 관한 방법 중 하나는 gateway 클래스 입니다.
+	- gateway 클래스는 직접적으로 lock 을 리턴하지는 않지만, 이 클래스의 멤버가 보호된 데이터로의 접근에 대한 lock 이 올바르다는 것을 보장합니다.
+	
+- 이 케이스에서, 데이터로의 모든 접근은 이 gateway 클래스를 통합니다.
+		- 데이터에 접근하기를 원할 때, 락을 걸 수 있는 gateway class ( 앞선 예제에서 get_lock() 과 같은 함수 ) 의 객체를 획득 합니다. 그러면 gateway 객체의 멤버 함수를 통해 데이터에 접근할 수 있습니다.
 작업이 끝나면, gateway 객체를 파괴하여, 락을 해제하고, 다른 스레드가 보호 데이터에 접근을 할 수 있도록 해야 합니다.
 이 gateway 객체는 이동가능하고 ( 때문에 함수에 의해 반환 가능합니다 ), 이런 상황에선 lock 객체 데이터 멤버 역시 이동 가능해야 합니다.
 std::unique_lock 에서는 인스턴스가 파괴되기 전에 그들의 lock 을 양도 하는 것을 허용합니다.
@@ -760,45 +751,18 @@ You can then think carefully about the circumstances under which that new functi
 
 ## Summary
 
-In this chapter I discussed how problematic race conditions can be disastrous when sharing data between threads and how to use std::mutex and careful interface design to avoid them.   
-이번 챕터에서 저는 스레드 간 데이터 공유할 때 발생할 수 있는 교착 상태 문제와, std::mutex 사용법 그리고 이런 문제를 피할 인터페이스 구축을 하는 방법에 대하여 논의하였습니다.
+이번 챕터는 스레드 간 데이터 공유할 때 발생할 수 있는 교착 상태 문제와, std::mutex 사용법 그리고 이런 문제를 피할 인터페이스 구축을 하는 방법에 대하여 논의하였습니다.
+이를 통해 mutex 들이 만병 통치약이 아닌 것을 있었고, 이 mutex 로 인해 생기는 데드락 문제를 보았습니다.
+그리고 C++ 표준 라이브러리가 제공하는 std::lock() 란 형태의 도구를 제공하여 이를 피하는 방법 역시 볼 수 있었습니다.
+
+또 데드락을 피하는 몇가지 테크닉인 소유권 이전과 적절한 locking 범위를 선택하는 이슈를 간단히 살펴보았습니다.
+마지막으로, 대안 방법인 특정 상황에서 제공하는 데이터 보호 기능인 std::call_once() 와 boost::shared_mutex 와 같은 기능을 다뤘습니다.  
+하지만 한가지 아직 다루지 않은 이슈가 있는데, 이것은 다른 스레드 부터의 입력을 기다리는 것 입니다.  
+스레드 안정적인 스택이 있습니다. 만약 스택이 비어있다면 예외상황을 일으킬 것이고, 한 스레드는 다른 스레드가( 스레드 안정적인 스택의 다른 주요 사용자 ) 스택에 데이터를 넣기를 기다리고 있습니다, 이 경우 스레드는 데이터를 반복적으로 pop 하는 것을 시도하고, 만약 에러가 발생하면 재시도를 합니다
+이런 소비적인 작업은 어떤 실제적인 작업을 진행하지 않고, 검사를 수행하는데에만 시간을 허비합니다.
+실제로, 실행중인 시스템에서 일정하고 주기적인 검사는 다른 스레드의 작업을 방해할 수 있습니다.
+이 때 필요한 것은 다른 스레드가 작업을 완료시킬때 CPU 의 자원 소비없이 기다리는 방법 입니다.
 
 
-You saw that mutexes aren’t a panacea and do have their own problems in the form of deadlock, though the C++ Standard Library provides a tool to help avoid that in the form of std::lock() .   
-당신은 mutex 들이 만병 통치약이 아닌 것을 보았습니다. 또한 이것들이 가진 문제를 데드락 이란 형태로 보았습니다.
-그래도 C++ 표준 라이브러리가 제공하는 std::lock() 란 형태의 도구를 제공하여 이를 피하는 방법을 보여주었습니다.
-
-
-You then looked at some further techniques for avoiding deadlock, followed by a brief look at transferring lock ownership and issues surrounding choosing the appropriate granularity for locking.   
-당신은 데드락을 피하는 몇가지 테크닉인 소유권 이전과 적절한 locking 범위를 선택하는 이슈를 간략히 보았습니다.
-
-
-Finally, I covered the alternative data-protection facilities provided for specific scenarios, such as std::call_once() , and boost::shared_mutex .  
-마지막으로, 저는 대안으로서 특정 상황에서 제공하는 데이터 보호 기능인 std::call_once() 와 boost::shared_mutex 와 같은 기능을을 다뤘습니다.
-
-
-One thing that I haven’t covered yet, however, is waiting for input from other threads.   
-하지만 한가지 제가 아직 다루지 않은 것이 있는데, 다른 스레드 부터의 입력을 기다리는 것 입니다.
-
-
-Our thread-safe stack just throws an exception if the stack is empty, so if one thread wanted to wait for another thread to push a value on the stack (which is, after all, one of the primary uses for a thread-safe stack), it would have to repeatedly try to pop a value, retrying if an exception gets thrown.    
-우리의 스레드 안정적인 스택은 만약 스택이 비어있다면 예외상황을 일으킬 것이고, 만약 한 스레드중 하나가 다른 스레드가 스택에 데이터를 넣기를 기다리고 있다면 ( 한 주요 유저가 스레드 세이프한 스택을 사용 ), 데이터를 반복적으로 pop 하는 것을 시도하고, 만약 에러가 발생하면 재시도를 합니다
-
-
-
-This consumes valuable processing time in performing the check, without actually making any progress;   
-이런 소비는 어떤 실제적인 작업을 진행하지 않고, 검사를 수행하는데 시간을 소비합니다.
-
-indeed, the constant checking might hamper progress by preventing the other threads in the system from running.   
-실제로, 실행중인 시스템에서 일정한 검사는 다른 스레드의 작업을 방해할 수 있습니다.
-                                                                                                                                      
-
-What’s needed is some way for a thread to wait for another thread to complete a task without consuming CPU time in the process.   
-필요한 것은 다른 스레드가 작업을 완료시킬때 CPU 의 자원 소비없이 기다리는 방법 입니다.
-
-
-Chapter 4 builds on the facilities I’ve discussed for protecting shared data and introduces the various mechanisms for synchronizing operations between threads in C++;   
 챕터 4는 공유 데이터를 보호하기 위한 기능의 생성에 대해 논의하고, C++ 에서 스레드 간의 동기화 작업에 대한 다양한 메커니즘을 소개합니다.
-
-chapter 6 shows how these can be used to build larger reusable data structures.  
-챕터 6 에서는 이러한 재사용 가능한 데이터 구조를 어떻게 만드는지 보여줍니다.
+그리고 챕터 6 에서는 이러한 재사용 가능한 데이터 구조를 어떻게 만드는지 보여줍니다.
