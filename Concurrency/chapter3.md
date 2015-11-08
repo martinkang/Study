@@ -89,7 +89,7 @@ class X
 	- 따라서, 일반적으로 std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, std::unique_lock 약간의 성능상 페널티가 생깁니다 
 		- std::lock_guard 가 아닌 std::unique_lock 을 사용시 flag 가 적절히 갱신되어야 하기 때문입니다.
 	- 그렇기 때문에 만약 std::lock_guard 가 당신의 needs 를 충분히 만족시킨다면, std::lock_guard 를 먼저 써 보시길 권장합니다.  
-	- 이말은 즉, std::unique_lock 이 이러한 추가적인 flexibility 를 필요로 하여 task at hand 보다 유용한 경우가 있다는 말입니다. 
+		- 즉 std::unique_lock 이 이러한 추가적인 flexibility 를 필요로 하여 task at hand 보다 유용한 경우가 있다는 말입니다.  ??
 
 	
 - 이 예제는 앞에서 이미 보았던 deferred locking 입니다; 또 다른 케이스는 lock 에 대한 소유권이 다른 scope 로 이동하는 예입니다.
@@ -97,16 +97,21 @@ class X
 
 ### 3.2.7 Transferring mutex ownership between scopes
 
-std::unique_lock 인스턴스는 그들 자신의 mutex 를 소유할 수 없기 때문에, mutex 의 소유권은 인스턴스 사이에 이동을 통해 전달이 가능합니다. 
-몇 케이스에서 이러한 이동은 함수로부터 인스턴스의 리턴을 통해 자동적으로 전달되고, 
-또다른 케이스에서는 명시적으로 std::move() 함수 호출을 통해 이루어집니다.  
-기본적으로 이런 소유권 전달은 source 가 lvalue( 실제 값 또는 참조자 ) 또는 rvalue ( 임시적인 값의 한종류 ) 인지 여부에 달려있습니다.
-만약 소스가 rvalue 이면 자동적으로 소유권이 전달되며, lvalue 에서는 변수로부터 소유권이 의도치 않게 전달 되는 것을 피하기 위해 명시적으로 소유권을 전달해야 합니다.
+- std::unique_lock 인스턴스는 그들 자신의 mutex 를 소유할 수 없기 때문에, mutex 의 소유권은 인스턴스 사이에 이동을 통해 전달이 가능합니다. 
+- 소유권 전달은 인스턴스의 리턴을 통해 자동적으로 전달되거나, 명시적으로 std::move() 함수 호출을 통해 이루어집니다.  
+	- 기본적으로 이런 소유권 전달은 source 의 종류에 따라 정해집니다.
+		1. lvalue( 실제 값 또는 참조자 ) 
+			- 변수로부터 소유권이 의도치 않게 전달 되는 것을 피하기 위해 명시적으로 소유권ㅇ르 전달해야 합니다.
+		2. rvalue ( 임시적인 값의 한종류 ) 
+			- 자동적으로 소유권이 전달됩니다.
+
+			
 std::unique_lock 은 이동가능하지만 복사 불가능한 타입 중 하나입니다. 
 부록 A 의 섹션 A.1.1 보면 에 더 많은 move semantic 에 대해 알 수 있습니다.  
 가능한 사용 방법 중 하나는 함수가 mutex 에 대한 lock 과 호출자에 대한 lock 의 소유권 이전을 허용하는 것 입니다, 
 그래서 호출자는 동일한 lock 의 보호아래 추가적인 작업 수행이 가능해집니다.  
 아래의 코드는 이러한 예제 중 하나입니다. get_lock() 함수는 mutex 의 lock 을 획득 하고 호출자에게 lock 을 반환하기 전에 prepare_date() 를 수행합니다.
+
 
 ```c++
 std::unique_lock<std::mutex> get_lock()
@@ -126,6 +131,8 @@ void process_data()
 lk 는 함수안에서 automatic 변수로 선언되었기 때문에, 
 이것은 std:move() 없이 직접적으로 반환 가능합니다; 
 > 컴파일러는 move constructor 호출을 담당합니다.
+
+
 
 The process_data() function can then transfer ownership directly into its own std::unique_lock instance (2) , 
 and the call to do_something() can rely on the data being correctly prepared without another thread altering the data in the meantime.    
