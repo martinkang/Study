@@ -2,7 +2,7 @@
 
 ### 3.2.6 Flexible locking with std::unique_lock
 
-:wstd::unique_lock 은 invariants 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 이 std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
+std::unique_lock 은 invariants 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 이 std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
 우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
 그리고 두번째 인자로 std::defer_lock 을 전달할 수 있는데 이는 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.
 이후에 std::unique_lock 객체( mutex 가 아닌 ) 의 lock() 을 호출하거나 std::unique_lock 객체를 std::lock() 자신에 전달함으로서 lock 을 획득할 수 있습니다.  
