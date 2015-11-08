@@ -2,28 +2,16 @@
 
 ### 3.2.6 Flexible locking with std::unique_lock
 
-std::unique_lock provides a bit more flexibility than std::lock_guard by relaxing the invariants; a std::unique_lock instance doesn’t always own the mutex that it’s associated with.   
-std::unique_lock 은 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariants 를 완화시킵니다. 
-
-
-First off, just as you can pass std::adopt_lock as a second argument to the constructor to have the lock object manage the lock on a mutex, you can also pass std::defer_lock as the second argument to indicate that the mutex should remain unlocked on construction.   
-생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리하고, 두번째 인자로 std::defer_lock 을 전달하면 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.  
-
-
-The lock can then be acquired later by calling lock() on the std::unique_lock object (not the mutex) or by passing the std::unique_lock object itself to std::lock() .   
-lock 은 이후 std::unique_lock 객체 ( mutex 가 아닌 ) 의 lock 을 호출하거나 std::unique_lock 객체를 std::lock 자신에 전달함으로서 획득할 수 있습니다.  
-
-
-Listing 3.6 could just as easily have been written as shown in listing 3.9, using std::unique_lock and std::defer_lock (1) rather than std::lock_guard and std::adopt_lock .   
-Listing 3.6 의 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다.  
-
-
-The code has the same line count and is essentially equivalent, apart from one small thing: std::unique_lock takes more space and is a fraction slower to use than std::lock_guard .   
-이 코드는 같은 라인수를 가지고, 크게 봤을 때 본질적으로 동일합니다. : std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 필요로 하고 부분적으로 보다 느립니다. 
-
-
-The flexibility of allowing a std::unique_lock instance not to own the mutex comes at a price: this information has to be stored, and it has to be updated.  
-std::unique_lock 인스턴스가 mutex 에 대한 소유권을 가지지 않음으로서 생기는 flexibility 는 비용이 발생합니다 : 이 mutex 의 소유권 정보는 저장되고, 업데이트 되어야 합니다.
+std::unique_lock 은 invariants 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다; 
+> std::unique_lock 인스턴스는 mutex 를 소유하지 않습니다. 
+우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다, 
+그리고 두번째 인자로 std::defer_lock 을 전달할 수 있는데 이는 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다. 
+lock 은 이후에 std::unique_lock 객체( mutex 가 아닌 ) 의 lock() 을 호출하거나 std::unique_lock 객체를 std::lock() 자신에 전달함으로서 획득할 수 있습니다. 
+Listing 3.6 의 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다. 
+이 코드는 같은 라인수를 가며, 본질적으로 동일합니다. : 
+> std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 필요로 하고 부분적으로 보다 느립니다. 
+std::unique_lock 인스턴스가 mutex 에 대한 소유권을 가지지 않음으로서 생기는 flexibility 는 그에 따른 비용이 발생합니다 : 
+> mutex 의 소유권 정보는 저장되고, 업데이트 되어야 합니다.
 
 
 
