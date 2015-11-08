@@ -2,13 +2,11 @@
 
 ### 3.2.6 Flexible locking with std::unique_lock
 
-std::unique_lock 은 invariants 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 
-> std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
-
-우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다, 
-그리고 두번째 인자로 std::defer_lock 을 전달할 수 있는데 이는 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다. 
-이후에 std::unique_lock 객체( mutex 가 아닌 ) 의 lock() 을 호출하거나 std::unique_lock 객체를 std::lock() 자신에 전달함으로서 lock 을 획득할 수 있습니다. 
-Listing 3.6 의 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다. 
+std::unique_lock 은 invariants 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 이 std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
+우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
+그리고 두번째 인자로 std::defer_lock 을 전달할 수 있는데 이는 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.
+이후에 std::unique_lock 객체( mutex 가 아닌 ) 의 lock() 을 호출하거나 std::unique_lock 객체를 std::lock() 자신에 전달함으로서 lock 을 획득할 수 있습니다.
+Listing 3.6 의 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다.
 이 두 코드는 같은 라인수를 가며, 본질적으로 동일합니다 : 
 > std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 필요로 하고 부분적으로 보다 느립니다. 
 
@@ -57,31 +55,13 @@ That said, there are cases where std::unique_lock is a better fit for the task a
 
 ### 3.2.7 Transferring mutex ownership between scopes
 
-Because std::unique_lock instances don’t have to own their associated mutexes, the ownership of a mutex can be transferred between instances by moving the instances around.  
-std::unique_lock is std::unique_lock 인스턴스는 그들 자신의 mutex 를 소유할 수 없기 때문에, mutex 의 소유권은 인스턴스 사이에 이동을 통해 전달 가능합니다.
-
-In some cases such transfer is automatic, such as when returning an instance from a function, and in other cases you have to do it explicitly by calling std::move() .  
-몇몇 케이스에서 이러한 전송은 함수로부터 인스턴스의 리턴을 통해 자동적으로 전송되고, 또다른 케이스에서는 명시적으로 std::move() 함수 호출을 통해 이루어집니다.
-
-Fundamentally this depends on whether the source is an lvalue—a real variable or reference to one—or an rvalue—a temporary of some kind.   
-근본적으로 이것은 소스가 lvalue ( 실제 값 ) 또는 참조자 또는 rvalue ( 임시적인 값의 한종류 ) 인지 여부에 의존적입니다.
-
-Ownership transfer is automatic if the source is an rvalue and must be done explicitly for an lvalue in order to avoid accidentally transferring ownership away from a variable. 
-만약 소스가 rvalue 이면 자동적으로 소유권이 전달되며, lvalue 에서는 변수로부터 소유권이 의도치 않은 양도를 피하기 위해 명시적으로 소유권을 전달해야 합니다.
-
-
-std::unique_lock is an example of a type that’s movable but not copyable. See appendix A, section A.1.1, for more about move semantics.  
-std::unique_lock 은 이동가능하지만 복사 불가능한 타입의 예중 하나입니다. 부록 A 의 섹션 A.1.1 보면 에 더 많은 move semantic 에 대해 있습니다.
-
-
-
-One possible use is to allow a function to lock a mutex and transfer ownership of that lock to the caller, so the caller can then perform additional actions under the protection of the same lock.   
-하나의 사용 가능한 방법은 함수가 mutex 에 대한 lock 과 호출자에 대한 lock 의 소유권 이전을 허용하는 것 입니다. 그래서 호출자는 같은 ;lock 의 보호아래 추가적인 액션 수행이 가능합니다.
-
-
-The following code snippet shows an example of this: the function get_lock() locks the mutex and then prepares the data before returning the lock to the caller:  
-아래의 코드는 이러한 예제의 한 단편입니다. get_lock() 함수는 mutex 를 lock 하고 호출자에게 lock 을 반환하기 전에 prepare_date() 를 수행합니다.
-
+std::unique_lock 인스턴스는 그들 자신의 mutex 를 소유할 수 없기 때문에, mutex 의 소유권은 인스턴스 사이에 이동을 통해 전달이 가능합니다.
+몇몇 케이스에서 이러한 전달은 함수로부터 인스턴스의 리턴을 통해 자동적으로 전송되고, 또다른 케이스에서는 명시적으로 std::move() 함수 호출을 통해 이루어집니다.
+근본적으로 이런 소유권 전달은 소스가 lvalue( 실제 값 또는 참조자 ) 또는 rvalue ( 임시적인 값의 한종류 ) 인지 여부에 달려있습니다.
+만약 소스가 rvalue 이면 자동적으로 소유권이 전달되며, lvalue 에서는 변수로부터 소유권이 의도치 않게 전달 되는 것을 피하기 위해 명시적으로 소유권을 전달해야 합니다.
+std::unique_lock 은 이동가능하지만 복사 불가능한 타입 중 하나입니다. 부록 A 의 섹션 A.1.1 보면 에 더 많은 move semantic 에 대해 알 수 있습니다.
+가능한 사용 방법 중 하나는 함수가 mutex 에 대한 lock 과 호출자에 대한 lock 의 소유권 이전을 허용하는 것 입니다, 그래서 호출자는 동일한 lock 의 보호아래 추가적인 작업 수행이 가능해집니다.
+아래의 코드는 이러한 예제 중 하나입니다. get_lock() 함수는 mutex 의 lock 을 획득 하고 호출자에게 lock 을 반환하기 전에 prepare_date() 를 수행합니다.
 
 ```c++
 std::unique_lock<std::mutex> get_lock()
@@ -98,110 +78,64 @@ void process_data()
 }
 ```
 
-Because lk is an automatic variable declared within the function, it can be returned directly B without a call to std:move() ; the compiler takes care of calling the move constructor.  
 lk 는 함수안에서 automatic 변수로 선언되었기 때문에, 이것은 std:move() 없이 직접적으로 반환 가능합니다; 컴파일러는 move constructor 호출을 담당합니다.
 
+The process_data() function can then transfer ownership directly into its own std::unique_lock instance (2) , 
+and the call to do_something() can rely on the data being correctly prepared without another thread altering the data in the meantime.    
+process_data() 함수는 (2) 의 std::unique_lock 인스턴스가 소유하고 있던 소유권을 직접적으로 이전시킬 수 있습니다,
+그리고 do_somthing() 의 호출은 작업 시간 동안에 다른 스레드에 의해 데이터가 변질 없이 데이터가 준비되어야 합니다  ㅑ ???
 
-The process_data() function can then transfer ownership directly into its own std::unique_lock instance (2) , and the call to do_something() can rely on the data being correctly prepared without another thread altering the data in the meantime.    
-process_data() 함수는 std::unique_lock 인스턴스가 소유하고 있던 소유권을 직접적으로 이전시킬 수 있습니다. 그리고 do_somthing() 의 호출은 작업 시간 동안에 다른 스레드에 의해 데이터가 변질 없이 데이터가 준비되어야 하는 것에 의존적입니다.  
-
-
-Typically this sort of pattern would be used where the mutex to be locked is dependent on the current state of the program or on an argument passed in to the function that returns the std::unique_lock object.   
-전형적으로 이런 mutex 가 lock 을 어디에 사용할지에 대한 패턴은 현재 프로그램의 상태 또는 std::unique_lock 객체를 반환하는 함수의 전달 인자에 의존됩니다.
+전형적으로 이런 mutex 가 lock 을 어디서 획득하지에 대한 패턴문제는 현재 프로그램의 상태 또는 std::unique_lock 객체를 반환하는 함수의 전달 인자에 따릅니다.
 
 One such usage is where the lock isn’t returned directly but is a data member of a gateway class used to ensure correctly locked access to some protected data.   
-또 다른 용법은 직접적으로 lock 을 리턴하지는 않지만 gateway 의 클래스의 데이터 멤버는 보호된 데이터로의 접근에 대한 lock 이 정확하다는 것을 보장합니다.
+lock 획득에 대한 방법 중 하나는 직접적으로 lock 을 리턴하지는 않지만 클래스의 데이터 멤버는 보호된 데이터로의 접근에 대한 lock 이 정확하다는 것을 보장하는 gateway 클래스의 사용입니다. ??
 
 
-In this case, all access to the data is through this gateway class:  
-이런 케이스에서, 데이터로의 모든 접근은 이런 gateway class 를 통합니다.
-
-
-when you wish to access the data, you obtain an instance of the gateway class (by calling a function such as get_lock() in the preceding example), which	acquires the lock.       
-당신이 데이터에 접근하기를 원할 때, 당신은 락을 걸 수 있는 gateway class ( 앞선 예제에서 get_lock() 과 같은 함수 ) 의 객체를 획득 합니다.
-
-
-You can then access the data through member functions of the gateway object.    
-당신은 gateway 객체의 멤버 함수를 통해 데이터에 접근할 수 있습니다.
-
-
-When you’re finished, you destroy the gateway object, which releases the lock and allows other threads to access the protected data.    
-당신의 작업이 끝났을 때, 당신은 gateway 객체를 파괴하여, 락을 해제하고, 다른 스레드가 보호 데이터에 접근할 수 있도록 허용합니다.
-
-
-Such a gateway object may well be movable (so that it can be returned from a function), in which case the lock object data member also needs to be movable.  
-이러한 gateway 객체가 만약 이동가능하다면 ( 그래서 함수에 의해 반환 가능하다면 ), 이런 상황에선 lock 개체 데이터 멤버 역시 이동 가능해야 합니다.
-
-
+이 케이스에서, 데이터로의 모든 접근은 이 gateway 클래스를 통합니다.
+데이터에 접근하기를 원할 때, 락을 걸 수 있는 gateway class ( 앞선 예제에서 get_lock() 과 같은 함수 ) 의 객체를 획득 합니다.
+그러면 gateway 객체의 멤버 함수를 통해 데이터에 접근할 수 있습니다.
+작업이 끝나면, gateway 객체를 파괴하여, 락을 해제하고, 다른 스레드가 보호 데이터에 접근을 할 수 있도록 해야 합니다.
+이 gateway 객체는 이동가능하고 ( 때문에 함수에 의해 반환 가능합니다 ), 이런 상황에선 lock 객체 데이터 멤버 역시 이동 가능해야 합니다.
 The flexibility of std::unique_lock also allows instances to relinquish their locks before they’re destroyed.   
-std::unique_lock 의 유연성은 인스턴스가 파괴되기 전에 그들의 lock 을 포기하는 것을 허용 합니다.
-
-
+std::unique_lock 에서는 인스턴스가 파괴되기 전에 그들의 lock 을 양도 하는 것을 허용합니다.
 You can do this with the unlock() member function, just like for a mutex:   
-당신은 mutex 처럼 unlock() 멤버 함수를 이용해 할 수 있습니다.
-
-
-std::unique_lock supports the same basic set of member functions for locking and unlocking as a mutex does, in order that it can be used with generic functions such as std::lock .   
-std::unique_lock 은 mutex 의 기본적인 locking 과 unlocking 멤버 함수 기능을 제공합니다. 이를 제공합으로서 이것은 std::lock 과 같은 generic functions 과 같이 사용 가능합니다.
-
-
-The ability to release a lock before the std::unique_lock instance is destroyed means that you can optionally release it in a specific code branch if it’s apparent that the lock is no longer required.   
-std::unique_lock 객체가 파괴되기전 lock 을 해제하는 기능은 당신이 선택적으로 특정한 코드 branch 에서 lock 이 더이상 필요 없다는 것이 명백할 때 lock 을 해제할 수 있음을 의미합니다.
-
-
-
-This can be important for the performance of the application; holding a lock for longer than required can cause a drop in performance, because other threads waiting for the lock are prevented from proceeding for longer than necessary.
-이것은 애플리케이션의 퍼포먼스에 매우 중요한 요소가 됩니다. 필요 이상으로 lock 을 잡고 있으면, lock 을 대기하는 다른 스레드가 필요이상으로 오래 진행을 방해 받기 때문입니다. 
-
+따라서 mutex 처럼 unlock() 멤버 함수를 이용해 할 수 있습니다.
+std::unique_lock 은 mutex 와 같은 기본적인 locking 과 unlocking 멤버 함수 기능을 제공합니다. 이를 제공합으로서 이것은 std::lock 과 같이 generic functions 과 같이 사용 가능합니다.
+std::unique_lock 객체가 파괴되기전 lock 을 해제가 가능 하다는 건, 선택적으로 특정한 코드 branch 에서 lock 이 명백하게 필요 없어 졌을 때 lock 을 해제할 수 있음을 의미합니다.
+이것은 애플리케이션의 성능에 매우 중요한 요소가 됩니다. 필요 이상으로 lock 을 잡고 있으면, lock 을 대기하는 다른 스레드가 필요이상으로 오래 진행을 방해 받기 때문입니다. 
 
 
 ### 3.2.8 Locking at an appropriate granularity
 
-The granularity of a lock is something I touched on earlier, in section 3.2.3: the lock granularity is a hand-waving term to describe the amount of data protected by a single lock.   
-lock 의 단위는 이전 섹션 3.2.3 말한 썸띵? 이다. : lock 의 단위는 single lock 에 의해 보호되는 데이터의 양을 설명하기 위한 hand-waving 용어입니다.
+lock 의 granularity 는 이전 섹션 3.2.3 다뤘던 것 입니다 : 
+> lock 의 granularity 는 single lock 에 의해 보호되는 데이터의 양을 설명하기 위한 hand-waving 용어입니다. 
 
-A fine-grained lock protects a small amount of data, and a coarse-grained lock protects a large amount of data.   
 세밀한 lock 은 작은 양의 데이터를 보호하고, 대단위 lock 은 많은 양의 데이터를 보호합니다.
+대단위 lock 을 선택하여 데이터가 보호 된다는 것을 보장 하는 것 뿐 아니라, lock 이 실질적으로 필요한 때만 동작함을 보장하는 것 또한 매우 중요합니다.
 
 
-Not only is it important to choose a sufficiently coarse lock granularity to ensure the required data is protected, but it’s also important to ensure that a lock is held only for the operations that actually require it.   
-대단위 lock 을 선택하는 것은 데이터의 보호를 보장하는 것 뿐 아니라, lock 이 실제적으로 필요한 작업만 유지마을 보장하는 것 또한 중요합니다.
-
-
+예시라서 일단 대충 번역...
 We all know the frustration of waiting in the checkout line in a supermarket with a cart full of groceries only for the person currently being served to suddenly realize that they forgot some cranberry sauce and then leave everybody waiting while they go and find some,   
 야채로 꽉찬 카트를 가지고 점원의 체크아웃 줄에서 기다리고 있는데, 현재 계산을 하는 하는 사람이 몇몇 크랜베리 소스를 빠뜨린 것을 깨닿고는 모두가 기다린다는 사실을 뒤로 한채 그것을 찾으로 떠나는 상황,   
-
 
 or for the cashier to be ready for payment and the customer to only then start rummaging in their purse for their wallet.    
 또는 계산원은 계산할 준비를 하고 있고 손님의 돈을 지불하기 위해 지갑을 찾기 시작하는 상황이라면 우리 모두는 좌절할 것입니다.
 
-
 Everything proceeds much more easily if everybody gets to the checkout with everything they want and with an appropriate means of payment ready.  
 만약 모든 사람이 원하던 모든 것을 이미 준비하였고, 적절한 지불 수단을 미리 준비한 상태에서 체크아웃을 한다면 모든 작업 진행이 더 쉬워질 것 입니다.
 
-The same applies to threads:  
+
 이와 같은 일은 스레드에도 적용됩니다.
-
-
-if multiple threads are waiting for the same resource (the cashier at the checkout), then if any thread holds the lock for longer than necessary, it will increase the total time spent waiting (don’t wait until you’ve reached the checkout to start looking for the cranberry sauce).   
-만약 다중 스레드가 같은 자원을 기다리고 있다면 ( 계산하는 직원 ), 그리고 어떠한 스레드도 필요 이상으로 lock 을 하지 않는다면, 
-
-
-Where possible, lock a mutex only while actually accessing the shared data; try to do any processing of the data outside the lock.  
-가능한 방법은, 공유 데이터를 실제로 접근할때만 mutex 를 lock 하는 것입니다; 
-
-In particular, don’t do any really time-consuming activities like file I/O while holding a lock.   
-특히, 파일 I/O 와 같은 시간을 오래 지체하는 작업은 lock 을 잡고 하지 말아야 합니다.
-
-File I/O is typically hundreds (if not thousands) of times slower than reading or writing the same volume of data from memory.  
+만약 다중 스레드가 같은 자원을 기다리고 있다면 ( 계산하는 직원 ), 
+그리고 어떤 스레드가 필요 이상으로 lock 을 획득 하고 있다면, 
+이는 전체 대기 시간을 증가시킬 것 입니다. ( 당신이 계산대에 도착해서 크랜베리 소스를 찾기 전까진 기다리지 않습니다. )
+한가지 가능한 방법은, 공유 데이터를 실제로 접근할때만 mutex 를 lock 하는 것입니다; 
+특히, 파일 I/O 와 같은 시간을 오래 지체하는 작업은 lock 을 획득한 상태에서 하지 말아야 합니다.
 파일 I/O 는 전형적으로 메모리에서 같은 양의 데이터를 읽거나 쓰는 것보다 수백배 ( 또는 수천 ) 느립니다.
-
-
-So unless the lock is really intended to protect access to the file, performing I/O while holding the lock will delay other threads unnecessarily (because they’ll block while waiting to acquire the lock), potentially eliminating any performance gain from the use of multiple threads.   
-그렇기 때문에 만약 파일로의 접근을 막는게 정말로 의도한게 아니라면, lock 을 한 채 I/O 를 수행하는 것은 다른 스레드들을 불필요한 지연을 겪게 할 것 입니다 ( 왜냐하면 다른 스레드들은 그동안 lock 을 얻기위해 대기할 것 입니다. ), 그리고 다중 스레드로 얻을 수 있는 잠재적 가능성을 없앨 것 입니다.
-
- std::unique_lock works well in this situation, because you can call unlock() when the code no longer needs access to the shared data and then call lock() again if access is required later in the code:   
-std::unique_lock 는 이런 상황에 유용합니다. 왜냐하면 코드가 더이상 공유 데이터에 접근할 필요가 없을 때 unlock 을 호출할 수 있고, 다시 접근이 필요할 때 다시 lock() 을 호출할 수 있기 때문입니다.
+그렇기 때문에 만약 파일로의 접근을 막는게 정말로 의도한게 아니라면,
+lock 을 획득한 채 I/O 를 수행하는 것은 다른 스레드들을 불필요한 지연을 겪게 할 것 입니다 ( 왜냐하면 다른 스레드들은 그동안 lock 을 얻기위해 대기할 것 입니다. ), 
+또한 다중 스레드의 이점 역시 사라질 것 입니다.
+std::unique_lock 는 이런 상황에 유용합니다. 왜냐하면 코드가 더이상 공유 데이터에 접근할 필요가 없을 때 unlock() 을 호출할 수 있고, 다시 접근이 필요할 때 코드에서 다시 lock() 을 호출할 수 있기 때문입니다.
 
 
 ```c++
