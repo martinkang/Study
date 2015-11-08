@@ -1,17 +1,55 @@
+Chapter 03, Sharing data between threads
+
+# Chapter 03, Sharing data between threads
+병행처리를 위해 Thread를 사용하는 것 중 가장 핵심이 되는 이점은 직접 쓰레드 사이에서 쉽게 데이터를 공유할 수 있다는 것입니다.
+만약 쓰레드 사이에서 데이터를 공유하고 있다면, 어떤 쓰레드가 어떤 데이터의 비트를 접근할 수 있는지 그리고 어떻게 어느 업데이트들이   해당 데이터를 다루는 다른 쓰레드에게 알려줄지에 대한 규칙을 가져야 할 필요가 있습니다.
+이번 챕터에서는 C++에서 쓰레드 사이의 안전한 데이터 공유와 일어날 수 있는 잠재적인 문제를 피하고, 이점을 최대화 할 수 있는 방안에    대해 이야기 하고자 합니다.
+
+## 3.1 Problems with sharing data between threads
+- 만약 모든 공유 데이터가 읽기 전용이라면 문제가 없지만, 데이터가 쓰레드 사이에서 공유되고 있고 하나이상의 쓰레드가 해당 데이터를    수정하려 한다면, 수 많은 잠재적인 위험이 존재하게 된다. 이 경우 모든것이 정상적으로 돌아갈 수 있도록 확인을 반드시 해야한다.
+- 프로그래머들이 그들의 코드를 추론하는데 도움을 주는데 널리 사용되는 하나의 개념은 *invariants* 입니다.                             
+    - 예를 들면 '이 변수는 리스트안에 있는 아이템의 갯수를 포함한다.'와 같이 특정 자료구조에 대한 항상 참 값을 나타내는 구문입니다.
+    - 이러한 *invariants*들은 종종 업데이트 동안 특히 만약 해당 자료구조가 복잡하거나 업데이트가 하나 이상의 값을 수정을 요할 때     깨지게 됩니다.
+- 다음 그림과 같이 double linked list를 생각해 봅시다. 
+    - 만약 한 노드 (A)의 next pointer 는 (B)이고, (B)의 previous pointer는 (A) 입니다.
+    - 한 노드를 리스트에서 지우려면 서로의 노드에서 각 포인터를 업데이트 해야하고, 이 때 *invariant*가 깨지게 됩니다.
+    - 그림 3.1에서는 다음과 같은 방법으로 리스트에서 한 엔트리를 삭제하는 법을 보여줍니다.
+    ![Imgur](http://i.imgur.com/HkZGShX.png)
+    
+        1. 삭제할 노드를 선택합니다.(N)
+        2. N 이전의 노드의 링크를 N 이후의 노드와 연결합니다.
+        3. N 이후의 노드의 링크를 N 이전의 노드와 연결합니다.
+        4. 노드 N을 삭제합니다.
+
+    - 위에서 볼 수 있다시피 단계 b와 c사이에서 *broken invariant*가 되는 것을 볼 수 있습니다.
+- 쓰레드 사이에서 수정중인 데이터를 공유할 때 가장 간단한 문제는 *broken invariant* 입니다.
+    - 만약 한 쓰레드가 노드를 삭제중일 때 다른 쓰레드가 double linked list를읽으려고 하면, 해당 쓰레드는 부분적으로 제거된 노드를 볼 수 있을지도 모릅니다. (위 그림에서 b처럼)
+- 이 *broken invariant*의 결과는 다양합니다.
+    - 다른 쓰레드가 단지 list의 아이템을 그림에서 왼쪽부터 오른쪽으로 읽는다면, 삭제되고 있는 노드를 지나칠 수 있을지도 모릅니다.
+    - 반면에 두 번째 쓰레드가 그림에서 가장 오른쪽에 있는 노드를 삭제하려고 하면, 아마 자료 구조의 충돌이 발생하고 프로그램이        비정상적으로 종료될 것입니다.
+    - 결과가 무엇이든간에 병렬 코드의 가장 흔한 버그는 바로 *race condition* 입니다.
+
+### 3.1.1. Race conditions
+
+
+# ================================================================
+# 1 차 날번역중입니다. 다시 고치겠습니다.
+
 # 3. Sharing data between threads
 
 ### 3.2.6 Flexible locking with std::unique_lock
 
-std::unique_lock 은 invariants 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 이 std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
-우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
+- std::unique_lock 은 *invariants* 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 
+	- std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
+- 우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
 그리고 두번째 인자로 std::defer_lock 을 전달할 수 있는데 이는 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.
 이후에 std::unique_lock 객체( mutex 가 아닌 ) 의 lock() 을 호출하거나 std::unique_lock 객체를 std::lock() 자신에 전달함으로서 lock 을 획득할 수 있습니다.  
 
 
-Listing 3.6 의 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다. 이 두 코드는 같은 라인수를 가며, 본질적으로 동일합니다 : 
+- Listing 3.6 의 std::lock_guard 와 std::adopt_lock 을 std::unique_lock 와 std::defer_lock 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다. 이 두 코드는 같은 라인수를 가며, 본질적으로 동일합니다 : 
 > std::unique_lock 은 std::lock_guard 보다 더 많은 공간을 필요로 하고 부분적으로 보다 느립니다. 
 
-std::unique_lock 인스턴스가 mutex 에 대한 소유권을 가지지 않음으로서 얻는 flexibility 는 그에 따른 비용이 발생합니다 : 
+- std::unique_lock 인스턴스가 mutex 에 대한 소유권을 가지지 않음으로서 얻는 flexibility 는 그에 따른 비용이 발생합니다 : 
 > mutex 의 소유권 정보는 저장되고, 업데이트 되어야 합니다.
 
 
