@@ -41,34 +41,18 @@ class X
 };
 ```
 Listing 3.9 에서, std::unique_lock 개체는 std::lock() 에 전달될 수 있습니다. 이는 std::unique_lock 가 lock(), try_lock() 그리고 unlock() 멤버 함수를 지원하기 때문입니다.
-These forward to the member functions of the same name on the underlying mutex to do the actual work and just update a flag inside the std::unique_lock instance to indicate whether the mutex is currently owned by that instance.   
 mutex 하위의 멤버 함수들과 이름이 같은 이러한 멤버 함수들은 실질적으로 작업을 수행 하고 std::unique_lock 인스턴스 내부의 flag 를 바로 갱신합니다. 이 flag 는 현재 인스턴스의 mutex 소유 여부를 나타냅니다.
 이 flag 는 소멸자에서 올바르게 unlock() 이 호출되는 것을 보장하기 위해 필수적입니다.  
-If the instance does own the mutex, the destructor must call unlock() , and if the instance does not own the mutex, it must not call unlock() .   
-만약 인스턴스가 mutex 를 소유한다면, 소멸자는 unlcok() 을 반드시 호출해야 하고, 만약 인스턴스가 mutex 를 소유하지 않으면, 이것은 unlock() 을 호출해서는 안됩니다. 
-이 flag 는 owns_lock() 멤버 함수를 호출하여 조회할 수 있습니다. 
-
-
-As you might expect, this flag has to be stored somewhere.   
-당신이 예상하듯이, 이 flag 는 어딘가에 저장되어집니다.
-
-
-Therefore, the size of a std::unique_lock object is typically larger than that of a std::lock_guard object, and there’s also a slight performance penalty when using std::unique_lock over std::lock_guard because the flag has to be updated or checked, as appropriate. 
-그러므로, 전형적으로 std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, 또한 std::unique_lock 성능상 페널티로 작용합니다. 이는 std::lock_guard 위에 std::unique_lock 을 사용시 flag 가 적절히 갱신되어야 하기 때문입니다.
-
-
-If std::lock_guard is sufficient for your needs, I’d therefore recommend using it in preference.  
-만약 std::lock_guard 가 당신의 필요성을 충분히 만족시킨다면, 이것을 환경설정에서 사용 하기를 추천합니다.  ???
-
+만약 인스턴스가 mutex 를 소유한다면, 소멸자는 unlcok() 을 반드시 호출해야 하고, 만약 인스턴스가 mutex 를 소유하지 않으면, 이것은 unlock() 을 호출해서는 안됩니다.
+이 flag 는 owns_lock() 멤버 함수를 호출하여 조회할 수 있습니다.
+이미 예상했듯이, 이 flag 는 어딘가에 저장되어집니다.
+그러므로, 전형적으로 std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, 또한 std::unique_lock 약간의 성능상 페널티가 있는데, 이는 std::lock_guard 가 아닌  std::unique_lock 을 사용시 flag 가 적절히 갱신되어야 하기 때문입니다.
+그렇기 때문에 만약 std::lock_guard 가 당신의 필요성을 충분히 만족시킨다면, std::lock_guard 를 먼저 써 보시길 권장합니다.
 
 That said, there are cases where std::unique_lock is a better fit for the task at hand,	because you need to make use of the additional flexibility.   
 이말은, std::unique_lock 이 수작업보다 유용한 케이스가 있다는 말입니다. ??? 이는 당신의 필요에 의해 추가적인 유연함을 사용하도록 하기 때문입니다.  ???
 
-
-
-One example is deferred locking, as you’ve already seen; another case is where the ownership of the lock needs to be transferred from one scope to another.
-이 예제는 앞에서 이미 보았던 deferred locking 입니다; 또 다른 케이스는 lock 에 대한 소유권이 다른 범위로 이동하는 것 입니다.??
-
+이 예제는 앞에서 이미 보았던 deferred locking 입니다; 또 다른 케이스는 lock 에 대한 소유권이 다른 scope 로 이동하는 예입니다.
 
 
 ### 3.2.7 Transferring mutex ownership between scopes
