@@ -32,8 +32,9 @@ Chapter 03, Sharing data between threads
 ### 3.1.1. Race conditions
 
 
-# ================================================================
-# 1 차 날번역중입니다. 다시 고치겠습니다.
+# =============================================
+1 차 날번역중입니다. 다시 고치겠습니다.
+
 
 # 3. Sharing data between threads
 
@@ -41,7 +42,7 @@ Chapter 03, Sharing data between threads
 
 - std::unique_lock 은 *invariants* 를 완화시켜 std::lock_guard 보다 조금 더 flexibility 한 기능을 제공합니다. 
 	- std::unique_lock 인스턴스는 mutex 를 소유하지 않음으로서 invariant 를 완화 시킵니다.
-- 우선, 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
+- std::unique_lock 은 생성자에 두번째 인자로 std::adopt_lock 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
 그리고 두번째 인자로 std::defer_lock 을 전달할 수 있는데 이는 생성시에 mutex 는 unlocked 상태로 남아있음을 나타냅니다.
 이후에 std::unique_lock 객체( mutex 가 아닌 ) 의 lock() 을 호출하거나 std::unique_lock 객체를 std::lock() 자신에 전달함으로서 lock 을 획득할 수 있습니다.  
 
@@ -78,19 +79,20 @@ class X
 };
 ```
 
-Listing 3.9 에서, std::unique_lock 개체는 std::lock() 에 전달될 수 있습니다. 이는 std::unique_lock 가 lock(), try_lock() 그리고 unlock() 멤버 함수를 지원하기 때문입니다.
-mutex 하위의 멤버 함수들과 이름이 같은 이러한 멤버 함수들은 실질적으로 작업을 수행 하고 std::unique_lock 인스턴스 내부의 flag 를 바로 갱신합니다. 이 flag 는 현재 인스턴스의 mutex 소유 여부를 나타냅니다.
-이 flag 는 소멸자에서 올바르게 unlock() 이 호출되는 것을 보장하기 위해 필수적입니다.  
-만약 인스턴스가 mutex 를 소유한다면, 소멸자는 unlcok() 을 반드시 호출해야 하고, 만약 인스턴스가 mutex 를 소유하지 않으면, 이것은 unlock() 을 호출해서는 안됩니다.
-이 flag 는 owns_lock() 멤버 함수를 호출하여 조회할 수 있습니다.
-그리고 이미 예상했듯이, 이 flag 는 어딘가에 저장되어집니다.
-따라서, 일반적으로 std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, 
-또한 std::unique_lock 약간의 성능상 페널티가 생기는데, 
-이는 std::lock_guard 가 아닌  std::unique_lock 을 사용시 flag 가 적절히 갱신되어야 하기 때문입니다.
-그렇기 때문에 만약 std::lock_guard 가 당신의 needs 를 충분히 만족시킨다면, std::lock_guard 를 먼저 써 보시길 권장합니다.  
+- Listing 3.9 에서, std::unique_lock 개체는 std::lock() 에 전달될 수 있습니다. 이는 std::unique_lock 가 lock(), try_lock() 그리고 unlock() 멤버 함수를 지원하기 때문입니다.
+	- mutex 하위의 멤버 함수들과 이름이 같은 이러한 멤버 함수들은 실질적으로 작업을 수행 하고 std::unique_lock 인스턴스 내부의 flag 를 바로 갱신합니다. 
+		- flag 는 현재 인스턴스의 mutex 소유 여부를 나타냅니다.
+		- flag 는 소멸자에서 올바르게 unlock() 이 호출되는 것을 보장하기 위해 필수적입니다.  
+	- 만약 인스턴스가 mutex 를 소유한다면, 소멸자는 unlcok() 을 반드시 호출해야 하고, 만약 인스턴스가 mutex 를 소유하지 않으면, 이것은 unlock() 을 호출해서는 안됩니다.
+		- flag 는 owns_lock() 멤버 함수를 호출하여 조회할 수 있습니다.
+		- flag 는 어딘가에 저장되어집니다.
+	- 따라서, 일반적으로 std::unique_lock 객체의 크기는 std::lock_guard 객체보다 크며, std::unique_lock 약간의 성능상 페널티가 생깁니다 
+		- std::lock_guard 가 아닌 std::unique_lock 을 사용시 flag 가 적절히 갱신되어야 하기 때문입니다.
+	- 그렇기 때문에 만약 std::lock_guard 가 당신의 needs 를 충분히 만족시킨다면, std::lock_guard 를 먼저 써 보시길 권장합니다.  
+	- 이말은 즉, std::unique_lock 이 이러한 추가적인 flexibility 를 필요로 하여 task at hand 보다 유용한 경우가 있다는 말입니다. 
 
-이말은 즉, std::unique_lock 이 이러한 추가적인 flexibility 를 필요로 하여 task at hand 보다 유용한 경우가 있다는 말입니다. 
-이 예제는 앞에서 이미 보았던 deferred locking 입니다; 또 다른 케이스는 lock 에 대한 소유권이 다른 scope 로 이동하는 예입니다.
+	
+- 이 예제는 앞에서 이미 보았던 deferred locking 입니다; 또 다른 케이스는 lock 에 대한 소유권이 다른 scope 로 이동하는 예입니다.
 
 
 ### 3.2.7 Transferring mutex ownership between scopes
