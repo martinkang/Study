@@ -68,8 +68,19 @@ void sum( double* total, double* array, int len )
 		- Thread Local Storage( TLS )
 			- __thread 지정자를 붙이는 것으로 해당 변수에 대해 스레드 별로 복제본을 생성해 스레드 간에 공유가 안되면서   
 			같은 스레드 컨텍스트 하에서 실행되는 코드에는 전역 변수로 보이게 해준다.
+			- 컴파일러가 스레드 별로 별도의 메모리(.tls)영역을 할당해서 thread 전용 변수들을 저장한다.   
+			이후 링크 과정에서 PT_TLS 타입의 데이터 세그먼트로 합쳐지게 된다
+			- 단점
+				- 컴파일할때 TLS의 크기가 결정되기 때문에 정적으로만 사용가능하다
+				- 런타임에 쓰레드에게 더 큰 메모리할당이 필요해도 확장하는 것이 불가능하다.
+				- 운영체제가 일반적으로 사용하는 메모리와는 다른 별도의 메모리 영역을 사용하기 때문에,   
+				컴파일러의 TLS변수를 참조하는 코드는 번역단계에서 추가적인 명령들이 필요하다. 
+					* 따라서 속도가 좀 느려진다
+
 		- pthread_key_create() & pthread_key_delete()
 			* posix 에서 지원하는 스레드 로컬 변수
+			* 필요할 때마다 명령어를 통해서 원하는 공간을 요청할 수 있다는 점에서 동적이다.
+			* 기존 메모리 구조를 그대로 사용해서 별도의 추가 명령어가 필요하지 않다.
 			- int pthread_key_create( pthread_key_t *key, void (*destr_function )( void *) )    
 				- 쓰레드 개별 공간(thread specific data) 영역 만들기.
 				- 스레드 로컬 변수에 접근할 때마다 해당 변수를 식별할 수 있는 키를 생성.
@@ -79,6 +90,7 @@ void sum( double* total, double* array, int len )
 				- TSD 영역에 값 읽기
 			- int pthread_delete( pthread_key_t )  
 				- TSD 영역 없애기 (키 없애기)
+
 ```c++
 // 스레드 종속 데이터 - 스택에 저장된 데이터
 double func( double a )
@@ -106,7 +118,6 @@ void ppp( void )
 void *threadFunc( void *param )
 {
 	int *mem = (int*)malloc( 100 );
-	*mem = 300;
 
 	pthread_setspecific( pkey, mem );
 
@@ -114,14 +125,39 @@ void *threadFunc( void *param )
 	ppp();
 }
 ```
+
+
 ## 5. 멀티 프로세스 프로그래밍
+	* 멀티 프로세스는 스레드와는 달리 프로세스 하나가 비정상적으로 종료되더라도 다른 프로세스가 영향을 받지 않는다.
+	* UNIX 는 프로세스 생성시 Fork-Exec 모델을 이용한다.
+		- fork()
+			* 어떤 프로세스에서 fork 를 실행하게 되면, 자신의 프로세스와 똑같은 프로세스를 copy-on-write 형식으로 실행하게 되며,  
+			이때 생성된 프로세는 자신만의 PID를 가지고 독자적인 길을 가게 된다
+		- exec()
+			* 새로운 프로새스를 생성시키지만, fork 와 같이 copy-on-write 를 이용한 전혀 새로운 프로세스를 실행시키지 않고,   
+			현재의 프로세스이미지를 새로운 프로세스 이미지가 덮어써 버린다.  
+	
 	1. 프로세스 간 메모리 공유
+		1. Shared Memory
+		2. mmap
 	2. 프로세스 간의 세마포어 공유
+		1. unnamed semaphore
+		2. named semaphore
 	3. 메시지 큐
+		-
 	4. 일반 파이프와 지정 파이프
+		1. unnamed pipe
+		2. named pipe
 	5. 시그널을 이용한 프로세스 간 커뮤니케이션
+		- 
+
 
 ## 6. 소켓의 이용
+	1. TCP/IP
+	2. UDP/IP
+
 
 ## 7. 재진입 가능한 코드와 컴파일러 플래그
-	 
+	* 플랫폼과 컴파일러에 따라 멀티 스레드 애플리케이션을 컴파일 할 때 특별한 플래그를 설정할 필요가 있다.
+		- gcc : -pthread
+		- solais : -mt
