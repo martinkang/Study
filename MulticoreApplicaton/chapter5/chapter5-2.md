@@ -1,10 +1,22 @@
 # POSIX 스레드의 이용 - 2
 
 ## 4. 변수와 메모리
-	1. volatile
-	2. restrict
+	1. heap
+		- 전역 변수와 힙 영역에 할당된 메모리는 자동으로 스레드 간에 공유된다.
+		- 한 애플리케이션 내의 모든 스레드는 전역 변수와 힙 영역에 할당된 데이터에 접근할 수 있다.
+	2. volatile
+		- 
+		```c++
+		int done = 0;
+
+		void wait()
+		{
+			while( !done ){}
+		}
+		```
+	3. restrict
 		- pointer alias 가 없음을 한정해줌 -> 컴파일러 최적화
-	3. Thread Private Data
+	4. Thread Private Data
 		* Thread Local Storage( TLS )
 
 ## 5. 멀티 프로세스 프로그래밍
