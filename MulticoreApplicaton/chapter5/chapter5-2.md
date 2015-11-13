@@ -6,14 +6,14 @@
 		- 한 애플리케이션 내의 모든 스레드는 전역 변수와 힙 영역에 할당된 데이터에 접근할 수 있다.
 	2. volatile
 		- 
-		```c++
-		int done = 0;
+```c++
+int done = 0;
 
-		void wait()
-		{
-			while( !done ){}
-		}
-		```
+void wait()
+{
+	while( !done ){}
+}
+```
 	3. restrict
 		- pointer alias 가 없음을 한정해줌 -> 컴파일러 최적화
 	4. Thread Private Data
