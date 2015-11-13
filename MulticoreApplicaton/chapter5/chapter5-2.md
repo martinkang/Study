@@ -5,8 +5,13 @@
 		- 전역 변수와 힙 영역에 할당된 메모리는 자동으로 스레드 간에 공유된다.
 		- 한 애플리케이션 내의 모든 스레드는 전역 변수와 힙 영역에 할당된 데이터에 접근할 수 있다.
 	2. volatile
-		- 
+		- 컴파일러가 최적화를 하는 것을 방지한다.
+		- volatile 로 선언된 변수는 변수에 접근할 때마다 매번 메모리에서 새로 로딩한다.
+			- 컴파일러에 따라 지원하지 않을 수 있다.
+		- 함수 호출을 통해 강제적으로 변수를 다시 로딩하게 하는 방법도 있다.
+			- 어떤 컴파일러는 함수 호출 부분을 인라이닝 해 버려서 함수 호출을 이용한 메모리 오더링에 영향을 미치는 방법이 통하지 않을 수 있다.
 ```c++
+//무한 루프로 빠질 수 있는 코드
 int done = 0;
 
 void wait()
@@ -14,10 +19,32 @@ void wait()
 	while( !done ){}
 }
 ```
+```c++
+int done = 0;
+
+void wait()
+{
+	while( !(volatile int )done ){}
+}
+```
+```c++
+//함수 호출을 통해 강제적으로 변수를 다시 로딩하게 한다.
+int done = 0;
+
+void pause()
+{
+}
+
+void wait()
+{
+	while( !done ){ pause() }
+}
+```
 	3. restrict
 		- pointer alias 가 없음을 한정해줌 -> 컴파일러 최적화
 	4. Thread Private Data
-		* Thread Local Storage( TLS )
+		- 스레드 종속 데이터
+		- Thread Local Storage( TLS )
 
 ## 5. 멀티 프로세스 프로그래밍
 	1. 프로세스 간 메모리 공유
