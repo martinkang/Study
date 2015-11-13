@@ -41,7 +41,28 @@ void wait()
 }
 ```
 	3. restrict
-		- pointer alias 가 없음을 한정해줌 -> 컴파일러 최적화
+		- *pointer alias* 가 없음을 한정해줌 -> 컴파일러 최적화
+		- 아래 예제 코드에서, 컴파일 시점에는 변수 배열이 저장되는 변수 total  이 가리키는 메모리 위치가   
+		어디인지 알 수가 없다.
+			- 따라서 컴파일러 입장에서는 해당 변수가 배열의 한 부분일 수 있다고 가정하는 것이 안전하다.
+			- 이러한 가정에 따라 total 의 주소에 저장된 값은 루프마다 메모리로 업데이트 되어야 한다.
+			- 컴파일러로 하여금 불필요한 메모리 읽기/저장 명령을 포함하여 성능 저하 유발
+			- 메모리 작업 순서를 바꿀 수 없게 하여 컴파일러 최적화를 못하게 한다.
+	
+```c++
+//pointer alias 가 가능한 코드
+
+void sum( double* total, double* array, int len )
+{
+	int i = 0;
+
+	for ( i = 0; i < len; i++ )
+	{
+		*total += array[i];
+	}
+}
+```
+	
 	4. Thread Private Data
 		- 스택에 저장된 데이터.
 		- Thread Local Storage( TLS )
