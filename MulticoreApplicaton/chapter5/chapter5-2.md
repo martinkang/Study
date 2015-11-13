@@ -45,7 +45,7 @@ void wait()
 	4. Thread Private Data
 		- 스택에 저장된 데이터.
 		- Thread Local Storage( TLS )
-			- __thread 지정자를 붙이는 것으로 해당 변수에 대해 스레드 별로 복제본을 생성해 주어스레드 간에 공유가 안되면서  
+			- __thread 지정자를 붙이는 것으로 해당 변수에 대해 스레드 별로 복제본을 생성해 스레드 간에 공유가 안되면서   
 			같은 스레드 컨텍스트 하에서 실행되는 코드에는 전역 변수로 보이게 해준다.
 		- pthread_key_create() & pthread_key_delete()
 			* posix 에서 지원하는 스레드 로컬 변수
