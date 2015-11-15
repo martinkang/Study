@@ -81,7 +81,8 @@ void sum( double* total, double* array, int len )
 			* posix 에서 지원하는 스레드 로컬 변수
 			* 필요할 때마다 명령어를 통해서 원하는 공간을 요청할 수 있다는 점에서 동적이다.
 			* 기존 메모리 구조를 그대로 사용해서 별도의 추가 명령어가 필요하지 않다.
-			- int pthread_key_create( pthread_key_t *key, void (*destr_function )( void *) )    
+			- int pthread_key_create( pthread_key_t *key, void (*destr_function )( void *) )
+			  * pthread_key_t : unsigned int
 				- 쓰레드 개별 공간(thread specific data) 영역 만들기.
 				- 스레드 로컬 변수에 접근할 때마다 해당 변수를 식별할 수 있는 키를 생성.
 			- int pthread_setspecific( pthread_key_t key, const void *pointer )  
@@ -109,8 +110,7 @@ void* threadFunc( void* param )
 ```
 ```c++
 //posix 에서 지원하는 스레드 로컬 변수
-void ppp( void )                                                                                                                     
-{
+void ppp( void )                                                                                                               {
 	void *param2 = pthread_getspecific( pkey );
 	printf( "param %d\n", *((int*)(param2)) );
 }
@@ -124,6 +124,17 @@ void *threadFunc( void *param )
 	*mem = 400;
 	ppp();
 }
+
+int main()
+{
+    pthread_t thread;
+    pthread_t th;
+    pthread_key_create( &pkey, destructor );
+    pthread_create( &thread, NULL, (void*)threadFunc, NULL );
+    pthread_create( &thread, NULL, (void*)ppp2, NULL );
+    pthread_join( thread, NULL );
+    pthread_key_delete( pkey );
+}  
 ```
 
 
@@ -206,9 +217,16 @@ shm_unlink( "/shm" );
 			- int oflag :
 			- mode_t mode :
 			- unsigned int value : 세마포 초기값
-```c++
-//공유 메모리를 이용한 세마포어 공유
-int status;
+	```c++
+	typedef union
+	{
+  	char __size[__SIZEOF_SEM_T];
+  	long int __align;                                                                                                                  
+	} sem_t;
+	```
+	```c++
+	//공유 메모리를 이용한 세마포어 공유
+	int status;
 	 pid_t f = fork();
 	 sem_t * semaphore;
 
@@ -228,33 +246,52 @@ int status;
 			 printf( "Parent process completed\n" );
 	 }
 	 ```
+
 	3. 메시지 큐
-		- 스레드 또는 프로세스 간에 메시지를 주고받을 수 있게 해준다.
+		* 스레드 또는 프로세스 간에 메시지를 주고받을 수 있게 해준다.
+		*  mqd_t mq_open(const char *name, int oflag, mode_t mode,
+                     struct mq_attr *attr);
+		* int mq_send(mqd_t mqdes, const char *msg_ptr,
+                     size_t msg_len, unsigned int msg_prio);
+		* int mq_timedsend(mqd_t mqdes, const char *msg_ptr,
+                     size_t msg_len, unsigned int msg_prio,
+                     const struct timespec *abs_timeout);
+		```c++
+		typedef int mqd_t;                                                                                                                   
+		struct mq_attr
+		{
+  		__syscall_slong_t mq_flags;   /* Message queue flags.  */
+  		__syscall_slong_t mq_maxmsg;  /* Maximum number of messages.  */
+  		__syscall_slong_t mq_msgsize; /* Maximum message size.  */
+  		__syscall_slong_t mq_curmsgs; /* Number of messages currently queued.  */
+  		__syscall_slong_t __pad[4];
+		};
+		```
 		```c++
 		//메시지 큐를 이용하여 부모와 자식 프로세스의 메시지 전달
-int status;
-mqd_t queue;
-char message[200];
-pid_t f = fork();
+				int status;
+		mqd_t queue;
+		char message[200];
+		pid_t f = fork();
 
-if ( f == 0 )
-{ /* Child process */
-		queue = mq_open( "/messages", O_WRONLY | O_CREAT, 0777, 0 );
-		strncpy( message, "Hello", 6 );
-		printf( "Send message %s\n", message );
-		mq_send( queue, message, strlen(message)+1, 0 );
-		mq_close( queue );
-		printf( "Child process completed\n" );
-}
-else
-{
-		queue = mq_open( "/messages", O_RDONLY | O_CREAT, 0777, 0 );
-		mq_receive( queue, message, 200, 0 );
-		printf( "Receive message %s\n", message );
-		mq_close( queue );
-		mq_unlink( "/messages" );
-		printf( "Parent process completed\n" );
-}
+		if ( f == 0 )
+		{ /* Child process */
+				queue = mq_open( "/messages", O_WRONLY | O_CREAT, 0777, 0 );
+				strncpy( message, "Hello", 6 );
+				printf( "Send message %s\n", message );
+				mq_send( queue, message, strlen(message)+1, 0 );
+				mq_close( queue );
+				printf( "Child process completed\n" );
+		}
+		else
+		{
+				queue = mq_open( "/messages", O_RDONLY | O_CREAT, 0777, 0 );
+				mq_receive( queue, message, 200, 0 );
+				printf( "Receive message %s\n", message );
+				mq_close( queue );
+				mq_unlink( "/messages" );
+				printf( "Parent process completed\n" );
+		}
 		```
 	4. 일반 파이프와 지정 파이프
 		1. unnamed pipe

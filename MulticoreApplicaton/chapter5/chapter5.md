@@ -1,7 +1,7 @@
 # POSIX 스레드의 이용
 
 ## POSIX 란?
-	* POSIX( Portable Operating System Interface ) 
+	* POSIX( Portable Operating System Interface )
 		1. 유닉스 운영체제에 기반을 두고 있는 일련의 표준 운영체제 인터페이스이다.
 		2. UNIX 애플리케이션의 호환성을 위해 제정되었다.
 		3. 표준화에 관한 필요성은, 컴퓨터를 사용하고 있는 기업들이 다시 코딩하지 않고서도 다른 컴퓨터   
@@ -56,7 +56,7 @@
 		* 반환값
 			* 성공할경우 쓰레드 식별자인 thread 에 쓰레드 식별번호를 저장하고, 0을 리턴한다
 			* 실패했을경우 0 이 아닌 에러코드 값을 리턴한다
-	
+
 
 	4. 분리된 스레드
 		* int pthread_detach( pthread_t thread )
@@ -64,7 +64,7 @@
 			* 식별자 thread 를 가지는 쓰레드를 메인쓰레드에서 분리 시킨다.
 			* 식별자 thread 를 가지는 쓰레드가 종료되는 즉시 쓰레드의 모든 자원을 되돌려줄 것을 보장한다.
 			* detach상태가 아닐경우 쓰레드가 종료한다고 하더라도 pthread_join()을 호출하지 않는 한   
-			 자원을 되돌려주지 않는다. 
+			 자원을 되돌려주지 않는다.
 		* 반환값
 			- 성공 : 0
 			- 실패 : 0 이 아닌 값
@@ -79,7 +79,7 @@
 					(1) pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE)
 						- DETACHED 상태로 변경하고자 할때
 					(2) pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)
-						- JOINABLE 상태로 변경하고자 할때 
+						- JOINABLE 상태로 변경하고자 할때
 					* 반환 값
 						- 성공 : 0
 						- 실패 : 0 이 아닌 값
@@ -91,7 +91,7 @@
 					- 실패 : 0 이 아닌 값
 				(2) 스택 크기 조절
 					* int pthread_attr_setstacksize( const pthread_attr_t *attr, size_t *stacksize )
-					* 멀티 스레드에서 스레드 스택은 싱글 스레드에서 다이나믹한 크기인 것과 달리 크기가 고정된다.	
+					* 멀티 스레드에서 스레드 스택은 싱글 스레드에서 다이나믹한 크기인 것과 달리 크기가 고정된다.
 					* 각 스레드는 다른 스레드으 스택에 바로 인접하여 할당되기 때문에 스레드의 수가 증가하거나   
 					 스레드 스택의 크기가 증가하면 힙으로 이용할 수 있는 영역이 줄어든다.
 						- 여러 개의 스레드가 각기 스택을 가지려면 메인 스레드의 초기 스택 크기를   
@@ -103,7 +103,7 @@
 
 ## 2. 멀티 스레드 코드 컴파일 하기
 	* 멀티 스레드 코드를 컴파일할 때는 헤더 파일과 라이브러리가 문제가 될 수 있다.
-		- 어떤 라이브러리 들은 thread-safe 하지 않다. 
+		- 어떤 라이브러리 들은 thread-safe 하지 않다.
 		* 솔라리스 : -mt
 			- REENTRANT 매크로 정의가 활성화 된다.
 		* gcc : -phread
@@ -128,7 +128,7 @@
 					- 실패 : errno
 			(2) PTHREAD_MUTEX_INITIALIZER 매크로
 				* mutex 를 static 하게 선언할 때 사용.
-			
+
 		2) int pthread_mutex_destroy( pthread_mutex_t *mutex)
 			* mutex 구조체가 가르키는 mutex 리소스 해제.
 				- 성공 : 0
@@ -136,11 +136,11 @@
 		3) int pthread_mutex_lock( pthread_mutex_t *mutex )
 			- lock 대기시 블로킹
 		4) int pthread_mutex_trylock( pthread_mutex_t *mutex )
-			- lock 획득 실패시 에러코드 리턴 
+			- lock 획득 실패시 에러코드 리턴
 		5) int pthread_mutex_unlock( pthread_mutex_t *mutex )
-    
 
-	2. 뮤텍스 속성 설정 
+
+	2. 뮤텍스 속성 설정
 		*pthread_mutexattr_init( pthread_mutexattr_t *attr )
 			- pthread_mutexattr_t 구조체의 값을 디폴트 값으로 채운다.
 		1) pthread_mutexattr_setpshared
@@ -156,7 +156,7 @@
     			(1) PTHREAD_MUTEX_NORMAL
 					- deadlock detect 를 하지 못한다.
 					- 다른 뮤텍스가 락을 획득 한 상황에서 락을 걸면 deadlock
-					- 다른 뮤텍스가 락을 획득한 상태에서 unlock 또는 뮤텍스 락이 획득되지 않은 
+					- 다른 뮤텍스가 락을 획득한 상태에서 unlock 또는 뮤텍스 락이 획득되지 않은
 					  상태에서 unlock 하면 undefined behavior.
 				(2) PTHREAD_MUTEX_ERRORCHECK
 					- error checking 을 지원
@@ -169,20 +169,20 @@
 				(4) PTHREAD_MUTEX_DEFAULT
 					- default
 		4) 그 외 속성
-			* int pthread_mutexattr_setprotocol( pthread_mutexattr_t *attr, int protocol ) 
+			* int pthread_mutexattr_setprotocol( pthread_mutexattr_t *attr, int protocol )
 				(1) PTHREAD_PRIO_NONE
 					- 우선순위나 스케쥴링이 뮤텍스 소유권에  영향을 주지 않는다.
 				(2) PTHREAD_PRIO_PROTECT
-					- 
+					-
 				(3) PTHREAD_PRIO_INHERIT
 					-
-			* scheduling priority 
+			* scheduling priority
 				- 효율성을 위해 뮤텍스를 획득한 스레드에 뮤텍스 획득을 시도하는 스레드 중   
 				 가장 높은 우선순위를 부여할 수 있다.
-			* priority ceiling 
+			* priority ceiling
 				- 뮤텍스를 획득한 동안만 해당 스레드에 사전에 정해진 최고 우선순위가   
 	 			 자동으로 부여되게 할 수 있다.
-	
+
 
 	3. 스핀 락 ( spin lock )
 		* 스핀 락은 락 대기 상태에서 계속 락 획득을 시도한다. ( spinning 이라고 한다. )
@@ -193,7 +193,7 @@
 				2) PTHREAD_PROCESS_SHARED
 		* pthread_spin_trylock( pthread_spinlock_t *lock )
 			- 락을 획득하지 못할 경우 바로 리턴.
-    
+
 
 	4. 리더스-라이터 락 ( Readers Writer Locks )
 		* 읽기 접근은 동시에 여러 스레드를 허용하되, 쓰기 접근은 한 시점에 한 스레드만 허용.
@@ -201,8 +201,8 @@
 		* pthread_rwlock_timewrlock( pthread_rwlock_t *lock, struct timespec time ) &   
 		  pthread_rwlock_timerdlock( pthread_rwlock_t *struct timespec time )
 			- 지정된 절대 시점까지 락을 얻지 못할 경우 에러 코드 값을 리턴.
-    		
-	
+
+
 	5. 배리어
 		* 모든 자식 스레드의 작업 완료를 기다린다.
 		* pthread_barrier_init( pthread_barrier_t *restrict barrier,   
@@ -216,13 +216,13 @@
 		* pthread_barrier_wait( pthread_barrier_t *barrier )
     		- 배리어 초기화 때 설정한 스레드 개수만큼 작업 완료된 스레드 개수가  
 			 충족될 때까지 블록킹 된다.
-	
+
 
 	6. 세마포어 ( Semaphore )
 		* 수기신호 : 항해 중이거나 항내에 정박 중인 선박끼리 또는 선박과 육지 사이에서   
 		 쓰이는 가장 간단한 근거리 통신법
 		* 리소스 개수를 카운팅하고 그 값에 기반해 리소스가 가용함을 시그널을 통해 알려준다.
-		
+
 		1) unnamed semaphore
 			* int sem_init( sem_t *sem, int pshared, unsigned int value )
 				- sem_t : 세마포 객체의 포인터
@@ -232,7 +232,7 @@
 			* sem_t *sem_open(const char *name, int oflag, mode_t mode, unsigned int value)
 				- name : 세마포 경로
 				- oflag : 오픈 속성
-					- O_CREAT : 경로에 해단 세마포가 없을 경우 새로 생성 
+					- O_CREAT : 경로에 해단 세마포가 없을 경우 새로 생성
 					- O_EXCL  : 무조건 새로 생성
 		* sem_wait( sem_t *sem )
 			- 세마포어 카운터 감소
@@ -245,7 +245,7 @@
 
     7. 조건 변수
 		* 스레드 간에 상태 값을 전달할 수 있게 해준다.
-		
+
 		1) int pthread_cond_siganl( pthread_cond_t *cond )
 			- 대기 중인 소비자 스레드 중 하나만 깨우게 된다.
 		2) int pthread_cond_broadcast( pthread_cond_t *cond )
@@ -253,11 +253,29 @@
 		3) int pthread_cond_wait( pthread_cond_t *cond, pthread_mutex_t *mutex )
 			- 시그널을 기다리며 대기한다. 대기 모드에 있는 동안 mutex 는 해제된다.
 			- 시그널을 받으면 자동으로 mutex 획득한다.
-		4) int pthread_cond_timewait( pthread_cond_t *cond, pthread_mutex_t *mutex, 
+		4) int pthread_cond_timewait( pthread_cond_t *cond, pthread_mutex_t *mutex,
 									  struct timespec time )
 			- mutex 를 획득하거나 타임 아웃이 되었을 때 리턴한다.
-		
+
 		* lost wake-up
 			- pthread_cond_wait 함수를 호출하기 전에 조건 변수가 웨이크 업 시그널을 보내버리면  
 			 다음 번에 다시 시그널을 받을 때까지 대기 모드에 있게 된다.
 
+
+
+		* 보충 자료 ------------------
+		1. pthread_detach
+			- thread 를 생성자가 종료되면 detach 된 thread 역시 종료된다.
+		2. union 타입
+			- 변수를 동싱 사용하지 않고 베타적으로 사용하는 경우 사용.
+		3. static 타입 c 와 c++ 에서의 차이점
+			* static
+				- 
+				- 객체나 변수가 프로그램이 시작할 때 할당되고, 프로그램이 종료될 때 할당이 해제된다.
+				-
+			* c static
+				- 함수 내부 및 외붕 선언 가능하고, 한번만 초기화가 되며 전역 변수의 특징을 가지고 있다.
+			* c++ static
+				-
+		4. latch - recursive ?
+		5. cond-wait 은 왜 lock 과 함께 써야하나
