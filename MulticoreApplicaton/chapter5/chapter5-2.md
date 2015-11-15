@@ -158,6 +158,7 @@ void *threadFunc( void *param )
 				- MAP_PRIVATE : 해당 프로세스만 사용 가능
 			- off_t offset : 공유 메모리 영역에 접근할 때 기본으로 적용될 주소 오픈.
 ```c++
+//공유 메모리를 이용한 mutex 공유
 pthread_mutex_t * mutex;
 pthread_mutexattr_t attributes;
 pthread_mutexattr_init( &attributes );
@@ -200,7 +201,13 @@ shm_unlink( "/shm" );
 ```
 
 	2. 프로세스 간의 세마포어 공유
+		* sem_t* sem_open( const char *name, int oflag,
+                       mode_t mode, unsigned int value)
+			- int oflag :
+			- mode_t mode :
+			- unsigned int value : 세마포 초기값
 ```c++
+//공유 메모리를 이용한 세마포어 공유
 int status;
 	 pid_t f = fork();
 	 sem_t * semaphore;
@@ -220,9 +227,35 @@ int status;
 			 sem_unlink( "my_semaphore" );
 			 printf( "Parent process completed\n" );
 	 }
-```
+	 ```
 	3. 메시지 큐
 		- 스레드 또는 프로세스 간에 메시지를 주고받을 수 있게 해준다.
+		```c++
+		//메시지 큐를 이용하여 부모와 자식 프로세스의 메시지 전달
+int status;
+mqd_t queue;
+char message[200];
+pid_t f = fork();
+
+if ( f == 0 )
+{ /* Child process */
+		queue = mq_open( "/messages", O_WRONLY | O_CREAT, 0777, 0 );
+		strncpy( message, "Hello", 6 );
+		printf( "Send message %s\n", message );
+		mq_send( queue, message, strlen(message)+1, 0 );
+		mq_close( queue );
+		printf( "Child process completed\n" );
+}
+else
+{
+		queue = mq_open( "/messages", O_RDONLY | O_CREAT, 0777, 0 );
+		mq_receive( queue, message, 200, 0 );
+		printf( "Receive message %s\n", message );
+		mq_close( queue );
+		mq_unlink( "/messages" );
+		printf( "Parent process completed\n" );
+}
+		```
 	4. 일반 파이프와 지정 파이프
 		1. unnamed pipe
 		2. named pipe
