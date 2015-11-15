@@ -48,7 +48,7 @@ void wait()
 			- 이러한 가정에 따라 total 의 주소에 저장된 값은 루프마다 메모리로 업데이트 되어야 한다.
 			- 컴파일러로 하여금 불필요한 메모리 읽기/저장 명령을 포함하여 성능 저하 유발
 			- 메모리 작업 순서를 바꿀 수 없게 하여 컴파일러 최적화를 못하게 한다.
-	
+
 ```c++
 //pointer alias 가 가능한 코드
 
@@ -62,7 +62,7 @@ void sum( double* total, double* array, int len )
 	}
 }
 ```
-	
+
 	4. Thread Private Data
 		- 스택에 저장된 데이터.
 		- Thread Local Storage( TLS )
@@ -74,7 +74,7 @@ void sum( double* total, double* array, int len )
 				- 컴파일할때 TLS의 크기가 결정되기 때문에 정적으로만 사용가능하다
 				- 런타임에 쓰레드에게 더 큰 메모리할당이 필요해도 확장하는 것이 불가능하다.
 				- 운영체제가 일반적으로 사용하는 메모리와는 다른 별도의 메모리 영역을 사용하기 때문에,   
-				컴파일러의 TLS변수를 참조하는 코드는 번역단계에서 추가적인 명령들이 필요하다. 
+				컴파일러의 TLS변수를 참조하는 코드는 번역단계에서 추가적인 명령들이 필요하다.
 					* 따라서 속도가 좀 느려진다
 
 		- pthread_key_create() & pthread_key_delete()
@@ -136,20 +136,98 @@ void *threadFunc( void *param )
 		- exec()
 			* 새로운 프로새스를 생성시키지만, fork 와 같이 copy-on-write 를 이용한 전혀 새로운 프로세스를 실행시키지 않고,   
 			현재의 프로세스이미지를 새로운 프로세스 이미지가 덮어써 버린다.  
-	
+
 	1. 프로세스 간 메모리 공유
-		1. Shared Memory
-		2. mmap
+		- int shm_open(const char *name, int oflag, mode_t mode)
+			* 공유 메모리 생성
+			- oflag : 읽기, 쓰기 등의 속성 플래그.
+			- mode : 접근 권한 - 일반적인 UNIX 파일 권한 설정 비트와 같다.
+		- int ftruncate( int fildes, off_t length )
+			* 파일을 지정한 크기로 변경
+		- void* mmap( void* addr, size_t len, int prot, int flags, int fd, off_t offset )
+		 	* fd 로 지정된 파일 ( 혹은 객체 ) 에서 offset 을 시작으로 length 바이트 만큼을 addr 주소로 대응시키도록 한다.
+			* return : 맵핑이 시작하는 실제 메모리 주소
+			- void* addr : NULL 일 경우 공유 메모리 세그먼트의 시작 주솟값, addr 값이 존재할 경우 addr 이 시작 주솟값이 된다.
+				- 해당 주소 공간을 이용할 수 없을 경우에는 적용되지 않을 수 있다.
+			- int prot : 공유 메모리 보호 설정 플래그, 보통 shm_open() 시 설정한 접근 권한과 맞추어 설정
+				- PROT_EXEC : 코드 실행용
+				- PROT_READ : 읽기 전용
+				- PROT_WRITE : 쓰기 가능 메모리
+			- int flags : 공유설정
+				-	MAP_SHARED : 다른 프로세스와 공유
+				- MAP_PRIVATE : 해당 프로세스만 사용 가능
+			- off_t offset : 공유 메모리 영역에 접근할 때 기본으로 적용될 주소 오픈.
+```c++
+pthread_mutex_t * mutex;
+pthread_mutexattr_t attributes;
+pthread_mutexattr_init( &attributes );
+pthread_mutexattr_setpshared( &attributes, PTHREAD_PROCESS_SHARED );
+
+int handle = shm_open( "/shm", O_CREAT|O_RDWR, 0777 );
+ftruncate( handle, 1024*sizeof(int) );
+char * mem = mmap( 0, 1024*sizeof(int), PROT_READ|PROT_WRITE,
+				MAP_SHARED, handle,0 );
+
+mutex = (pthread_mutex_t*)mem;
+pthread_mutex_init( mutex, &attributes );
+pthread_mutexattr_destroy( &attributes );
+
+int ret = 0;
+int * pcount = (int*)( mem + sizeof(pthread_mutex_t) );
+*pcount = 0;
+
+pid_t pid = fork();
+if (pid == 0)
+{  /* Child process */
+		pthread_mutex_lock( mutex );
+		(*pcount)++;
+		pthread_mutex_unlock( mutex );
+		ret = 57;
+}
+else
+{
+		int status;
+		waitpid( pid, &status, 0 );
+		printf( "Child returned %i\n", WEXITSTATUS(status) );
+		pthread_mutex_lock( mutex );
+		(*pcount)++;
+		pthread_mutex_unlock( mutex );
+		printf( "Count = %i\n", *pcount );
+		pthread_mutex_destroy( mutex );
+}
+munmap( mem, 1024*sizeof(int) );
+shm_unlink( "/shm" );
+```
+
 	2. 프로세스 간의 세마포어 공유
-		1. unnamed semaphore
-		2. named semaphore
+```c++
+int status;
+	 pid_t f = fork();
+	 sem_t * semaphore;
+
+	 semaphore = sem_open( "/my_semaphore", O_CREAT, 0777, 1 );
+
+	 if ( f == 0 )
+	 { /* Child process */
+			 sem_post( semaphore );
+			 sem_close( semaphore );
+			 printf( "Child process completed\n" );
+	 }
+	 else
+	 {
+			 sem_wait( semaphore );
+			 sem_close( semaphore );
+			 sem_unlink( "my_semaphore" );
+			 printf( "Parent process completed\n" );
+	 }
+```
 	3. 메시지 큐
-		-
+		- 스레드 또는 프로세스 간에 메시지를 주고받을 수 있게 해준다.
 	4. 일반 파이프와 지정 파이프
 		1. unnamed pipe
 		2. named pipe
 	5. 시그널을 이용한 프로세스 간 커뮤니케이션
-		- 
+		-
 
 
 ## 6. 소켓의 이용
