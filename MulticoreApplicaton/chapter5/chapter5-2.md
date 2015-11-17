@@ -170,45 +170,48 @@ int main()
 			- off_t offset : 공유 메모리 영역에 접근할 때 기본으로 적용될 주소 오픈.
 ```c++
 //공유 메모리를 이용한 mutex 공유
-pthread_mutex_t * mutex;
-pthread_mutexattr_t attributes;
-pthread_mutexattr_init( &attributes );
-pthread_mutexattr_setpshared( &attributes, PTHREAD_PROCESS_SHARED );
-
-int handle = shm_open( "/shm", O_CREAT|O_RDWR, 0777 );
-ftruncate( handle, 1024*sizeof(int) );
-char * mem = mmap( 0, 1024*sizeof(int), PROT_READ|PROT_WRITE,
-				MAP_SHARED, handle,0 );
-
-mutex = (pthread_mutex_t*)mem;
-pthread_mutex_init( mutex, &attributes );
-pthread_mutexattr_destroy( &attributes );
-
-int ret = 0;
-int * pcount = (int*)( mem + sizeof(pthread_mutex_t) );
-*pcount = 0;
-
-pid_t pid = fork();
-if (pid == 0)
-{  /* Child process */
-		pthread_mutex_lock( mutex );
-		(*pcount)++;
-		pthread_mutex_unlock( mutex );
-		ret = 57;
-}
-else
+void main()
 {
-		int status;
-		waitpid( pid, &status, 0 );
-		printf( "Child returned %i\n", WEXITSTATUS(status) );
-		pthread_mutex_lock( mutex );
-		(*pcount)++;
-		pthread_mutex_unlock( mutex );
-		printf( "Count = %i\n", *pcount );
-		pthread_mutex_destroy( mutex );
+	pthread_mutex_t * mutex;
+	pthread_mutexattr_t attributes;
+	pthread_mutexattr_init( &attributes );
+	pthread_mutexattr_setpshared( &attributes, PTHREAD_PROCESS_SHARED );
+
+	int handle = shm_open( "/shm", O_CREAT|O_RDWR, 0777 );
+	ftruncate( handle, 1024*sizeof(int) );
+	char * mem = mmap( 0, 1024*sizeof(int), PROT_READ|PROT_WRITE,
+					MAP_SHARED, handle,0 );
+
+	mutex = (pthread_mutex_t*)mem;
+	pthread_mutex_init( mutex, &attributes );
+	pthread_mutexattr_destroy( &attributes );
+
+	int ret = 0;
+	int * pcount = (int*)( mem + sizeof(pthread_mutex_t) );
+	*pcount = 0;
+
+	pid_t pid = fork();
+	if (pid == 0)
+	{  /* Child process */
+			pthread_mutex_lock( mutex );
+			(*pcount)++;
+			pthread_mutex_unlock( mutex );
+			ret = 57;
+	}
+	else
+	{
+			int status;
+			waitpid( pid, &status, 0 );
+			printf( "Child returned %i\n", WEXITSTATUS(status) );
+			pthread_mutex_lock( mutex );
+			(*pcount)++;
+			pthread_mutex_unlock( mutex );
+			printf( "Count = %i\n", *pcount );
+			pthread_mutex_destroy( mutex );
+	}
+	munmap( mem, 1024*sizeof(int) );
+	shm_unlink( "/shm" );
 }
-munmap( mem, 1024*sizeof(int) );
-shm_unlink( "/shm" );
 ```
 
 	2. 프로세스 간의 세마포어 공유
@@ -217,16 +220,17 @@ shm_unlink( "/shm" );
 			- int oflag :
 			- mode_t mode :
 			- unsigned int value : 세마포 초기값
-	```c++
+```c++
 	typedef union
 	{
   	char __size[__SIZEOF_SEM_T];
   	long int __align;                                                                                                                  
 	} sem_t;
-	```
-	```c++
-	//공유 메모리를 이용한 세마포어 공유
-	int status;
+```
+
+```c++
+	 //공유 메모리를 이용한 세마포어 공유
+	 int status;
 	 pid_t f = fork();
 	 sem_t * semaphore;
 
@@ -245,7 +249,7 @@ shm_unlink( "/shm" );
 			 sem_unlink( "my_semaphore" );
 			 printf( "Parent process completed\n" );
 	 }
-	 ```
+```
 
 	3. 메시지 큐
 		* 스레드 또는 프로세스 간에 메시지를 주고받을 수 있게 해준다.
@@ -256,7 +260,8 @@ shm_unlink( "/shm" );
 		* int mq_timedsend(mqd_t mqdes, const char *msg_ptr,
                      size_t msg_len, unsigned int msg_prio,
                      const struct timespec *abs_timeout);
-		```c++
+
+```c++
 		typedef int mqd_t;                                                                                                                   
 		struct mq_attr
 		{
@@ -266,10 +271,11 @@ shm_unlink( "/shm" );
   		__syscall_slong_t mq_curmsgs; /* Number of messages currently queued.  */
   		__syscall_slong_t __pad[4];
 		};
-		```
-		```c++
+```
+
+```c++
 		//메시지 큐를 이용하여 부모와 자식 프로세스의 메시지 전달
-				int status;
+		int status;
 		mqd_t queue;
 		char message[200];
 		pid_t f = fork();
@@ -292,12 +298,171 @@ shm_unlink( "/shm" );
 				mq_unlink( "/messages" );
 				printf( "Parent process completed\n" );
 		}
-		```
+```
+
 	4. 일반 파이프와 지정 파이프
+		* 파이프는 두 프로세스 간의 데이터 스트림을 연결해준다.
+			- 선입선출로 동작한다.
 		1. unnamed pipe
+```c++
+	int main()
+	{
+		int status;
+		int pipes[2];
+		pipe(pipes);
+		pid_t f = fork();
+
+		if (f==0)
+		{ /* Child process */
+			close(pipes[0]);
+			write(pipes[1],"a",1);
+			printf("Child sent 'a'\n");
+			close(pipes[1]);
+		}
+		else
+		{
+			char buffer[11];
+			close(pipes[1]);
+			int len=read(pipes[0],buffer,10);
+			buffer[len]=0;
+			printf("Parent received %s\n",buffer);
+			close(pipes[0]);
+		}                                                                           
+		return 0;
+	}
+```
 		2. named pipe
+```c++
+	int main()
+ {
+    int status;
+    mknod( "/tmp/pipefile", S_IFIFO|S_IRUSR|S_IWUSR, 0 );
+    pid_t f = fork();
+    if ( f == 0 )
+    { /* Child process */
+        int mypipe = open( "/tmp/pipefile", O_WRONLY );
+        write( mypipe, "a", 1 );
+        printf( "Child sent 'a'\n" );
+        close( mypipe );
+    }
+    else
+    {
+        int mypipe = open( "/tmp/pipefile", O_RDONLY );
+        char buffer[11];
+        int len = read( mypipe, buffer, 10 );
+        buffer[len] = 0;
+        printf( "Parent received %s\n", buffer );
+        close( mypipe );
+    }
+    unlink( "/tmp/pipefile" );
+    return 0;
+ }
+```
 	5. 시그널을 이용한 프로세스 간 커뮤니케이션
-		-
+		* 시그널을 이용할 때 한가지 문제점은 시그널 핸들러가 구동되는 동안에는 다른 스레드에서  
+		호출한 시스템 콜을 방해할 수 있다는 점이다.
+		* 시그널 핸들러 안에서 함수를 호출할 때 signal-safe  한지 확인해야 한다.
+		* SIGRTMIN & SIGRTMAX
+			- 사용자 정의 시그널로 이용할 수 있는 시그널 번호에 대한 최솟값과 최댓값
+		- sighandler_t signal(int signum, sighandler_t handler);
+			- return : 이전에 등록 되어 있던 시그널 핸들러
+		- int sigaction(int signum, const struct sigaction *act,
+                     struct sigaction *oldact);
+			- struct sigaction *oldact : 이전 등록 되어 있던 sigaction 구조체 포인터
+		- int sigqueue(pid_t pid, int sig, const union sigval value);
+			-
+		- int kill(pid_t pid, int sig);
+			- pid 로 signal( sig ) 를 보낸다.
+```c++
+union sigval {
+               int   sival_int;
+               void *sival_ptr;
+           };
+```
+
+```c++
+struct sigaction {
+               void     (*sa_handler)(int);
+               void     (*sa_sigaction)(int, siginfo_t *, void *);
+               sigset_t   sa_mask;
+               int        sa_flags;
+               void     (*sa_restorer)(void);
+           };
+
+```
+```c++
+void hsignal(int signal)
+{
+	/* do somthing */
+}
+
+int main()
+{
+  signal(SIGRTMIN+4,hsignal);
+  kill(getpid(),SIGRTMIN+4);
+  return 0;
+}
+```
+
+```c++
+//시그널 핸들러의 체이닝
+struct sigaction oldhandler;
+
+void hsignal( int signal, siginfo_t* info, void* other )
+{
+  write( 1, "Got signal\n", 11 );
+  if(oldhandler.sa_sigaction)
+  {
+    oldhandler.sa_sigaction( signal, info, other );
+  }
+}
+
+void main()
+{
+  struct sigaction newhandler;
+  newhandler.sa_sigaction = hsignal;
+  newhandler.sa_flags = 0;
+  sigemptyset( &newhandler.sa_mask );
+  sigaction( SIGPROF,&newhandler, &oldhandler );
+  kill( getpid(), SIGPROF );
+}
+```
+
+```c++
+//데이터가 첨부된 시그널 전송
+volatile int go = 0;
+struct sigaction oldhandler;
+
+void handler( int sig, siginfo_t *info, void *context )
+{
+  go = (int)info->si_value.sival_int;
+  write( 1, "Signal arrived\n", 16 );
+}
+
+void main()
+{
+  struct sigaction newhandler;
+  newhandler.sa_sigaction = handler;
+  newhandler.sa_flags = SA_SIGINFO;
+  sigemptyset( &newhandler.sa_mask );
+  sigaction( SIGRTMIN+4, &newhandler, &oldhandler );
+
+  pid_t f = fork();
+  if ( f == 0 )
+  { /* Child process */
+    while ( !go ){}
+    printf( "Child completed go=%i\n", go );
+  }
+  else
+  {
+    union sigval value;
+    value.sival_int = 7;
+    sigqueue( f, SIGRTMIN+4, value );
+    waitpid( f, 0, 0 );
+    printf( "Parent completed\n" );
+  }
+}
+```
 
 
 ## 6. 소켓의 이용
