@@ -66,7 +66,8 @@ void sum( double* total, double* array, int len )
 	4. Thread Private Data
 		- 스택에 저장된 데이터.
 		- Thread Local Storage( TLS )
-			- __thread 지정자를 붙이는 것으로 해당 변수에 대해 스레드 별로 복제본을 생성해 스레드 간에 공유가 안되면서   
+		- __thread   
+			- 해당 지정자를 붙이는 것으로 해당 변수에 대해 스레드 별로 복제본을 생성해 스레드 간에 공유가 안되면서   
 			같은 스레드 컨텍스트 하에서 실행되는 코드에는 전역 변수로 보이게 해준다.
 			- 컴파일러가 스레드 별로 별도의 메모리(.tls)영역을 할당해서 thread 전용 변수들을 저장한다.   
 			이후 링크 과정에서 PT_TLS 타입의 데이터 세그먼트로 합쳐지게 된다
