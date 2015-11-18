@@ -334,35 +334,48 @@ void main()
 ```
 		2. named pipe
 ```c++
-	int main()
- {
-    int status;
-    mknod( "/tmp/pipefile", S_IFIFO|S_IRUSR|S_IWUSR, 0 );
-    pid_t f = fork();
-    if ( f == 0 )
-    { /* Child process */
-        int mypipe = open( "/tmp/pipefile", O_WRONLY );
-        write( mypipe, "a", 1 );
-        printf( "Child sent 'a'\n" );
-        close( mypipe );
-    }
-    else
-    {
-        int mypipe = open( "/tmp/pipefile", O_RDONLY );
-        char buffer[11];
-        int len = read( mypipe, buffer, 10 );
-        buffer[len] = 0;
-        printf( "Parent received %s\n", buffer );
-        close( mypipe );
-    }
-    unlink( "/tmp/pipefile" );
-    return 0;
- }
+int main()
+{
+	int status;
+	mknod( "/tmp/pipefile", S_IFIFO|S_IRUSR|S_IWUSR, 0 );
+	pid_t f = fork();
+	if ( f == 0 )
+	{ /* Child process */
+		int mypipe = open( "/tmp/pipefile", O_WRONLY );
+		write( mypipe, "a", 1 );
+		printf( "Child sent 'a'\n" );
+		close( mypipe );
+	}
+	else
+	{
+		int mypipe = open( "/tmp/pipefile", O_RDONLY );
+		char buffer[11];
+		int len = read( mypipe, buffer, 10 );
+		buffer[len] = 0;
+		printf( "Parent received %s\n", buffer );
+		close( mypipe );
+	}
+	unlink( "/tmp/pipefile" );
+	return 0;
+}
 ```
 	5. 시그널을 이용한 프로세스 간 커뮤니케이션
 		* 시그널을 이용할 때 한가지 문제점은 시그널 핸들러가 구동되는 동안에는 다른 스레드에서  
 		호출한 시스템 콜을 방해할 수 있다는 점이다.
 		* 시그널 핸들러 안에서 함수를 호출할 때 signal-safe  한지 확인해야 한다.
+		* 시그널 핸들러는 프로세스 단위로 지정되는 반면, 각 쓰레드는 자기만의 시그널 마스크를 가진다.
+			- int pthread_sigmask( int how, const sigset_t *restrict set, sigset_t *restrict oset )
+			- int sigprocmask( int how, const sigset_t *set, sigset_t *oldset );
+			* int how
+				- SIG_BLOCK
+					- 기존에 블록된 시그널 집합에 두번째 인수 set 시그널 집합을 추가
+				- SIG_UNBLOCK
+					- 기존에 블록화된 시그널 집합에 두번째 인수 set 시그널 집합을 제거
+				- SIG_SETMASK
+					- 이전 블록된 시그널 집합을 모두 지우고 두번째 인수인 set 시그널 집합으로 설정
+		* 프로세스가 여러 쓰레드를 가진다면, 메인 쓰레드가 다른 쓰레드를 생성한 이후에  
+		sigprocmask 함수를 더 이상 사용해서는 안된다.
+		* 멀티쓰레드 프로세스에서 시그널을 다루기 위한 추천할 만한 방법중 하나는 특정 쓰레드가 시그널 핸들링을 전담
 		* SIGRTMIN & SIGRTMAX
 			- 사용자 정의 시그널로 이용할 수 있는 시그널 번호에 대한 최솟값과 최댓값
 		- sighandler_t signal(int signum, sighandler_t handler);
@@ -371,9 +384,15 @@ void main()
                      struct sigaction *oldact);
 			- struct sigaction *oldact : 이전 등록 되어 있던 sigaction 구조체 포인터
 		- int sigqueue(pid_t pid, int sig, const union sigval value);
-			-
+			- pid 에 지정된 프로세스로 sig 를 보낸다. value 를 이용해서 시그널과 함께 필요한 데이터를 전송할 수 있다.
 		- int kill(pid_t pid, int sig);
 			- pid 로 signal( sig ) 를 보낸다.
+		- int pthread_kill( pthread_t thread, int sig );
+			- thread 로 signal( sig ) 를 보낸다.
+		- int sigwait( const sigset_t *set, int *sig )
+			- sigset 에 지정된 시그널이 전달될 때까지 해당 영역에서 대기.   
+			- 시그널을 받게 되면 받은 시그널 번호를 sig 에 복사하고 리턴
+			- set 에 명시된 시그널들은 반드시 봉쇄로 지정되어야 한다.
 ```c++
 union sigval {
                int   sival_int;
@@ -383,12 +402,22 @@ union sigval {
 
 ```c++
 struct sigaction {
-               void     (*sa_handler)(int);
-               void     (*sa_sigaction)(int, siginfo_t *, void *);
-               sigset_t   sa_mask;
-               int        sa_flags;
-               void     (*sa_restorer)(void);
+               void     (*sa_handler)(int); // 시그널을 처리하기 위한 핸들러
+               void     (*sa_sigaction)(int, siginfo_t *, void *); // 밑의 sa_flags 가 SA_SIGINFO 일 때
+			   													   // sa_handler 대신에 동작하는 핸들러
+               sigset_t   sa_mask; // 시그널을 처리하는 동안 블록화할 시그널 집합의 마스크
+               int        sa_flags; // 아래 참조              
+			   void     (*sa_restorer)(void); // 사용해서는 안됩니다.
            };
+
+/*
+- SA_NOCLDSTOP : signum이 SIGCHILD일 경우, 자식 프로세스가 멈추었을 때, 부모 프로세스에 SIGCHILD가 전달되지 않는다.  
+-SA_ONESHOT or SA_RESETHAND : 시그널을 받으면 설정된 행도을 취하고 시스템 기본 설정인 SIG_DFL 로 재설정된다.  
+- SA_RESTART : 시그널 처리에 의해 방해 받은 시스템 호출은 시그널 처리가 끝나면 재시작한다.  
+SA_NOMASK or SA_NODEFER : 시그널을 처리하는 동안에 전달되는 시그널은 블록되지 않는다.  
+- SA_SIGINFO : 이 옵션이 사용되면 sa_handler대신에 sa_sigaction이 동작되며, sa_handler 보다 더 다양한 인수를 받을 수 있다.  
+			   sa_sigaction이 받는 인수에는 시그널 번호, 시그널이 만들어진 이유, 시그널을 받는 프로세스의 정보이다.
+*/
 
 ```
 ```c++
@@ -399,9 +428,9 @@ void hsignal(int signal)
 
 int main()
 {
-  signal(SIGRTMIN+4,hsignal);
-  kill(getpid(),SIGRTMIN+4);
-  return 0;
+	signal(SIGRTMIN+4,hsignal);
+	kill(getpid(),SIGRTMIN+4);
+	return 0;
 }
 ```
 
@@ -411,21 +440,21 @@ struct sigaction oldhandler;
 
 void hsignal( int signal, siginfo_t* info, void* other )
 {
-  write( 1, "Got signal\n", 11 );
-  if(oldhandler.sa_sigaction)
-  {
-    oldhandler.sa_sigaction( signal, info, other );
-  }
+	write( 1, "Got signal\n", 11 );
+	if(oldhandler.sa_sigaction)
+	{
+		oldhandler.sa_sigaction( signal, info, other );
+	}
 }
 
 void main()
 {
-  struct sigaction newhandler;
-  newhandler.sa_sigaction = hsignal;
-  newhandler.sa_flags = 0;
-  sigemptyset( &newhandler.sa_mask );
-  sigaction( SIGPROF,&newhandler, &oldhandler );
-  kill( getpid(), SIGPROF );
+	struct sigaction newhandler;
+	newhandler.sa_sigaction = hsignal;
+	newhandler.sa_flags = 0;
+	sigemptyset( &newhandler.sa_mask );
+	sigaction( SIGPROF,&newhandler, &oldhandler );
+	kill( getpid(), SIGPROF );
 }
 ```
 
@@ -436,42 +465,90 @@ struct sigaction oldhandler;
 
 void handler( int sig, siginfo_t *info, void *context )
 {
-  go = (int)info->si_value.sival_int;
-  write( 1, "Signal arrived\n", 16 );
+	go = (int)info->si_value.sival_int;
+	write( 1, "Signal arrived\n", 16 );
 }
 
 void main()
 {
-  struct sigaction newhandler;
-  newhandler.sa_sigaction = handler;
-  newhandler.sa_flags = SA_SIGINFO;
-  sigemptyset( &newhandler.sa_mask );
-  sigaction( SIGRTMIN+4, &newhandler, &oldhandler );
+	struct sigaction newhandler;
+	newhandler.sa_sigaction = handler;
+	newhandler.sa_flags = SA_SIGINFO;
+	sigemptyset( &newhandler.sa_mask );
+	sigaction( SIGRTMIN+4, &newhandler, &oldhandler );
 
-  pid_t f = fork();
-  if ( f == 0 )
-  { /* Child process */
-    while ( !go ){}
-    printf( "Child completed go=%i\n", go );
-  }
-  else
-  {
-    union sigval value;
-    value.sival_int = 7;
-    sigqueue( f, SIGRTMIN+4, value );
-    waitpid( f, 0, 0 );
-    printf( "Parent completed\n" );
-  }
+	pid_t f = fork();
+	if ( f == 0 )
+	{ /* Child process */
+		while ( !go ){}
+		printf( "Child completed go=%i\n", go );
+	}
+	else
+	{
+		union sigval value;
+		value.sival_int = 7;
+		sigqueue( f, SIGRTMIN+4, value );
+		waitpid( f, 0, 0 );
+		printf( "Parent completed\n" );
+	}
 }
 ```
 
+```c++
+//시그널 전담 쓰레드의 이용
 
-## 6. 소켓의 이용
-	1. TCP/IP
-	2. UDP/IP
+static void *signalthread(void *arg) 
+{                                                          
+	sigset_t intmask;
+	int sig;
 
+	sigemptyset(&intmask);
 
-## 7. 재진입 가능한 코드와 컴파일러 플래그
-	* 플랫폼과 컴파일러에 따라 멀티 스레드 애플리케이션을 컴파일 할 때 특별한 플래그를 설정할 필요가 있다.
-		- gcc : -pthread
-		- solais : -mt
+	sigaddset(&intmask, signalnum);
+
+	sigwait(&intmask, &sig);
+}
+
+int signalthreadinit(int signo)
+{
+	sigset_t set;
+	pthread_t sighandid;
+
+	signalnum = signo;                   
+
+	sigemptyset(&set); 
+
+	sigaddset(&set, signalnum);
+
+	sigprocmask(SIG_BLOCK, &set, NULL);
+
+	pthread_create(&sighandid, NULL, signalthread, NULL))
+
+		return 0;
+}  
+
+int main(int argc, char *argv[]) 
+{
+	int i;
+	int numthreads;
+	pthread_t *tids;
+
+	signalthreadinit(SIGUSR1));
+
+	numthreads = atoi(argv[1]);
+	tids = (pthread_t *)calloc(numthreads, sizeof(pthread_t));
+
+	for (i = 0; i < numthreads; i++)      /* create numthreads computethreads */
+		pthread_create(tids+ i, NULL, computethread, NULL);
+
+	fprintf(stderr, "Send SIGUSR1(%d) signal to proc %ld to stop calculation\n",
+			SIGUSR1, (long)getpid());
+
+	for (i = 0; i < numthreads; i++)    /* wait for computethreads to be done */
+		pthread_join(tids[i], NULL);
+
+	showresults();
+
+	return 0;
+}        
+```
