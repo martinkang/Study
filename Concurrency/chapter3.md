@@ -20,7 +20,7 @@ Chapter 03, Sharing data between threads
 ### 3.1.2 Avoiding problematic race conditions
 * *race conditions* 을 방지하는 방법
 	- 보호 메커니즘을 추가하여, 오직 그 데이터를 수정하고 있는 Thread 만 베타적 접근을 허용하는 것.
-	- *atomic* 연산을 이용하여 *lock-free programming* 을 사용하는 방법 
+	- *atomic* 연산을 이용하여 *lock-free programming* 을 사용하는 방법
 	- 데이터베이스의 *transaction* 처럼 다루는 방법
 		* *transaction* 이란 데이터의 수정 도중 다른 간섭이 생길 수 없는 *atomic* 한 연산으로 결과는 all or nothing 이다.  
 		* 만약 여러 데이터의 수정이 한 *transaction* 으로 일어난다면, 결과는 모든 데이터의 수정이 성공하거나, 모든 데이터의 수정이 실패되어야 한다.
@@ -35,7 +35,7 @@ Chapter 03, Sharing data between threads
 ### 3.2.1 Using mutexes in C++
 * C++에서 ```std::mutex```를 이용하면 mutex를 만들 수 있습니다.
 	- 사용 가능한 함수
-		- ```lock()``` 
+		- ```lock()```
 		- ```unlock()```
 		- ```trylock()```
 
@@ -61,27 +61,15 @@ bool list_contains(int value_to_find)
 		!= some_list.end();
 }
 ```
-- ```std:::list<int> some_list``` : 전역 변수
-- ```std::mutex some_mutex```는 ```std:::list<int> some_list```를 보호하는 전역 인스턴스
-- ```add_to_list()```와 ```list_contains()```에서 ```std::lock_guard<std::mutex>```의 사용함은 이 함수들에서의 접근들은 상호배제 되었음을 의미 합니다.
-- ```list_contains()```는 절대로 ```add_to_list()```가 수정하고 있는 리스트의 일부분을 볼 수 없습니다.
+* ```std::lock_guard``` 는 생성과 동시에 mutex 의 lock 을 획득하고, 객체가 소멸할 때 소멸자에서 unlock 이 호출 됩니다. 명시적으로 unlock 호출이 가능하지만, 이는 권장하지 않습니다.
+  - std::mutex is usually not accessed directly: std::unique_lock and std::lock_guard are used to manage locking in exception-safe manner.
+  - 사용자의 편의 또는 예외상황서 안전한 코드 동작을 위해 unlock 을 하지 않아도 소멸자가 unlock 을 하여 신뢰성 있는 코드를 만들어 준다.
+* mutex 를 이용하여 데이터를 보호할 때, critical section 을 다루는 한 함수에서 보호된 데이터의 pointer나 reference를 리턴하면, 보호 메커니즘에 큰 문제가 생깁니다.
+	- *해당 pointer나 reference에 접근하는 다른 코드들은 어떠한 제지도 없이 공유 데이터에 접근하여 데이터를 변경할 수 있습니다.*
 
-- 비록 이 전역변수의 사용이 적절할 때도 있지만, 대부분의 경우 전역변수로 사용하는 것 보다 class에 mutex와 보호된 데이터를 함께 그룹으로 지정하는 것이 일반적입니다.
-	- 이는 객체 지향 설계 규칙의 표준 응용입니다.
-		- 클래스에 데이터와 mutex를 넣어 서로 연관되어 있음을 명확하게 하고, 상관관계를 캡슐화를 하고 보호를 강화합니다.
-	- 이 경우, ```add_list()```와 ```list_contains()``` 는 이 클래스의 멤버 함수가 될 것이며, mutex와 보호되는 데이터는 이 클래스의 ```private``` 멤버가 될 것입니다.
-		- 이는 코드가 데이터에 접근하고 그러므로 어떤 코드가 mutex에 lock을 걸 필요가 있는지 식별하는 것을 더 쉽게 해줍니다.
-	- 만약 이 클래스의 모든 멤버 함수가 다른 어떤 데이터 멤버에 접근하기 전에 mutex에 lock을 걸고, 사용을 다 하여 unlock을 하면, 해당 데이터는 완벽하게 모든 코드로 부터 보호됩니다.
-- 만약 한 멤버 함수가 보호된 데이터의 pointer나 reference를 리턴하면, 보호에 큰 구멍이 생기기 때문에, 멤버 함수가 오래된 방식으로 mutex에 모든 lock을 걸어도 소용이 없어집니다.
-	- *해당 pointer나 reference에 접근하는 어떠한 코드들은 mutex에 lock을 걸지 않아도 보호된 데이터에 접근(잠재적으로 수정도)할 수 있습니다.*
-	- 그러므로 mutex로 보호하는 데이터는 보호된 데이터에 접근하기 전에 mutex에 lock을 걸고, 어떠한 backdoor도 없을을 보장하기 위한 조심스러운 인터페이스 설계를 요구합니다.
 
 ### 3.2.2 Structuring code for protecting shared data
-
-- 위에서 보시다시피, mutex로 데이터를 보호하는 것은 모든 멤버 함수에 ```std::lock_guard``` 객체를 때려박는 것처럼 그렇게 쉬운 작업은 아닙니다.
-	- 하나의 stray pointer와 reference 그리고 아무것도 아닌 것에 대한 보호를 포함해서요.
-- 한 레벨에서 stray pointer 또는 reference를 찾는 것은 쉽습니다.
-	- 어떠한 멤버 함수도 보호되는 데이터의 pointer나 reference를 반환 값이나 인자로 보내지 않는이상, 해당 데이터는 안전합니다.
+* 어떠한 멤버 함수도 보호되는 데이터의 pointer나 reference를 반환 값이나 인자로 보내지 않는이상, 해당 데이터는 안전합니다.
 - pointer나 reference를 그들의 호출자에게 전달해주지 않는 멤버 함수를 검사하는 것 뿐만 아니라 당신의 제어 하에 있지 않은 함수에 pointer나 reference를 전달하는지 검사하는 것 또한 중요합니다.
 	- 이는 매우 위험합니다. 이러한 함수들은 mutex의 보호 없이 추후에 사용될 수 있는 pointer나 reference를 저장할 수 있기 때문입니다.
 	- 특히 이와 관련된 위험들은 다음의 리스트 처럼 함수 인자나 다른 방법을 통해 실행시간에 나올 수 있습니다.    
@@ -125,32 +113,12 @@ void foo()
 	unprotected->do_something(); //Unprotected access to protected data
 }
 ```
+- 이 예제에서 process_data 의 데이터를 lock_gaurd 를 이용하여 동시접근으로 부터 보호할 수 있습니다.
+- 하지만 ```malicious_function``` 에서 공유 데이터의 포인터를 넘겨주기 때문에,
+protected_data 에 보호 메커니즘 없이 접근을 하게 되어 공유 데이터를 보호할 수 없게 됩니다.
 
-- 이 예제에서 ```process_data``` 안에 있는 코드는 충분히 해가되지 않고, ```std::lock_guard```와 함께 보호됩니다.
-	- 그러나 사용자가 지정한 함수 ```func```는 ```foo```가 보호를 우회하기 위해 ```malicious_function```을 통과할 수 있습니다.
-	- 그 후에 ```do_something()```를 mutex의 lock 없이 부를 수 있게 됩니다.
-- 근본적으로, 이 코드의 문제점은 해야 할 설정을 하지 않았다는 것입니다.
-	- 상호 배제처럼 모든 자료구조에 접근하는 코드에 표시를 해야 합니다.
-	- 이 예에서, ```foo()``` 안에 있는 ```unprotected->do_something()``` 이것을 하지 않았습니다.
-	- 불행히도, 이 문제의 부분은 C++ 쓰레드 라이브러리가 도움을 줄 수 있는 내용이 아닙니다.
-		- 따라서 프로그래머가 데이터를 보호하기 위해 올바른 mutex에 lock을 걸어야 합니다.
-- 위에서 본 것처럼, 이러한 경우들을 해결하는데 도움이 될 수 있는 가이드 라인을 따르는 것이 좋습니다.
-	- *함수로부터 반환되거나, 보이는 메모리 외부에 저장하거나, 사용자 지정 함수의 인자에 넘기는 것 등 lock의 범위 밖에 있는 보호되는 데이터의 pointer와 reference를 사용하지 말 것입니다.*
-- 비록 이 경우는 공유 데이터를 보호하기 위해 mutex를 사용할 때 발생하는 흔한 실수이지만, 잠재적인 어려움에서 잠깐 벗어난 것에 불과합니다.
-	- 다음 장에서 mutex를 보호하고 있음에도 여전히 *Race Condition*이 발생하는 경우에 대해 살펴볼 것입니다.
 
 ### 3.2.3 Spotting race conditions inherent in interfaces
-- mutex나 다른 메커니즘을 사용하여 공유 데이터를 보호하기 때문에, 따로 Race Condition에 대한 보호를 할 필요는 없습니다.
-	- 다만 여전히 적절한 데이터가 보호되고 있음을 보장해야 합니다.
-- Double linked list에 대해 다시한번 생각해봅시다.
-	- 한 쓰레드가 안전하게 node를 제거하기 위해, 세 노드에 대한 병행처리를 보장해야 할 필요가 있습니다.
-		- 삭제되는 노드와 다른 쪽에 있는 노드들까지 말이죠.
-		- 만약 각각의 노드들의 pointer 접근에 대한 보호를 했다면, mutex를 사용하지 않은 코드보다 더 나을 것이 없습니다.
-			- 왜냐면 race condition이 계속 발생하기 때문이죠.
-			- 각각의 독립적인 노드들은 독립적인 단계에서 보호가 필요한게 아니고 전제 삭제 명령에서 전체 자료구조에 필요하기 때문입니다.
-			- 이 경우에서 가장 쉬운 해결방법은 **listing 3.1** 처럼 전체 list에 대한 하나의 mutex만 가지는 것입니다.
-- list에 있는 독립적인 명령들은 안전하기 때문에, 숲 밖을 나가진 않아도 됩니다.
-	- 하지만 정말로 단순한 인터페이스임에도 불구하고 여전히 race condtion을 얻게 될 수 있습니다.
 - **listing 3.3**에서 보는 것 처럼 ```std::stack``` 컨테이너 어댑터와 같은 스택 자료구조가 있다고 가정해봅시다.
 
 #### Listing 3.3 The interface to the ```std::stack``` container adapter
@@ -177,7 +145,7 @@ public:
 };
 ```
 
-- 생성자와 ```swap()```는 잠시 제쳐두고,  ```std::stack```에 할 수 있는 5가지가 있습니다.
+- std::stack``` 에 생성자와 swap 은 잠시 제쳐두고, 다음과 같은 5가지 멤버함수가 있습니다.
 	- ```push()```를 이용해 새로운 요소를 스택에 추가할 수 있습니다.
 	- ```pop()```을 이용해 요소를 스택에서 뺄 수 있습니다.
 	- ```top()```을 이용해 스택의 가장 맨위에 있는 요소를 읽을 수 있습니다.
@@ -668,16 +636,12 @@ thread_local unsigned long
 
 
 ### 3.2.6 Flexible locking with std::unique_lock
-
-- ```std::unique_lock``` 은 *invariants* 를 완화시켜 ```std::lock_guard``` 보다 조금 더 *flexibility* 한 기능을 제공합니다.
-	- ```std::unique_lock``` 인스턴스는 mutex 소유권 이전을 허용해 *invariant* 를 완화 시킵니다.
-- ```std::unique_lock``` 생성자에 두번째 인자로 ```std::adopt_lock``` 을 전달하면 lock 객체가 mutex 의 lock 을 관리합니다,
-- ```std::unique_lock``` 생성자에 두번째 인자로  ```std::defer_lock``` 을 전달하면 이는 mutex 를 unlocked 상태로 생성합니다.  
-  - lock 을 획득하려면 ```std::unique_lock``` 객체( mutex 가 아닌 )의 ```lock()``` 을 호출하거나 ```std::unique_lock``` 객체를 ```std::lock()``` 에 인자로 전달함으로서 lock 을 획득할 수 있습니다.  
-
-
+* ```std::unique_lock``` 은 mutex 소유권 이전을 허용함으로서 좀더 유연한 mutex 의 활용이 가능합니다.
+  - ```std::unique_lock```  의 두번째 인자는 다음과 같습니다.
+    - ```std::adopt_lock``` : mutex 가 lock 상태로 생성되며 lock 객체가 mutex 의 lock 을 관리합니다,
+    - ```std::defer_lock``` : mutex 를 unlocked 상태로 생성합니다.  
+      - lock 을 획득하려면 ```std::unique_lock``` 객체( mutex 가 아닌 )의 ```lock()``` 을 호출하거나 ```std::unique_lock``` 객체를 ```std::lock()``` 에 인자로 전달함으로서 lock 을 획득할 수 있습니다.  
 - Listing 3.6 의 ```std::lock_guard``` 와 ```std::adopt_lock``` 을 ```std::unique_lock``` 와 ```std::defer_lock``` 로 대체하면 Listing 3.9 와 같이 쉽게 쓰일 수 있습니다.
-  - 이 두 코드는 같은 라인수를 가며, 본질적으로 동일합니다
 - ```std::unique_lock``` 은 mutex 의 소유권 정보를 저장하고 업데이트 해야하기 때문에, ```std::lock_guard``` 보다 더 많은 공간을 필요로 하고 부분적으로 보다 느립니다.
 
 
@@ -708,21 +672,11 @@ class X
 };
 ```
 
-- Listing 3.9 에서, ```std::unique_lock``` 객체는 ```std::lock()``` 에 인자로 전달될 수 있습니다.
-이는 ```std::unique_lock``` 가 ```lock()```, ```try_lock()``` 그리고 ```unlock()``` 멤버 함수를 지원하기 때문입니다.
-	- mutex 하위의 멤버 함수들과 이름이 같은 이러한 멤버 함수들은 실질적으로 작업 수행과,
-	```std::unique_lock``` 인스턴스 내부의 flag 를 바로 갱신합니다.
+- ```std::unique_lock``` 는 ```lock()```, ```try_lock()``` 그리고 ```unlock()``` 멤버 함수를 지원합니다
+	- 이 멤버함수들은 ```std::unique_lock``` 인스턴스 내부의 flag 를 바로 갱신합니다.
 		- flag 는 현재 인스턴스의 mutex 소유 여부를 나타냅니다.
-		- flag 는 소멸자에서 올바르게 ```unlock()``` 이 호출되는 것을 보장하기 위해 필수적입니다.  
-      - 만약 인스턴스가 mutex 를 소유한다면, 소멸자는 ```unlcok()``` 을 반드시 호출해야 하고,
-      만약 인스턴스가 mutex 를 소유하지 않으면, ```unlock()``` 을 호출해서는 안됩니다.
 		- flag 는 ```owns_lock()``` 멤버 함수를 호출하여 조회할 수 있습니다.
-		- flag 정보는 저장되어 집니다.
 	- 이 flag 정보를 저장하고 갱신해야 하기 때문에, 일반적으로 ```std::unique_lock``` 객체의 크기는 ```std::lock_guard``` 객체보다 크며, 약간의 성능상 페널티가 생깁니다
-	- 때문에 만약 ```std::lock_guard``` 가 당신의 *needs* 를 충분히 만족시킨다면,
-	```std::lock_guard``` 를 먼저 써 보시길 권장합니다.  
-		- ```std::unique_lock``` 의 이런 추가적인 *flexibility* 를 활용할 필요가 있기 때문에, *unique_lock* 이 유용한 상황이 존재합니다.
-
 - 이 예제는 앞에서 이미 보았던 *deferred locking* 입니다; 또 다른 케이스는 lock 에 대한 소유권이 다른 scope 로 이동하는 예입니다.
 
 
@@ -736,11 +690,7 @@ class X
 		2. *rvalue*( 임시적인 값의 한종류 )
 			- 자동적으로 소유권이 전달됩니다.
 - ```std::unique_lock``` 은 이동가능하지만 복사 불가능한 타입 중 하나입니다.   
-	- 부록 A 의 섹션 A.1.1 보면 에 더 많은 move semantic 에 대해 알 수 있습니다.  
-- 이 ```std::unique_lock``` 은 함수가 mutex 에 대한 lock 과 호출자에 대한 lock 의 소유권 이전을 허용하여, 호출자는 동일한 lock 의 보호아래 추가적인 작업 수행이 가능해집니다.  
-
-
-- 아래의 코드는 이러한 예제 중 하나입니다. ```get_lock()``` 함수는 mutex 의 lock 을 획득 하고 호출자에게 lock 을 반환하기 전에 ```prepare_date()``` 를 수행합니다.
+- 아래의 코드는 이러한 예제 중 하나입니다.
 
 
 ```c++
@@ -759,7 +709,6 @@ void process_data()
 	do_something();
 }
 ```
-
 - lk 는 함수안에서 *automatic* 변수로 선언되었기 때문에, 이것은 ```std:move()``` 없이 직접적으로 반환 가능합니다;
 	- 컴파일러는 *move constructor* 호출을 담당합니다.
 
