@@ -14,13 +14,23 @@ C++ 표준 라이브러리에서 제공하는 2개의 조건변수.
   * ```<condition_variable>``` 라이브러리에 선언
     - 모두 적절한 동기화를 위해 뮤텍스와 함께 작동해야 한다.
   1. ```std::condition_variable```
-    - ```notify_one```
   2. ```std::condition_variable_any```
-    - ㅁㅁ
+    - 좀더 유연하다. 어느 점에서 유연하단 것인가?
+  - ```notify_one()``` : 잠든 상태에서 깨어나 뮤텍스 잠금을 다시 획득, 상태를 다시 체크하고 조건이 만족한다면 잠긴 뮤텍스와 wait() 에서 반환한다. 조건이 충족하지 않으면 쓰레드는 뮤텍스 잠금을 해제하고, 대기를 다시 시작.
+  - ```notify_all()``` : 
+  - ```wait()``` : 뮤텍스를 해제하고 대기상태가 된다.
 
 ### Building a thread-safe queue with condition variables
 
 ## 4.2 Waiting for One-off events with futures
+- *future* : 1회성 이벤트를 모델화 한 것.
+  - 한번 이벤트가 발생해서 future 가 ready 가 되면, 그 future 는 다시 초기화 될 수 없습니다.
+  - ```<future>``` 라이브러리 헤더 사용
+  1. ```std::future<>``` : unique futures
+    - 관련된 이벤트를 표현하는 유일한 인스턴스.
+  2. ```std::shared_future<>``` : shared future
+    - 하나의 같은 이벤트에 대해서, 여러 인스턴스로 표현.
+    - 저장된 이벤트가 발생하면 shared_future 의 모든 인스턴스는 동시에 ready 상태가 되고, 이벤트와 관련된 데이터에 접근
 ### Returning values from background tasks
 ### Associating a task with a future
 ### Passing tasks between threads
