@@ -1,5 +1,7 @@
 # Chapter 04, Synchronizing concurrent operations
-```a```
+
+```std::mutex```
+
 
 ## 4.1 Waiting for Event
 
