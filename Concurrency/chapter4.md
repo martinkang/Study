@@ -26,12 +26,15 @@ C++ 표준 라이브러리에서 제공하는 2개의 조건변수.
 - *future* : 1회성 이벤트를 모델화 한 것.
   - 한번 이벤트가 발생해서 future 가 ready 가 되면, 그 future 는 다시 초기화 될 수 없습니다.
   - ```<future>``` 라이브러리 헤더 사용
+  - *future* 객체는 동기화된 접근을 제공하지 안기 때문에, 병렬적 접근을 한다면 동기화 메커니즘을 활용해야 한다.
   1. ```std::future<>``` : unique futures
     - 관련된 이벤트를 표현하는 유일한 인스턴스.
   2. ```std::shared_future<>``` : shared future
     - 하나의 같은 이벤트에 대해서, 여러 인스턴스로 표현.
     - 저장된 이벤트가 발생하면 shared_future 의 모든 인스턴스는 동시에 ready 상태가 되고, 이벤트와 관련된 데이터에 접근
+     
 ### Returning values from background tasks
+
 ### Associating a task with a future
 ### Passing tasks between threads
 ### Making (std::)promises
