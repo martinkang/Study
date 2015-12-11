@@ -3,8 +3,7 @@
 
 ## 4.1 Waiting for Event
 
-```std::this_thread::sleep_for()```
-
+```std::mutex```   `
 ### Waiting for a condition with condition variables
 ### Building a thread-safe queue with condition variables
 
