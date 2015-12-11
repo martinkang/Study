@@ -14,7 +14,7 @@ C++ 표준 라이브러리에서 제공하는 2개의 조건변수.
   * ```<condition_variable>``` 라이브러리에 선언
     - 모두 적절한 동기화를 위해 뮤텍스와 함께 작동해야 한다.
   1. ```std::condition_variable```
-    - ㅁㅁ
+    - ```notify_one```
   2. ```std::condition_variable_any```
     - ㅁㅁ
 
