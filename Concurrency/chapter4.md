@@ -1,9 +1,9 @@
 # Chapter 04, Synchronizing concurrent operations
 
 
-
-
 ## 4.1 Waiting for Event
+
+```std::this_thread::sleep_for()```
 
 ### Waiting for a condition with condition variables
 ### Building a thread-safe queue with condition variables
@@ -19,4 +19,3 @@
 ## 4.4 Using synchronization of operations to simplify code
 ## 4.5 Summary
 
-```std::mutex```
