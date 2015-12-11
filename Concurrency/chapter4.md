@@ -1,6 +1,6 @@
 # Chapter 04, Synchronizing concurrent operations
 
-```std::mutex```
+
 
 
 ## 4.1 Waiting for Event
@@ -18,3 +18,5 @@
 ## 4.3 Waiting with a time limit
 ## 4.4 Using synchronization of operations to simplify code
 ## 4.5 Summary
+
+```std::mutex```
