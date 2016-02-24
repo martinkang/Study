@@ -1,11 +1,12 @@
 # 프로세스 복사 함수 fork(2) 와 프로세스 대체 함수 exec(3)
 
-## fork 
-	> pid_t fork(void);
-	> 반환값
-	>	* 0 : 자식 프로세스에게 리턴되는 값
-	>	* >0 : 부모프로세스에게 리턴되는, 생성된 자식 프로세스의 PID
-	>	* > -1 에러
+## fork
+
+> pid_t fork(void);
+> 반환값
+>	* 0 : 자식 프로세스에게 리턴되는 값
+>	* >0 : 부모프로세스에게 리턴되는, 생성된 자식 프로세스의 PID
+>	* > -1 에러
 
 	* 프로세스를 분기한다. ( 자식 프로세스를 생성 )
 	* 자식은 부모 프로세스의 복사본이며, 코드(텍스트) 세그먼트는 복사하지 않고 공유한다.
@@ -38,7 +39,6 @@
 
 
 
-* 리다이렉션 시 
 
 ```c++
 #include <stdio.h>                                                
@@ -75,19 +75,19 @@ int main(void)
 }
 
 ```
-> (1)
-> ./a.out
-> before fork
-> pid = .., glob = ..., var = ...
-> pid = .., glob = ..., var = ...
->
-> (2)
-> ./a.out > a.txt
-> cat a.txt
-> before fork
-> pid = .., glob = ..., var = ...
-> before fork
-> pid = .., glob = ..., var = ...
+> (1)  
+> ./a.out  
+> before fork  
+> pid = .., glob = ..., var = ...  
+> pid = .., glob = ..., var = ...  
+>  
+> (2)  
+> ./a.out > a.txt  
+> cat a.txt  
+> before fork  
+> pid = .., glob = ..., var = ...  
+> before fork  
+> pid = .., glob = ..., var = ...  
 
 
 * (2) 의 결과는 리다이렉션과 printf 때문이다.
