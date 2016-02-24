@@ -26,11 +26,51 @@
 		- 복제된 프로레스 사이에 데이터를 주고받는 구조이고, 데이터 통신 처리에 드는 비용이 크다면 성능 하락이 일어날 수 있다.
 
 * vfork
-	* fork 후에 곧바로 exec 계열 함수를 호출하는 경우가 있는데 이 때 모든 메모리가 복사되었다가
-	해제되므로 무겁다는 단점을 해결하기 위해 사용하였다.
+	* fork 후에 곧바로 exec 계열 함수를 호출하는 경우, 모든 메모리가 복사되었다가 해제되므로 무겁다는 단점을 해결하기 위해 사용한다.
 	* 부모 프로세스와 자식 프로세스가 모든 것을 공유한다.
 	* 자식부터 실행이 되는 것을 보장한다.
 
+
+```c++
+#include <stdio.h>                                                
+#include <unistd.h>
+#include <stdlib.h>
+
+int glob = 0;
+
+int main(void)
+{
+	int var = 1;
+	pid_t pid;
+
+	printf( "before fork\n" );
+
+	pid = vfork();
+	if ( pid < 0 )
+	{
+		fprintf ( stderr, "fork error\n" );
+	}
+	else if ( pid == 0 ) /* child */
+	{
+		glob++;
+		var++;
+	}
+	else /* parent */
+	{
+		sleep(1);
+	}
+
+	printf ( "pid = %d, glob = %d, var = %d\n", getpid(), glob,   var );
+	printf ( "after printf getpid() : %d\n", getpid() );
+	exit(0);
+}
+
+```  
+> ./a.out  
+> before fork  
+> pid = .., glob = 1, var = 2  
+> pid = .., glob = 1, var = 2  
+  
 
 * system(3)
 	- 쉘(sh) 를 실행시켜서 프로그램을 실행
@@ -78,16 +118,16 @@ int main(void)
 > (1)  
 > ./a.out  
 > before fork  
-> pid = .., glob = ..., var = ...  
-> pid = .., glob = ..., var = ...  
+> pid = .., glob = 1, var = 2  
+> pid = .., glob = 0, var = 1  
 >  
 > (2)  
 > ./a.out > a.txt  
 > cat a.txt  
 > before fork  
-> pid = .., glob = ..., var = ...  
+> pid = .., glob = 1, var = 2  
 > before fork  
-> pid = .., glob = ..., var = ...  
+> pid = .., glob = 0, var = 1  
 
 
 * (2) 의 결과는 리다이렉션과 printf 때문이다.
