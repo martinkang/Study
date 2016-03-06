@@ -29,8 +29,6 @@
 > setvbuf ( File *stream, char *buffer, int mode, size_t size );
 > - 스트림 버퍼링 방식을 변경한다.
 
-* exec(3) 계열의 함수 또는 fork(2) 를 사용하는 경우에 기존 스트림 버퍼가 파괴되어 지므로, 스트림이 깨끗하게 비우는 것이 중요하다.
-
 
 
 ## 저수준과 고수준 파일 입출력의 혼용
@@ -50,19 +48,59 @@
 > - 버퍼공간에 쌓여있는 데이터가 없다면 아무런 일도 하지 않을 것이다.
 > - 입력 버퍼링을 비우는 행위는 정의 되지 않았으므로 사용하지 말아야 한다.
 
-	- 여러 개의 스트림을 독립된 채널들로 구성할 때는 
-	미쳐 비우지 못한 스트림 버퍼로 인해서 새로 열린는 스트림의
-	예상되는 위치나 아직 버퍼링된 입력으로 인하여 쓸모없는
-	데이터를 읽을 수 있으므로 스트림을 깨끗히 비우기 위해서
-	fflush() 를 호출할 수 있다.
-		* 입력 버퍼링을 비우는 fflush() 함수는 입력 버퍼에 대한 행위는 정의 되지 않았으므로 사용하지 말아야 한다
+```c++
+char test1[10] ={0, };
+char test2[20] = {0, };
 
-## 패딩( padding ) / 팩( pack ) 과 XDR
+fputs( "input test1 : ", stdout );
+fgets( test1, 5, stdin );
 
+fputs( "input test2 : ", stdout );
+fgets( test2, sizeof( test2 ), stdin );
+
+printf( "test1 : %s\n", test1 );
+printf( "test2 : %s\n", test2 );
+```
+* 결과
+> input test1 : 1234567
+> input test2 : test1 : 1234
+> test2 : 567
+
+> 입력 buffer
+> 	* | 1 | 2 | 3 | 4 | 5 | 6 | 7 | \n |
+> after fgets( test1, 5, stdin )
+> 	* | 5 | 6 | 7 | \n |
+> fgets( test2, sizeof( test2 ), stdin );
+> 사용자가 입력하지 않아도 이미 버퍼에 문자들이 남아있기 때문에 남아있는 문자역을 읽어들여 test2 에 저장한다.
+
+```c++
+char test1[10] ={0, };
+char test2[20] = {0, };
+
+fputs( "input test1 : ", stdout );
+fgets( test1, 5, stdin );
+
+while( getchar() != '\n' ); // 입력 버퍼를 비움
+
+fputs( "input test2 : ", stdout );
+fgets( test2, sizeof( test2 ), stdin );
+
+printf( "test1 : %s\n", test1 );
+printf( "test2 : %s\n", test2 );
+```
+
+* exec(3) 계열의 함수 또는 fork(2) 를 사용하는 경우에 기존 스트림 버퍼가 파괴되어 지므로, 스트림이 깨끗하게 비우는 것이 중요하다.
 
 
 ## 저수준 및 고수준 파일 핸들링의 차이
 
+* 하나의 동일한 파일에 대해 파일 기술자와 파일 스트림을 병행적으로 사용하는 것은 피해야 한다.
+	- 보통 스트림 이용시 버퍼링이 발생하게 되고
 
-## 대용량 파일 지원( LFS )
-
+* 원자성( atomic ) 과 쓰레드 - 안전( thread safe ), 재진입성( reentrant ) 에 대해서
+	- 원자성이 보장되는 함수
+		* 함수가 일단 시작하면, 종료하기 전에 이 함수의 기능에 영향을 줄 수 있는 다름 함수가 끼어들지 못한다.
+	- 재진입성
+		* 동일한 함수가 병렬적으로 호출되었을 때 서로 다른 공간을 가지므로 서로 크리티컬 섹션 문제와 같은 오염에 대한 걱정이 없음
+	- 쓰레드 안전
+		* 쓰레드 간에 서로 동시에 함수를 ㅎ소출해도 문제가 발생하지 않도록 디자인됨.
