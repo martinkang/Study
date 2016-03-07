@@ -61,10 +61,10 @@ fgets( test2, sizeof( test2 ), stdin );
 printf( "test1 : %s\n", test1 );
 printf( "test2 : %s\n", test2 );
 ```
-* 결과   
-> input test1 : 1234567  
-> input test2 : test1 : 1234  
-> test2 : 567  
+> 결과   
+> 	- input test1 : 1234567  
+> 	- input test2 : test1 : 1234  
+> 	- test2 : 567  
 
 > 입력 buffer  
 > 	* | 1 | 2 | 3 | 4 | 5 | 6 | 7 | \n |   
