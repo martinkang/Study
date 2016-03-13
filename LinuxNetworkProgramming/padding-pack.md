@@ -29,7 +29,7 @@
 	데이터가 0x07 에서 끝나는 경우에 빈공간 1Byte 를 넣어 패딩하게 된다. 이는 기본적으로 일어나게 된다.
 
 
-### 구조체 패딩 예제
+##### 구조체 패딩 예제
 ```c++
 typedef struct my_st_a 
 {
@@ -59,7 +59,7 @@ typedef struct my_st_c
 		따라서 str[9] 이후 cnt 의 시작 주소는 12 인 c 가 되고
 		나머지 공간은 padding 된다.
 
-### 개별적으로 구조체에 pack 하기
+##### 개별적으로 구조체에 pack 하기
 ```c++
 typedef struct my_st_b
 {
@@ -68,7 +68,7 @@ typedef struct my_st_b
 } __attribute__((packed)) MY_ST_B;
 ```
 
-### 컴파일시 구조체 전체에 대해서 pack 하기
+##### 컴파일시 구조체 전체에 대해서 pack 하기
 ```c++
 gcc --pack-struct ... ... -o pack
 ```

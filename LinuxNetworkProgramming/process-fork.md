@@ -31,6 +31,7 @@
 	* 자식부터 실행이 되는 것을 보장한다.
 
 
+##### vfork 사용 예제
 ```c++
 #include <stdio.h>                                                
 #include <unistd.h>
@@ -79,7 +80,7 @@ int main(void)
 
 
 
-
+##### 리다이렉션과 fork
 ```c++
 #include <stdio.h>                                                
 #include <unistd.h>

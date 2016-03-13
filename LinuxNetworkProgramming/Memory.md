@@ -30,7 +30,7 @@
 	- 메모리 할당 함수를 사용할 때 받는 메모리 영역
 	- 자동으로 파기되지 않는다.
 
-### 전역변수들의 형태에 따른 메모리 위치
+##### 전역변수들의 형태에 따른 메모리 위치
 	* int num;
 		- bss 에 위치
 	* int num = 1;
@@ -55,7 +55,7 @@
 	- 들어오는 데이터의 크기가 좀처럼 크지 않고 해당 함수의 사용이 빈번하다면 VLA ( Variable Length Array ) 를 이용하여
 	가변 길이의 배열을 사용하는 방법도 괜찮다.
 
-### 스택 소모 예제
+##### 스택 소모 예제
 ```c++
 #define SZ_BUFFER 1024 * 1024
 
@@ -74,7 +74,7 @@ int exhaust_stack( int count )
 }
 ```
 
-### Variable Length Array
+##### Variable Length Array
 ```c++
 int exam_vla( int vlen)
 {
