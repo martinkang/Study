@@ -20,8 +20,10 @@
 
 			> key_t ftok( const char *pathname, int proj_id )
 			> 	* 같은 경로와 같은 proj_id 를 입력시 항상 같은 key_t 값이 리턴된다.
+
 	- IPC ID
+		- IPC 자원을 가져오기 위한 ID
+		- effective user 의 액세스 권한이 없다면 자원이 보이지 않는다.
 	- 소유권
 	- 소유 권한 ( mode )
 
-## POSIX IPC
