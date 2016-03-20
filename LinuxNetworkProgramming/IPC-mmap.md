@@ -16,6 +16,9 @@
 
 * PRIVATE 방식
 	- copy on write 방식을 써서, 변경시 복사본을 생성한다.
+	- 처음 시작할 때의 내용은 파일에서 가져오지만,
+	그 다음부터는 메모리맵을 변경시켜도 파일에 저장하지 않고
+	서로 다른 터미널에도 공유되지 않는다.
 
 > void *mmap( void *start, size_t length, int prot, int flags, int fd, off_t offset );
 > 
