@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/types.h>
+#include "shmheader.h"
 
 #define SZ_SHM_SEGMENT 1024
 
@@ -20,16 +19,17 @@ int main( int argc, char *argv[] )
 
 	if ( a_input[0] == 'c' )
 	{
-		shm_id = sysv_shmget( NULL, IPC_PRIVATE, sizeof( char) * SZ_SHM_SEGMEMT, 0664 );
-		if ( shm_id == -1 )
-		{
-			fprintf( stderr, "FAIL : sysv_shsmget() \n" );
-			exit( -1 );
-		}
+		shm_id = sysv_shmget( NULL, IPC_PRIVATE, sizeof( char) * SZ_SHM_SEGMENT, 0664 );
 	}
 	else
 	{
-		shm_id = atoi( a_input );
+		shm_id = sysv_shmget( a_input, 0, sizeof( char) * SZ_SHM_SEGMENT, 0664 );
+	}
+
+	if ( shm_id == -1 )
+	{
+		fprintf( stderr, "FAIL : sysv_shsmget() \n" );
+		return -1;
 	}
 
 	printf( "* SHM IPC id : %d\n", shm_id );
@@ -38,12 +38,15 @@ int main( int argc, char *argv[] )
 	if ( shm_ptr == NULL )
 	{
 		fprintf( stderr, " FAIL : shmat()\n" );
-		exit( -1 );
+		return -1;
 	}
+
+	printf( "attached shm pointer : %p\n", shm_ptr );
 
 	printf( "'*' Print current shm.\n'.' Exit. Otherwise input text to shm.\n" );
 	printf( "'?' print shm info\n" );
 
+	printf( "start shared memory example\n" );
 	while(1)
 	{
 		printf( "\n>>");
@@ -51,7 +54,7 @@ int main( int argc, char *argv[] )
 		if ( fgets( a_input, sizeof( a_input ), stdin ) == NULL )
 		{
 			fprintf( stderr, "fget() error\n" );
-			exit( -1 );
+			return -1;
 		}
 
 		if ( a_input[0] == '.' )
@@ -66,7 +69,7 @@ int main( int argc, char *argv[] )
 			}
 			else
 			{
-				printf( "SHM : size(%d) # of attach (%ld)\n", shmds_buf.shm_segsz, shmds_buf.shm_nattach );
+				printf( "SHM : size(%d) # of attach (%ld)\n", shmds_buf.shm_segsz, shmds_buf.shm_nattch );
 			}
 		}
 		else if ( a_input[0] == '*' )
@@ -79,10 +82,10 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-	printf( "* Would you remove shm ( IPC id : %d ) ( y/n )", shm_id );
+	printf( "* Would you remove shm ( IPC id : %d ) ( y/n ) ", shm_id );
 	fgets( a_input, sizeof( a_input ), stdin );
 
-	if ( a_input[0] == 'y' )
+	if ( a_input[0] != 'n' )
 	{
 		sysv_shmrm( shm_id );
 	}
