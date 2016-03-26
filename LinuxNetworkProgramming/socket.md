@@ -40,7 +40,7 @@
 	- 오른쪽으로부터 왼쪽으로 저장되는 방식
 	- 포인터 값 참조가 쉽다.
 
-![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/endian2.png )
+![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/endian2.png )
 
 
 ## TCP 소켓 ( SOCK_STREAM 소켓 )
@@ -85,6 +85,8 @@
 
 
 ### TCO 통신의 연결 설정과 흐름에 대한 이해
+
+![PacketFlow](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/packetflow.png )
 
 * Active close
 	- FIN 세그먼트를 서버로 보내 능동적으로 연결을 종료시키는 것
