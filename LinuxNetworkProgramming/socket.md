@@ -45,7 +45,8 @@
 
 ## TCP 소켓 ( SOCK_STREAM 소켓 )
 
-> int bind( int sockfd, struct sockaddr *my_addr, socklen_t addrlen );
+> int bind( int sockfd, struct sockaddr *my_addr, socklen_t addrlen );  
+
 * bind(2) : 소켓의 부착
 	- 소켓이 외부로부터 연결을 만들 수 있는 접점을 가지게 됨.
 	- 네트워크 도메인 소켓이면 지정한 주소에 포트를 가지게 된다.
@@ -53,6 +54,7 @@
 	
 
 > int listen( int s, int backlog );
+
 * listen(2) : 서버측 연결 큐의 작성
 	- 클라이언트로부터 연결을 받기 위한 서버측 포트에 소켓이 부착된다.
 	- backlog 를 생성한다.
@@ -60,6 +62,7 @@
 
 
 > int connect( int sockfd, const struct sockaddr *serv_addr, socklen_t addrlen )
+
 * connect(2) : 서버로 연결
 	- 클라이언트측에서 connect(2) 가 성공적으로 이루어지면 
 	  클라이언트는 connect(2) 함수에 사용된 소켓으로 연결이 만들어지고
@@ -69,6 +72,7 @@
 
 
 > int accept( int s, struct sockaddr *addr, socklen_t *addrlen )
+
 * accept(2) : 클라이언트의 연결 수용
 
 
@@ -81,4 +85,17 @@
 
 
 ### TCO 통신의 연결 설정과 흐름에 대한 이해
+
+* Active close
+	- FIN 세그먼트를 서버로 보내 능동적으로 연결을 종료시키는 것
+
+* Passive close
+
+* TIME_WAIT 상태
+
+
+
+
+## UDP 소켓 ( SOCK_DGREAM 소켓 )
+
 
