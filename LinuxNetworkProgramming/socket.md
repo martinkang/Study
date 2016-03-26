@@ -86,7 +86,7 @@
 
 ### TCO 통신의 연결 설정과 흐름에 대한 이해
 
-![PacketFlow](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/packetflow.png )
+![PacketFlow](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/packetflow2.png )
 
 * Active close
 	- FIN 세그먼트를 서버로 보내 능동적으로 연결을 종료시키는 것
