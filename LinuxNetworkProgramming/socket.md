@@ -26,6 +26,7 @@
 			- 데이터가 목적지까지 도착하는 것을 확인할 수 있고, 
 			연결의 상태를 알 수 있기 때문에 신뢰성 있는 통신에 주로 쓰인다.
 
+
 ## Byte Order ( 바이트 순서 )
 * 네트워크를 통해서 데이터를 전송할 때 데이터를 나열하는 규칙
 * 보통 데이터 전송의 최소 단위는 1 octec, 즉 1Byte 이다.
@@ -40,4 +41,44 @@
 	- 포인터 값 참조가 쉽다.
 
 ![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/endian2.png )
+
+
+## TCP 소켓 ( SOCK_STREAM 소켓 )
+
+> int bind( int sockfd, struct sockaddr *my_addr, socklen_t addrlen );
+* bind(2) : 소켓의 부착
+	- 소켓이 외부로부터 연결을 만들 수 있는 접점을 가지게 됨.
+	- 네트워크 도메인 소켓이면 지정한 주소에 포트를 가지게 된다.
+	- 유닉스 도메인 소켓이면 지정한 경로에 소켓 파일을 만든다.
+	
+
+> int listen( int s, int backlog );
+* listen(2) : 서버측 연결 큐의 작성
+	- 클라이언트로부터 연결을 받기 위한 서버측 포트에 소켓이 부착된다.
+	- backlog 를 생성한다.
+		- backlog 의 대기 큐가 다차면 클라이언트로부터의 연결을 거부하게 된다.
+
+
+> int connect( int sockfd, const struct sockaddr *serv_addr, socklen_t addrlen )
+* connect(2) : 서버로 연결
+	- 클라이언트측에서 connect(2) 가 성공적으로 이루어지면 
+	  클라이언트는 connect(2) 함수에 사용된 소켓으로 연결이 만들어지고
+	  서버측에서 accept(2) 함수의 리턴값이 해당 클라이언트와 연결된 소켓이 된다.
+	- connect(2) 는 bind(2) 를 동반하기 때문에 굳이 bind(2) 를 할 필요가 없다.
+		- 클라이언트의 포트는 이 과정에서 지정된다.
+
+
+> int accept( int s, struct sockaddr *addr, socklen_t *addrlen )
+* accept(2) : 클라이언트의 연결 수용
+
+
+* close(2), shutdown(2) : 연결종료
+	- close(2) 는 해당 프로세스 내에서 연결된 소켓의 ID 만 닫는다.
+		- 다른 프로세스가 해당 소켓을 공유하고 있을 때, 현재 프로세스에서 소켓을 닫아도
+		다른 프로세스에서 소켓을 열고 있다면 소켓의 연결은 살아있게 된다.
+		- 열려있는 모든 소켓 ID 가 끊길때까지 연결이 유지된다.
+	- shutdown(2) 는 해당 소켓 ID 를 가진 모든 연결이 끊어진다.
+
+
+### TCO 통신의 연결 설정과 흐름에 대한 이해
 
