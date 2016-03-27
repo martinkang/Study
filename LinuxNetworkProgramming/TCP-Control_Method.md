@@ -23,6 +23,7 @@
         - 일정한 윈도우 크기 이내에서 한번에 여러 패킷을 송신하고, 이들 패킷에 대하여 단지 한 번의 ACK 로써    수신 확인을 한다.
         - 윈도 ( 메모리 버퍼의 일정 영역 ) 에 포함되는 모든 패킷을 전송하고,
     그 패킷들이 전달이 확인되는대로 이 윈도를 옆으로 옮김 ( slide ) 으로서 그 다음 패킷들을 전송하는 방식.
-        - ![Sliding window]( http://cfile214.uf.daum.net/image/162B454650EB87FA1285A9 )
-            - 출처 http://blog.daum.net/tlos6733/48
+ 
+![Sliding window]( http://cfile214.uf.daum.net/image/162B454650EB87FA1285A9 )
+	- 출처 http://blog.daum.net/tlos6733/48
 
