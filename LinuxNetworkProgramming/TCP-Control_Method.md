@@ -30,7 +30,7 @@
 	- 보낼 수 있는 데이터를 바로 패킷으로 만들지 않고, ACK 가 올때까지 전송을 중지하고
 	ACK 가 도착한 시점에, 지금까지 버퍼에 모인 데이터를 패킷으로 만들어서 전송한다.
 
-![Nagle]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/nagle.png )
+![Nagle]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/nagle2.png )
 
 
 ``` c++
