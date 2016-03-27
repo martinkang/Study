@@ -1,6 +1,47 @@
 # TCP 의 효율적인 통신을 위한 제어 기법들
 
-## Nagle Algorithm ( 네이글 알고리즘 )
+## Nagle Algorithm ( 네이글 알고리즘 ), Delayed ACK ( 지연 ACK )
+* 네이글 알고리즘이란
+	* 송신측에서 짧은 시간 내에 전송되는 작은 패킷들을 모아두었다가 ACK 를 수신하면 전송하는 방법.
+	- IP 네트워크에서 데이터는 몇 곂의 헤더로 캡슐화되어 목적지로 전송된다. 
+	만약 데이터의 크기가 적을 경우 데이터보다 헤더의 크기가 더 커지는 경우가 발생하는데 
+	이런 작은 데이터가 자주 전송될 경우 네트워크 전송 효율이 떨어질 것이다.
+		- 따라서 조금씩 여러번 보내지 않고 한번에 많이 보내는 방법을 써서 전송 효율을 증가시킨다.
+	- 보낼 수 있는 데이터를 바로 패킷으로 만들지 않고, ACK 가 올때까지 전송을 중지하고
+	ACK 가 도착한 시점에, 지금까지 버퍼에 모인 데이터를 패킷으로 만들어서 전송한다.
+
+![Nagle]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/nagle.png )
+
+
+``` c++
+#define MSS "maximum segment size"
+
+
+if there is new data to send
+  if the window size >= MSS and available data is >= MSS
+    send complete MSS segment now
+  else
+    if there is unconfirmed data still in the pipe
+      enqueue data in the buffer until an acknowledge is received
+    else
+      send data immediately
+    end if
+  end if
+end if
+
+/* 출처 http://en.wikipedia.org/wiki/Nagle's_algorithm */
+```
+
+* Delayed ACK ( 지연 ACK )
+	- 수신측에서 짧은 시간 동안에 도착한 데이터 패킷들에게 일일히 즉시 ACK 를 보내면 
+	헤더만 딸린 패킷을 보내기 때문에 위에서 지적한 네트워크 전송 효율이 떨어지게 된다.
+	- 수신측에서 패킷을 받았을 때 바로 ACK 를 주는 것이 아니라 시간을 좀더 기다리다가
+	만약 패킷 전송할 게 생긴다면 이 때 ACK 를 함께 전송하는 방식.
+	- RFC ( Request For Commets ) 에 따르면 500mesc 이내의 시간을 지연시킬 것을 명시
+		- 대부분 OS 는 200msec 이내의 시간을 사용.
+		- 따라서 대부분 매우 작은 시간의 딜레이만 발생.
+		- 대부분의 응용 레벨의 데이터 프로토콜이 수신측에서 응답 데이터를 보내주도록 되어있는 경우가 많기 때문에,
+		즉시 응답을 하는 프로토콜에서는 거의 지연이 없음 ( e.g. HTTP 프로토콜 )
 
 ## TCP 흐름제어	
 * TCP 흐름제어 기법이란
@@ -32,9 +73,19 @@
             
     * 슬라이딩 윈도우 ( Sliding window )
         - 두 개의 네트워크 호스트간의 패킷의 흐름을 제어하기 위한 방법.
-        - 일정한 윈도우 크기 이내에서 한번에 여러 패킷을 송신하고, 이들 패킷에 대하여 단지 한 번의 ACK 로써    수신 확인을 한다.
-        - 윈도 ( 메모리 버퍼의 일정 영역 ) 에 포함되는 모든 패킷을 전송하고,
-    그 패킷들이 전달이 확인되는대로 이 윈도를 옆으로 옮김 ( slide ) 으로서 그 다음 패킷들을 전송하는 방식.
- 	- ![Sliding window]( http://cfile214.uf.daum.net/image/162B454650EB87FA1285A9 )  
-		- 출처 http://blog.daum.net/tlos6733/48
+		- TCP 처럼 신뢰적인 데이터 통신을 하려면 유효 데이터에 대해서 응답을 받아야만, 다음 데이터를 보낼 수 있다.
+		하지만 이렇게 프로토콜을 디자인하면 너무 느리다.
+			- 이런 문제점을 해결하기 위해 제안된 방법.
+        - 연속으로 프레임을 보낼 수 있는 공간의 크기인 윈도우 크기를 가지고 
+		계속 이를 업데이트 ( 슬라이드 ) 하는 것을 의미한다.
+		- 따라서 상대의 ACK 가 없어도 미리 상대방이 수신할 수 있는 공간의 크기를 알기 때문에
+		연속해서 데이터 프레임을 전송할 수 있다.
+		- 수신측이 ACK 를 하거나 응답데이터를 보낼 일이 있을 때 TCP 헤더에 윈도우 크기를 새로 업데이트 함으로서
+			속도 조절이 가능하다.
+	 	- ![Sliding window]( http://cfile214.uf.daum.net/image/162B454650EB87FA1285A9 )  
+			- 출처 http://blog.daum.net/tlos6733/48
+
+	* TCP autotuning
+	* RFC 1323 - TCP Extensions for High Performance
+	* RFC 2018 - TCP Selective Acknowledgment options
 
