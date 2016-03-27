@@ -108,7 +108,7 @@
 	혹은 응용 프로그램의 통신용 헤더를 구성하여 
 	읽어 들어야 하는 데이터의 크기를 알아내느 방법을 사용해야 한다.
 
-	 ![TCPstream]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/tcpstreams.jpg )
+![TCPstream]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/tcpstreams.jpg )
 
 
 ### UDP 오버플로우
