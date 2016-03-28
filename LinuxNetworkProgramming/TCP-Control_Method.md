@@ -121,9 +121,15 @@ end if
 
 * RFC 1323 - TCP Extensions for High Performance
 	- WSCALE ( 윈도우 크기 확장 옵션 )
-		- 
+		- TCP 헤더의 제약으로 인해서 64kB 이상의 윈도우를 가지지 못함을 극복한다.
+		- 기존의 작은 윈도우 크기는 높은 BDP( Bandwith Delay Product ) 를 가지는 LFN( Long, Fat pipe Network )
+	 	은 대역폭을 전부 사용할 수 없다는 단점이 있다.
+			- 그리하여 윈도우 크기 비율 척도를 지정하는 옵션이 추가되었다.
 	- TCP timestamp 옵션
-		-
+		- RTT ( Round Trip Time ) 측정에 정교함과 효율을 추가시킨다.
+		- 위에서 언급한 높은 BDP 를 가지는 LFN 은 데이터 패킷들이 동일한 경로를 통해서
+		온다는 보장이 없으므로 순서가 뒤바뀔 수 있다.
+			- 이는 정확한 RTT 측정에 어려움을 준다.
 
 * RFC 2018 - TCP Selective Acknowledgment options
 	* SACK ( Selective Acknowledgment )
@@ -131,6 +137,6 @@ end if
 		- 손실이 많은 구간에서 더 효율적
 	* Cumlative Acknowledgment
 		- 현재까지 수신된 바이트들을 단 하나의 ACK 로 일괄 확인 응답
-		- 복수 개의 패킷이 유실되면 복구하는데 오버헤드가 발생한다.
+		- RTT 동안에 복수 개의 패킷이 유실되면 복구하는데 오버헤드가 발생한다.
 
 
