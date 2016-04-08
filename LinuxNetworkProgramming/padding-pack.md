@@ -50,11 +50,11 @@ typedef struct my_st_c
 }
 
 ```
-다음과 같은 구조체가 있을 때
-	*        sizeof( my_st_a ) : 13
-	* offsetof( my_st_a, cnt ) : 0x0009
-	*        sizeof( my_st_b ) : 16
-	* offsetof( my_st_b, cnt ) : 0x000c
+다음과 같은 구조체가 있을 때   
+	*        sizeof( my_st_a ) : 13   
+	* offsetof( my_st_a, cnt ) : 0x0009   
+	*        sizeof( my_st_b ) : 16   
+	* offsetof( my_st_b, cnt ) : 0x000c   
 		- int 형 cnt 가 있으므로 4Byte 주소 경계로 정렬된다. 
 		따라서 str[9] 이후 cnt 의 시작 주소는 12 인 c 가 되고
 		나머지 공간은 padding 된다.
