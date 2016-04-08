@@ -50,7 +50,7 @@ typedef struct my_st_c
 }
 
 ```
-다음과 같은 구조체가 있을 때   
+다음과 같은 구조체가 있을 때     
 	*        sizeof( my_st_a ) : 13   
 	* offsetof( my_st_a, cnt ) : 0x0009   
 	*        sizeof( my_st_b ) : 16   
