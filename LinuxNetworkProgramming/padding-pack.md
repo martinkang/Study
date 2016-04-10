@@ -49,6 +49,11 @@ typedef struct my_st_c
 	short cnt;
 }
 
+typdef struct my_st_d
+{
+	char str[9];
+	double cnt;
+}
 ```
 다음과 같은 구조체가 있을 때     
 	*        sizeof( my_st_a ) : 13   
@@ -57,7 +62,10 @@ typedef struct my_st_c
 	* offsetof( my_st_b, cnt ) : 0x000c   
 		- int 형 cnt 가 있으므로 4Byte 주소 경계로 정렬된다. 
 		따라서 str[9] 이후 cnt 의 시작 주소는 12 인 c 가 되고
-		나머지 공간은 padding 된다.
+		나머지 공간은 padding 된다.  
+	* offsetof( my_st_c, cnt ) : 0x000a  
+	* offsetof( my_st_d, cnt ) : 0x000c  
+
 
 ##### 개별적으로 구조체에 pack 하기
 ```c++
@@ -68,17 +76,17 @@ typedef struct my_st_b
 } __attribute__((packed)) MY_ST_B;
 ```
 
+
 ##### 컴파일시 구조체 전체에 대해서 pack 하기
 ```c++
 gcc --pack-struct ... ... -o pack
 ```
 
-
 ## 구조체를 지원하지 않는 언어로 작성된 경우에 패딩
 - 구조체의 패딩 문제는 구조체를 지원하지 않는 언어와 
 바이너리 통신을 할 때 문제가 발생한다.
 
-- 구조체를 지원하지 않는 경우에는 1Byte 1Byte 읽어( 무슨소리? ) 수치를 바꿔서 사용하게 되는데, 
+- 구조체를 지원하지 않는 경우에는 1Byte 1Byte 읽어 수치를 바꿔서 사용하게 되는데, 
 	이 때 패딩이 발생하는 것을 제대로 이해하지 못하면,
 	이기종의 프로그램에서 데이터를 변환하는데 어려움이 발생하거나 오류가 발생할 수 있다.
 
