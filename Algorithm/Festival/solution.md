@@ -6,10 +6,12 @@
 
 * 방법
 	* 최소 3팀이 공연할 때
+	* ![naive]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival-naive.jpg )
 	- A 를 기점으로 하루씩 늘려가며 공연장 대여로의 평균값을 구한다.
 		- (좌) ( A + B + C ) / 3
 		- (우) ( A + B + C + D ) / 4
 		- .... ( A + B + .... F ) / 6
+	* ![naive2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival-naive2.jpg )
 	- A 부터 F 까지 빌렸을 때 공연장 대여로 평균값을 구했으면 B 부터 구했을 때의 평균값을 구한다.
 	- 구한 값들 중 최소값을 출력한다.
 * 시간 복잡도
@@ -23,15 +25,16 @@
 
 * 방법
 	* 최소 3팀이 공연할 때
+	* ![img1]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival1.jpg )
 	- 공연 가능한 날이 i( C ) 까지일 때 ( A + B + C ) / 3 이 공연 대관료의 최소 평균값이다.
 	- 공연 가능한 날이 i + 1( D ) 이라고 한다면, ( D ) 를 포함한 공연 대관료의 최소 평균값은 다음중 하나이다.
 		* ( A + B + C + D ) / 4
-		* ( B + C + D ) / 3
+		* ( B + C + D ) / 3	
+	* ![img2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival2.jpg )
 	- 공연 가능한 날이 E 까지라고 할 때 공연 대관료 최소 평균값은 다음 3 가지 중 하나이다.
 		* D 를 포함한 최소 평균값 + E 를 포함
 		* C + D + E 의 평균값 ( E 를 마지막날짜로 하는 최소 대여일 )
-	
-
+	* ![img3]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival3.jpg )
 
 
 * 시간 복잡도
