@@ -29,11 +29,11 @@
 		- N - 1 번째 날을 포함한 연속된 M 일 이상 대관시 대관료 최소값을 가지는 대관에 N 번째 날을 대관한 경우
 		- N 번째 날을 포함한 M 일을 대관한 경우
 	- 그림으로 보면 다음과 같다.
-		- ![img-idea1]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival-idea1.png )
+		- ![img-idea1]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festifal-idea1.png )
 	 		* N 이 4 이고, M 이 3 일 경우
 		* (a) 는 명백히 N - 1 (3일) 중 대관료 최소값을 가진다. ( M 이 3이므로 단 하나의 경우밖에 없으므로 )
-		* 또한 (a) 는 명백히 N - 1 번째 날을 포함한( C 일 ) 연속된 M 일 이상 대관시 대관료 최소값을 가진다.
-		* (b) 는 N 번째 날을 포함한 M 일 대관한 경우이다.
+		* (b) 는 명백히 N - 1 번째 날을 포함한( C 일 ) 연속된 M 일 이상 대관시 대관료 최소값을 가진다. ( M 이 3이므로 N - 1 일 중 M 일 이상 대관하는 경우는 단 하나밖에 없으므로 )
+		* (c) 는 N 번째 날을 포함한 M 일 대관한 경우 중 대관료 평균 최소값을 가진다. ( 이 경우의 수는 언제나 한가지 밖에 없다 )
 			* 이 예제에서 { ( A + B + C ) / 3 } < { ( B + C + D ) / 3 } < { A + B + C + D ) / 4 } 이라고 하자.
 	
 	
