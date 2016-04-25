@@ -26,22 +26,30 @@
 
 ## 2번째 알고리즘
 * 기본 아이디어 
-	- 1 일부터 N 일까지 대여 가능한 일자가 있을 때 ( 1 부터 N 까지는 연속된 수 ),
-	- N + 1 에서 공연장 대관료는 N 일까지 연속된 대관료중 최소값 + N + 1 
-	
+	- N 개의 대관 가능한 날이 있을 때 N + 1 의 대관료의 평균값이 최소로 나오게 빌리려면
+		* ( N 번째 날을 포함한 최소 평균값 ) + ( N + 1 ) 빌림
+		* N + 1 번째를 포함한 최소 공연팀의 수만큼 빌림
+		* 이전 최소 평균값 만큼 빌림
+
 
 * 방법
 	* 최소 3팀이 공연할 때
-	* ![img1]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival1.jpg )
-	- 공연 가능한 날이 i( C ) 까지일 때 ( A + B + C ) / 3 이 공연 대관료의 최소 평균값이다.
+	* ![img1]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival1.png )
+	- 대관 가능한 날이 3일이라면( C )  ( A + B + C ) / 3 이 공연 대관료의 최소 평균값이다. ( 선택권이 없으므로 )
 	- 공연 가능한 날이 i + 1( D ) 이라고 한다면, ( D ) 를 포함한 공연 대관료의 최소 평균값은 다음중 하나이다.
 		* ( A + B + C + D ) / 4
 		* ( B + C + D ) / 3	
-	* ![img2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival2.jpg )
+		* ( A + B + C ) / 3
+	- 이 중 A + B + C 의 대관료 평균값은 이미 구한 상태이므로 위의 두가지 값을 비교하여 더 작은 값을 저장한다.
+		- 이 예에선 ( A + B + C + D ) / 4 보다 ( B + C + D ) / 3 이 더 작다고 가정한다. 
+		- ( A + B + C ) / 3 은 ( B + C + D ) /3  보다 더 작다
+	* ![img2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival2.png )
 	- 공연 가능한 날이 E 까지라고 할 때 E 를 포함한 공연 대관료 최소 평균값은 다음 중 하나이다.
-		* D 를 포함한 최소 평균값 + E 를 포함
-		* C + D + E 의 평균값 ( E 를 마지막날짜로 하는 최소 대여일 )
-	* ![img3]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival3.jpg )
+		* D 를 포함한 최소 평균값 ( ( B + C + D ) / 3 )  과 새로운 E 를 대관한 평균 대관료
+		* E 를 마지막날짜로 하는 최소 팀 수만큼 대여하는 대관료 ( C + D + E ) / 3
+		* 이전 최소 평균값 ( 위 예제에서는 ( A + B + C ) / 3 )
+	- D 를 포함한 최소 평균값은 이미 D 날까지의 대관료중 가장 적은 값이기 때문에, 
+	* ![img3]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival3.png )
 
 
 * 시간 복잡도
