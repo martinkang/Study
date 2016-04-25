@@ -37,7 +37,7 @@
 		* ( A + B + C + D ) / 4
 		* ( B + C + D ) / 3	
 	* ![img2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival2.jpg )
-	- 공연 가능한 날이 E 까지라고 할 때 공연 대관료 최소 평균값은 다음 3 가지 중 하나이다.
+	- 공연 가능한 날이 E 까지라고 할 때 E 를 포함한 공연 대관료 최소 평균값은 다음 중 하나이다.
 		* D 를 포함한 최소 평균값 + E 를 포함
 		* C + D + E 의 평균값 ( E 를 마지막날짜로 하는 최소 대여일 )
 	* ![img3]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival3.jpg )
