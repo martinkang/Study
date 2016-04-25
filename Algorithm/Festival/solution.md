@@ -51,7 +51,9 @@
 		( B + C + D + E ) / 4 < ( A + B + C + D + E ) / 5 이다.
 		- 따라서 N + 1 번째를 포함하는 연속된 대관료의 최소값을 구하려면 N 번째를 포함하는 연속된 대관료의 최소값을 더해야만 한다.
 	- N + 1 를 마지막 날짜로 하는 최소 팀 수만큼 대여하는 대관료는 N 번째를 포함하는 연속된 대관료에 포함되지 않는 경우의 수이다.
-		- N + 1 를 마지막 날짜로 한다는 것은 N - ( M - 1 ) 번째 날부터 대관하는 경우로 
+	* ![img2-2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival2-2.png )
+		- N + 1 를 마지막 날짜로 한다는 것은 N - ( M - 1 ) 번째 날부터 대관하는 경우로,
+		N 까지 의 대관료 최소 평균값을  그대로 사용할 지, 새로운 대관료 최소 평균값을 사용하게 될 지 비교한다.
 	* ![img3]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival3.png )
 	- 마지막 F 날까지 위의 단계를 반복하며 아래 세가지 중 최소값을 가지는 값이 최소 공연 대관료 평균이 된다.
 		* ( N + 1 ) + ( N 일을 포함하는 최소값 )
