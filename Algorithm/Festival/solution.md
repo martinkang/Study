@@ -35,7 +35,7 @@
 		* 또한 (a) 는 명백히 N - 1 번째 날을 포함한( C 일 ) 연속된 M 일 이상 대관시 대관료 최소값을 가진다.
 		* (b) 는 N 번째 날을 포함한 M 일 대관한 경우이다.
 			* 이 예제에서 { ( A + B + C ) / 3 } < { ( B + C + D ) / 3 } < { A + B + C + D ) / 4 } 이라고 하자.
-		- ![img-idea2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festival-idea2.png )
+		- ![img-idea2]( https://github.com/martinkang/MyText/blob/master/Algorithm/Festival/img/festifal-idea2.png )
 			* N 이 5 이고 M 이 3 일 경우
 		* 앞의 예제에서 가능한 대관일이 +1 될 경우 경우의 수는 다음과 같다.
 			* (a) 는 N - 1 개의 대관 가능한 날 중, 연속된 M 일 이상 대관시 대관료 최소값을 가진다.
