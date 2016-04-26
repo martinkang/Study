@@ -23,30 +23,33 @@
 입력의 첫 줄에는 테스트 케이스의 수 C(C <= 50)가 주어집니다. 각 테스트 케이스의 첫 줄에는 각 5줄에 5글자로 보글 게임판이 주어집니다. 게임판의 모든 칸은 알파벳 대문자입니다.
 그 다음 줄에는 우리가 알고 있는 단어의 수 N(1 <= N <= 10)이 주어집니다. 그 후 N줄에는 한 줄에 하나씩 우리가 알고 있는 단어들이 주어집니다. 각 단어는 알파벳 대문자 1글자 이상 10글자 이하로 구성됩니다.
 
-출력
+## 출력
 
 각 테스트 케이스마다 N줄을 출력합니다. 각 줄에는 알고 있는 단어를 입력에 주어진 순서대로 출력하고, 해당 단어를 찾을 수 있을 경우 YES, 아닐 경우 NO를 출력합니다.
 
-예제 입력
 
-1
-URLPM
-XPRET
-GIAET
-XTNZY
-XOQRS
-6
-PRETTY
-GIRL
-REPEAT
-KARA
-PANDORA
-GIAZAPX
-예제 출력
+## 예제 입력
 
-PRETTY YES
-GIRL YES
-REPEAT YES
-KARA NO
-PANDORA NO
-GIAZAPX YES
+1  
+URLPM  
+XPRET  
+GIAET  
+XTNZY  
+XOQRS  
+6  
+PRETTY  
+GIRL  
+REPEAT  
+KARA  
+PANDORA  
+GIAZAPX  
+
+
+# 예제 출력
+  
+PRETTY YES  
+GIRL YES  
+REPEAT YES  
+KARA NO  
+PANDORA NO  
+GIAZAPX YES  
