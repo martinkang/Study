@@ -118,9 +118,13 @@ int main( void )
         sSecondMin = solveMinRentalCost( sRentalDay, sFestivalTeam, (double*)sSecondRentalCost );
 
         if ( sFirstMin < sSecondMin )
+        {
             printf( "%.12f\n" , sFirstMin );
+        }
         else
+        {
             printf( "%.12f\n" , sSecondMin );
+        }
     }
 
     return 0;
