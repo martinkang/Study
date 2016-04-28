@@ -48,16 +48,17 @@
 
 > int *shmat( int shmid, const void *shmaddr, int shmflg )
 > 공유 메모리에 attach 한다.  
->	* int shmid
->		- IPC ID 값
->	* const void *shmaddr
->		- 공유 메모리와 연결할 가상 메모리 주소
->		- NULL 을 넣을 경우 특정 주소를 받지 않고 아무 주소나 할당 된다.
->		- 특적 주소를 넣을 때는 페이지 경계, 즉 페이지의 배수에 해당하는 주소값을 넣어야 한다.
->			- SHM_RND 플래그를 shmflg 에 넣을 경우, 페이지 경계에 반내림으로 계산하여 할당한다.
->	* int shmflg
->		- 지정할 것이 없으면 0
->		- SHM_RDONLY 를 사용할 경우 읽기 전용
+
+	* int shmid
+		- IPC ID 값
+	* const void *shmaddr
+		- 공유 메모리와 연결할 가상 메모리 주소
+		- NULL 을 넣을 경우 특정 주소를 받지 않고 아무 주소나 할당 된다.
+		- 특적 주소를 넣을 때는 페이지 경계, 즉 페이지의 배수에 해당하는 주소값을 넣어야 한다.
+			- SHM_RND 플래그를 shmflg 에 넣을 경우, 페이지 경계에 반내림으로 계산하여 할당한다.
+	* int shmflg
+		- 지정할 것이 없으면 0
+		- SHM_RDONLY 를 사용할 경우 읽기 전용
 
 
 > int shmctl( int shmid, int cmd, struct shmid_ds *buf )    
