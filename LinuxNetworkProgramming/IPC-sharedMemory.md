@@ -39,17 +39,18 @@
 		- 다른 프로세스가 사용하거나 할 수 있다.
 		- n attach 가 0 이 되어도 공유 메모리는 그대로 내용을 보존하고 시스템에 존재한다.
 
-> int shmget( key_t key, int size, int shmflg )  
-> IPC ID 값을 획득한다.  
+## 공유 메모리의 사용
 
+* int shmget( key_t key, int size, int shmflg )  
+	* IPC ID 값을 획득한다.  
  	* ket_t ket
 		- IPC_PRIVATE  
 			- 이 키는 0 으로 실제 키는 없고 ID 는 랜덤하게 생성된다.
 		- ftok( const char *pathname, int proj_id )  
 			- 경로와 id 를 이용하여 key 값 생성, 같은 경로와 같은 아이디는 항상 같은 key 값을 리턴한다.  
 
-> int *shmat( int shmid, const void *shmaddr, int shmflg )
-> 공유 메모리에 attach 한다.  
+* int *shmat( int shmid, const void *shmaddr, int shmflg )
+	* 공유 메모리에 attach 한다.  
 
 	* int shmid
 		- IPC ID 값
@@ -63,9 +64,8 @@
 		- SHM_RDONLY 를 사용할 경우 읽기 전용
 
 
-> int shmctl( int shmid, int cmd, struct shmid_ds *buf )    
-> 공유 메모리를 조작한다.  
-
+* int shmctl( int shmid, int cmd, struct shmid_ds *buf )    
+	* 공유 메모리를 조작한다.  
  	* int cmd  
 		- 동작을 지시하는 명령  
 		* IPC_STAT  
