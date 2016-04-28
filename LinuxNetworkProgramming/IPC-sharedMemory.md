@@ -40,11 +40,12 @@
 
 > int shmget( key_t key, int size, int shmflg )  
 > IPC ID 값을 획득한다.  
-> 	* ket_t ket
->		- IPC_PRIVATE  
->			- 이 키는 0 으로 실제 키는 없고 ID 는 랜덤하게 생성된다.
->		- ftok( const char *pathname, int proj_id )  
->			- 경로와 id 를 이용하여 key 값 생성, 같은 경로와 같은 아이디는 항상 같은 key 값을 리턴한다.  
+
+ 	* ket_t ket
+		- IPC_PRIVATE  
+			- 이 키는 0 으로 실제 키는 없고 ID 는 랜덤하게 생성된다.
+		- ftok( const char *pathname, int proj_id )  
+			- 경로와 id 를 이용하여 key 값 생성, 같은 경로와 같은 아이디는 항상 같은 key 값을 리턴한다.  
 
 > int *shmat( int shmid, const void *shmaddr, int shmflg )
 > 공유 메모리에 attach 한다.  
@@ -63,19 +64,20 @@
 
 > int shmctl( int shmid, int cmd, struct shmid_ds *buf )    
 > 공유 메모리를 조작한다.  
-> 	* int cmd  
->		- 동작을 지시하는 명령  
->		* IPC_STAT  
->			- IPC 자원의 정보 ( 생성자, 생성 시간, 접근 권한 등등 ) 을 읽어온다.  
->			- shmid_ds 구조체를 사용하여 읽어온다.
->		* IPC_SET  
->			- IPC 자원의 정보( 권한 ) 을 변경  
->		* IPC_INFO  
->			- IPC 자원의 시스템 설정값을 읽어온다.
->			- shminfo 구조체를 사용하여 읽어온다.
->		* IPC_RMID
->			- 시스템에서 IPC 자원 ( 공유메모리 ) 를 제거
->			- 제거할 때 shmid_ds 정보가 필요 없다면 NULL 을 넣는다.
+
+ 	* int cmd  
+		- 동작을 지시하는 명령  
+		* IPC_STAT  
+			- IPC 자원의 정보 ( 생성자, 생성 시간, 접근 권한 등등 ) 을 읽어온다.  
+			- shmid_ds 구조체를 사용하여 읽어온다.
+		* IPC_SET  
+			- IPC 자원의 정보( 권한 ) 을 변경  
+		* IPC_INFO  
+			- IPC 자원의 시스템 설정값을 읽어온다.
+			- shminfo 구조체를 사용하여 읽어온다.
+		* IPC_RMID
+			- 시스템에서 IPC 자원 ( 공유메모리 ) 를 제거
+			- 제거할 때 shmid_ds 정보가 필요 없다면 NULL 을 넣는다.
 
 ##### struct shmid_ds
 ```c++
