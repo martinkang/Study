@@ -71,7 +71,6 @@
 	재조합을 거쳐 완전한 데이터그램이 완성되면 수신 버퍼로 전송.
 	8. 수신측 응용 프로그램이 읽기 요청을 하게 되면 TCP 는 스트림으로서 처리되어 읽혀지고,
 	UDP 는 송신처에서 보냈는 데이터그램 단위대로 읽혀지게 된다.
-	
 	- TCP, UDP의 IP 계층으로의 전송 ( 출처 : Linux System & Network Programming )
 		- ![TCP-UDP]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/tcpudp.jpg )
 
@@ -84,7 +83,6 @@
 	- 스트림의 특성 때문에 데이터의 시작과 끝을 알 수 있는 구분자 ( separator ) 를 사용하거나
 	혹은 응용 프로그램의 통신용 헤더를 구성하여 
 	읽어 들어야 하는 데이터의 크기를 알아내느 방법을 사용해야 한다.
-
 ![TCPstream]( https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/tcpstreams.jpg )
 
 
