@@ -13,8 +13,9 @@
 
 ## 함수 원형
 > int select( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout );    
-> int pselect( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timespec *timespec, const sigset_t *sigmask );   
->  
+> int pselect( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timespec *timespec, const sigset_t *sigmask );     
+
+
 * fd_set    
 	* readfds ( 읽기 가능 이벤트 감시 )   
 		- 소켓 수신 버퍼에 데이터가 도착한 경우에 리턴      

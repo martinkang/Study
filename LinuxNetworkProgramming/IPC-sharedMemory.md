@@ -15,15 +15,16 @@
 
 
 ## SysV 공유메모리
-> shmget(2)  
->	- 공유 메모리의 IPC id 를 얻는다.  
-> shmat(2)  
->	- IPC id 에 대응하는 메모리 주소 번지를 가져온다.  
-> shmctl(2)  
->	- 공유 메모리를 조작한다. 공유 메모리 정보를 가져오거나 제거할 수 있다.  
-> shmdt(2)  
->	- 공유 메모리와의 대응을 푼다.  
->	- 대응을 풀어도 공유 메모리를 제거하기 전까지는 시스템에 존재한다.  
+* shmget(2)    
+	- 공유 메모리의 IPC id 를 얻는다.  
+* shmat(2)   
+	- IPC id 에 대응하는 메모리 주소 번지를 가져온다.  
+* shmctl(2)   
+	- 공유 메모리를 조작한다. 공유 메모리 정보를 가져오거나 제거할 수 있다.   
+* shmdt(2)   
+	- 공유 메모리와의 대응을 푼다.   
+	- 대응을 풀어도 공유 메모리를 제거하기 전까지는 시스템에 존재한다.   
+
 
 * 공유 메모리를 사용 중일 때 제거하게 된다면?
 	- attach 된 프로세스가 1개 이상일 때 공유 메모리를 삭제하면, 삭제 예약으로 잡힌다. 
@@ -38,43 +39,46 @@
 		- 다른 프로세스가 사용하거나 할 수 있다.
 		- n attach 가 0 이 되어도 공유 메모리는 그대로 내용을 보존하고 시스템에 존재한다.
 
-> int shmget( key_t key, int size, int shmflg )  
-> IPC ID 값을 획득한다.  
-> 	* ket_t ket
->		- IPC_PRIVATE  
->			- 이 키는 0 으로 실제 키는 없고 ID 는 랜덤하게 생성된다.
->		- ftok( const char *pathname, int proj_id )  
->			- 경로와 id 를 이용하여 key 값 생성, 같은 경로와 같은 아이디는 항상 같은 key 값을 리턴한다.  
+## 공유 메모리의 사용
 
-> int *shmat( int shmid, const void *shmaddr, int shmflg )
-> 공유 메모리에 attach 한다.  
->	* int shmid
->		- IPC ID 값
->	* const void *shmaddr
->		- 공유 메모리와 연결할 가상 메모리 주소
->		- NULL 을 넣을 경우 특정 주소를 받지 않고 아무 주소나 할당 된다.
->		- 특적 주소를 넣을 때는 페이지 경계, 즉 페이지의 배수에 해당하는 주소값을 넣어야 한다.
->			- SHM_RND 플래그를 shmflg 에 넣을 경우, 페이지 경계에 반내림으로 계산하여 할당한다.
->	* int shmflg
->		- 지정할 것이 없으면 0
->		- SHM_RDONLY 를 사용할 경우 읽기 전용
+* int shmget( key_t key, int size, int shmflg )  
+	* IPC ID 값을 획득한다.  
+ 	* ket_t ket
+		- IPC_PRIVATE  
+			- 이 키는 0 으로 실제 키는 없고 ID 는 랜덤하게 생성된다.
+		- ftok( const char *pathname, int proj_id )  
+			- 경로와 id 를 이용하여 key 값 생성, 같은 경로와 같은 아이디는 항상 같은 key 값을 리턴한다.  
+
+* int *shmat( int shmid, const void *shmaddr, int shmflg )
+	* 공유 메모리에 attach 한다.  
+
+	* int shmid
+		- IPC ID 값
+	* const void *shmaddr
+		- 공유 메모리와 연결할 가상 메모리 주소
+		- NULL 을 넣을 경우 특정 주소를 받지 않고 아무 주소나 할당 된다.
+		- 특적 주소를 넣을 때는 페이지 경계, 즉 페이지의 배수에 해당하는 주소값을 넣어야 한다.
+			- SHM_RND 플래그를 shmflg 에 넣을 경우, 페이지 경계에 반내림으로 계산하여 할당한다.
+	* int shmflg
+		- 지정할 것이 없으면 0
+		- SHM_RDONLY 를 사용할 경우 읽기 전용
 
 
-> int shmctl( int shmid, int cmd, struct shmid_ds *buf )    
-> 공유 메모리를 조작한다.  
-> 	* int cmd  
->		- 동작을 지시하는 명령  
->		* IPC_STAT  
->			- IPC 자원의 정보 ( 생성자, 생성 시간, 접근 권한 등등 ) 을 읽어온다.  
->			- shmid_ds 구조체를 사용하여 읽어온다.
->		* IPC_SET  
->			- IPC 자원의 정보( 권한 ) 을 변경  
->		* IPC_INFO  
->			- IPC 자원의 시스템 설정값을 읽어온다.
->			- shminfo 구조체를 사용하여 읽어온다.
->		* IPC_RMID
->			- 시스템에서 IPC 자원 ( 공유메모리 ) 를 제거
->			- 제거할 때 shmid_ds 정보가 필요 없다면 NULL 을 넣는다.
+* int shmctl( int shmid, int cmd, struct shmid_ds *buf )    
+	* 공유 메모리를 조작한다.  
+ 	* int cmd  
+		- 동작을 지시하는 명령  
+		* IPC_STAT  
+			- IPC 자원의 정보 ( 생성자, 생성 시간, 접근 권한 등등 ) 을 읽어온다.  
+			- shmid_ds 구조체를 사용하여 읽어온다.
+		* IPC_SET  
+			- IPC 자원의 정보( 권한 ) 을 변경  
+		* IPC_INFO  
+			- IPC 자원의 시스템 설정값을 읽어온다.
+			- shminfo 구조체를 사용하여 읽어온다.
+		* IPC_RMID
+			- 시스템에서 IPC 자원 ( 공유메모리 ) 를 제거
+			- 제거할 때 shmid_ds 정보가 필요 없다면 NULL 을 넣는다.
 
 ##### struct shmid_ds
 ```c++
