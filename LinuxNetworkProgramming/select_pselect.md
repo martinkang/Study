@@ -83,12 +83,12 @@ typedef struct
 - 감시해야할 파일 기술자가 4번과, 800 번이라고 할 때
 	- select(2) 는 0 부터 800 번까지 항상 루프를 돌면서 fd_Set 구조체의 비트마스크 상태를 검사하게 된다.
 	- 단 2개의 파일 기술자를 감시하기 위해 800 번까지 루프를 돌기 때문에 의미없이 CPU 시간을 잡아먹는다.
+- blocking accept(2) 사용 시 한 번에 하나의 accept 만 하기 때문에 비효율적이다.
+	- 이는 select 뿐만 아니라 poll/epoll 모두 해당된다.
 
 
-## non blocking accept(2)
-
-### blocking accept 를 이용한 서버
-* blocking accept 의 처리 순서
+## 왜 blocking accept 는 비효율 적인가?
+* 기존 blocking accept 의 처리 순서
     1. I/O 멀티플렉서 ( select/poll/epoll ) 의 읽기 요청 감지
     2. 리스너 소켓 ( listener socket ) 에 읽기 요청 ( 연결 요청 ) 이 있었는가?
     3. accept(2) 한번 한 뒤에 다시 (1) 번으로.
@@ -99,13 +99,4 @@ typedef struct
         * 요청이 얼마나 올지 모르기 때문에 잠정적으로 무한 대기에 빠질 수 있다.
     - 따라서 poller( select/poll/epoll ) 가 한번 감지한 뒤에 접속을 한번 accept 하고
     다시 poller 를 호출하기 때문에 잦은 시스템 호출로 인해서 성능상 불이익이 생긴다.
-
-
-### non-blocking accept 를 이용한 서버
-* non-blocking accept 의 처리 순서
-    1. poller 의 읽기 요청 감지
-    2. 리스너 소켓에 읽기 요청( 연결 요청 ) 이 있었는가?
-    3. 루프를 돌면서 accept(2) 한다. 받아들일 연결이 더 이상 없는 경우에는
-    accept(2) 는 실패.
-    4. 모든 연결이 받아들여졌다면 (1) 번으로.
 
