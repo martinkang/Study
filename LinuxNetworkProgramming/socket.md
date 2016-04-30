@@ -39,7 +39,8 @@
 	* Little Endian
 		- 오른쪽으로부터 왼쪽으로 저장되는 방식
 		- 포인터 값 참조가 쉽다.
-	![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/endian2.png )
+
+![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/endian2.png )
 
 
 ## TCP 소켓 ( SOCK_STREAM 소켓 )
