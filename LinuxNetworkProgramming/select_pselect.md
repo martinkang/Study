@@ -1,9 +1,11 @@
 # select, pselect 의 사용
-* select(2), pselect(2) 는 레벨 트리거를 사용하는 방식으로 버퍼의 수준 ( level = amount ) 을 검사하는 방식.
+* 특징
+	* select(2), pselect(2) 는 레벨 트리거를 사용하는 방식으로 버퍼의 수준 ( level = amount ) 을 검사하는 방식.
 	* select(2) 는 실무에 사용하는데 사실상 조금 무리가 따른다.
 		- 자신이 관리하는 파일 기술자 번호를 외부에 저장해두고 검사할 때마다 루프를돌면서 검사해야 한다.
 		- 내부적으로는 검사할 가장 큰 수를 가지는 파일 기술자 + 1 을 입력받아서 검사하므로 내부적으로도 쓸모없는 루프문을 돌도록 구성되어 있다.
 		- 이런 제약점이 존재하기 때문에 실제로는 간단한 코드나 혹은 디바이스 장치 몇개를 감시하는 경우에만 주로 사용된다.
+* 용어
 	- 레벨 트리거 ( Level Trigger )
 		- 인터럽트가 발생하여 그 레벨이 인가 될 때 발생.  ( 사건이 발생하고 있는 동안 발생 )
 		- 하이 레벨, 로우 레벨 두 경우가 있음
@@ -11,10 +13,9 @@
 		- 인터럽트가 발생하여 레벨이 상승하거나 하강 할 때 발생. ( 사건이 발생하는 찰나에 발생  )
 		- 상승 엣지와 하강 엣지 두 경우가 있음.
 
-## 함수 원형
+## select(2), pselect(2) 의 사용
 > int select( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout );    
 > int pselect( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timespec *timespec, const sigset_t *sigmask );     
-
 
 * fd_set    
 	* readfds ( 읽기 가능 이벤트 감시 )   
@@ -29,18 +30,6 @@
 	* exceptfds ( 예외 상황 이벤트 감시 )     
 		- TCP 의 OOB 데이터 ( URG 플래그 지정됨 ) 가 수신된 경우에 리턴    
 
-
-## select(2) 와 pselect(2) 의 차이
-- 타임 아웃
-	* select 는 타임아웃을 마이크로초 ( 10E-6 ) 초 단위까지 지정 가능
-	* pselect 는 타임아웃이 struct timespec 구조체로 바뀌어 나노 ( 10E-9 ) 초 단위까지 지정 가능.
-- 시그널 핸들러의 사용
-	* select 는 블록킹 중에 시그널이 발생하면 에러로 리턴하고 빠져나가기 때문에 
-	시그널 핸들러를 사용할 때 전역적인 시그널 블록킹을 같이 해줘야 한다.
-	* pseelct 는 함수 호출시에 블록킹할 시그널 마스크를 지정하여 시그널을 지연시킬 수 있다.
-
-
-## select, pselect 의 사용
 > FD_ZERO( fd_set * set )  
 > 	* set 을 초기화 한다.
 > FD_SET( int fd, fd_set * set )  
@@ -55,6 +44,7 @@
 	- select(2) 는 함수가 이벤트를 반환하기 위해서 해당 파일 기술자 세트들에 변경을 가하게 된다.
 		- 이벤트가 발생한 파일 기술자 비트가 1 로 변경된다.
 	- 그러므로 파일 기술자들을 따로 관리해야 한다.
+
 
 ##### fd_set 구조체 ( sys/select.h>
 ```c++
@@ -77,6 +67,19 @@ typedef struct
 ```
 * fds_bits 는 32 개의 long int 배열로 이루어져 있다.
 	- 각각의 비트가 한 개의 파일 기술자를 의미하므로 최대 1024 번호까지의 파일 기술자를 감시할 수 있다.
+
+## select(2) 와 pselect(2) 의 차이
+- 타임 아웃
+	* select 는 타임아웃을 마이크로초 ( 10E-6 ) 초 단위까지 지정 가능
+	* pselect 는 타임아웃이 struct timespec 구조체로 바뀌어 나노 ( 10E-9 ) 초 단위까지 지정 가능.
+- 시그널 핸들러의 사용
+	* select 는 블록킹 중에 시그널이 발생하면 에러로 리턴하고 빠져나가기 때문에 
+	시그널 핸들러를 사용할 때 전역적인 시그널 블록킹을 같이 해줘야 한다.
+	* pseelct 는 함수 호출시에 블록킹할 시그널 마스크를 지정하여 시그널을 지연시킬 수 있다.
+
+
+## select, pselect 의 사용
+
 
 
 ## 왜 select(2) 함수가 비효율 적인가?
