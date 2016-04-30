@@ -31,16 +31,15 @@
 * 네트워크를 통해서 데이터를 전송할 때 데이터를 나열하는 규칙
 * 보통 데이터 전송의 최소 단위는 1 octec, 즉 1Byte 이다.
 * 1Byte 를 넘는 데이터를 보낼때 바이트 순서가 사용된다.
-
-* Big Endian
-	- 왼쪽으로부터 오른쪽으로 저장되는 방식
-	- 네트워크에서 사용되며, TCP/IP 에서 사용중
-	- 가독성이 좋다.
-* Little Endian
-	- 오른쪽으로부터 왼쪽으로 저장되는 방식
-	- 포인터 값 참조가 쉽다.
-
-![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/endian2.png )
+* 종류
+	* Big Endian
+		- 왼쪽으로부터 오른쪽으로 저장되는 방식
+		- 네트워크에서 사용되며, TCP/IP 에서 사용중
+		- 가독성이 좋다.
+	* Little Endian
+		- 오른쪽으로부터 왼쪽으로 저장되는 방식
+		- 포인터 값 참조가 쉽다.
+	![Endian](https://github.com/martinkang/MyText/blob/master/LinuxNetworkProgramming/img/endian2.png )
 
 
 ## TCP 소켓 ( SOCK_STREAM 소켓 )
@@ -74,8 +73,6 @@
 > int accept( int s, struct sockaddr *addr, socklen_t *addrlen )
 
 * accept(2) : 클라이언트의 연결 수용
-
-
 * close(2), shutdown(2) : 연결종료
 	- close(2) 는 해당 프로세스 내에서 연결된 소켓의 ID 만 닫는다.
 		- 다른 프로세스가 해당 소켓을 공유하고 있을 때, 현재 프로세스에서 소켓을 닫아도
@@ -90,10 +87,8 @@
 
 * Active close
 	- FIN 세그먼트를 서버로 보내 능동적으로 연결을 종료시키는 것
-
 * Passive close
 	- 클라이언트로부터 먼저 FIN 을 받고 close(2) 를 호출하는 수동적인 방법
-
 * TIME_WAIT 상태
 	- 네트워크 상에서 상실되거나 지연되어 도착하지 못한 데이터 패킷들을 처리하기 위하여 
 	MSL 의 2배의 시간만큼 기다리면서 해당 포트를 점유
@@ -102,8 +97,6 @@
 	서버는 다시한번 FIN 을 보내게 된다. 만일 TIME_WAIT 이 없다면 이 FIN 을 처리할 수 없게 되거나,
 	금세 같은 자리에 생성된 소켓이 있다면 리셋이 발생할 것이다.
 	* MSL ( Maximum Segment Lifetime )
-
-
 
 
 ## UDP 소켓 ( SOCK_DGREAM 소켓 )
@@ -122,7 +115,6 @@
 	- 멀티캐스트 그룹이란 것이 존재하여 이 그룹에 가입된 주소로만 데이터가 전송된다.
 		- 멀티캐스트 그룹을 만들고, 수신측은 이 그룹에 가입해야 멀티캐스팅이 가능하다.
 	- 라우터가 계층에서 처리해주기 때문에, 라우터가 멀티캐스트를 지원하도록 세팅해야 한다.
-
 
 
 ## 소켓 버퍼 크기 조정에 대해서
