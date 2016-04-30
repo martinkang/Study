@@ -1,4 +1,4 @@
-# select, pselect 의 사용
+# select(2), pselect(2) 의 사용
 * 특징
 	* select(2), pselect(2) 는 레벨 트리거를 사용하는 방식으로 버퍼의 수준 ( level = amount ) 을 검사하는 방식.
 	* select(2) 는 실무에 사용하는데 사실상 조금 무리가 따른다.
