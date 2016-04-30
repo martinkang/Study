@@ -28,6 +28,7 @@
 	* exceptfds ( 예외 상황 이벤트 감시 )     
 		- TCP 의 OOB 데이터 ( URG 플래그 지정됨 ) 가 수신된 경우에 리턴    
 
+
 ## select(2) 와 pselect(2) 의 차이
 - 타임 아웃
 	* select 는 타임아웃을 마이크로초 ( 10E-6 ) 초 단위까지 지정 가능
@@ -36,4 +37,51 @@
 	* select 는 블록킹 중에 시그널이 발생하면 에러로 리턴하고 빠져나가기 때문에 
 	시그널 핸들러를 사용할 때 전역적인 시그널 블록킹을 같이 해줘야 한다.
 	* pseelct 는 함수 호출시에 블록킹할 시그널 마스크를 지정하여 시그널을 지연시킬 수 있다.
+
+
+## select, pselect 의 사용
+> FD_ZERO( fd_set * set )  
+> 	* set 을 초기화 한다.
+> FD_SET( int fd, fd_set * set )  
+> 	* 파일 기술자 세트인 set 에 파일 기술자 fd 를 더한다.
+> FD_CLR( int fd, fd_set * set )  
+> 	* 파일 기술자 세트인 set 에 파일 기술자 fd 를 뺀다.
+> FD_ISSET( int fd, fd_set * set )	    
+>	* 파일 기술자 세트인 set 에서 파일 기술자 fd 에 이벤트가 발생하는 지를 체크한다.   
+>	* fd 에 이벤트가 발생하면 1이 리턴, 이벤트가 없으면 0 이 리턴된다.
+
+* 파일 기술자 세트들이 select(2) 를 호출하여 리턴받은 다음에는 변경된다.
+	- select(2) 는 함수가 이벤트를 반환하기 위해서 해당 파일 기술자 세트들에 변경을 가하게 된다.
+		- 이벤트가 발생한 파일 기술자 비트가 1 로 변경된다.
+	- 그러므로 파일 기술자들을 따로 관리해야 한다.
+
+##### fd_set 구조체 ( sys/select.h>
+```c++
+#define __NFDBITS	( 8 * sizeof( __fd_mask ) ) /* 즉 32 */
+typedef long int __fd_mask;
+typedef struct
+{
+	/* XPG4.2 requires this memeber name. otherwise avoid the name from the global namespace. */
+
+#ifdef __USE_XOPEN
+	__fd_mask fds_bits[__FD_SETSIZE / __ NFDBITS]; /* 1024 / 32 즉 32 개의 배열로 이루어져 있다. */
+#define __FDS_BITS(set) ((set)->fds_bits)
+#else
+	__fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
+#define __FDS_BITS(set) ((set)->__fds_bits)
+#endif
+} fd_set;
+
+#define FD_SETSIZE __FD_SETSIZE /* 다른 헤더에 1024 로 정의되어 있다. *.
+```
+
+* fds_bits 는 32 개의 long int 배열로 이루어져 있다.
+	- 각각의 비트가 한 개의 파일 기술자를 의미하므로 최대 1024 번호까지의 파일 기술자를 감시할 수 있다.
+
+## 왜 select(2) 함수가 비효율 적인가?
+
+* 예제
+	- 감시해야할 파일 기술자가 4번과, 800 번이라고 할 때
+		- select(2) 는 0 부터 800 번까지 항상 루프를 돌면서 fd_Set 구조체의 비트마스크 상태를 검사하게 된다.
+		- 단 2개의 파일 기술자를 감시하기 위해 800 번까지 루프를 돌기 때문에 의미없이 CPU 시간을 잡아먹는다.
 
