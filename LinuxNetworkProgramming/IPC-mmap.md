@@ -57,6 +57,7 @@
 			- int ftruncate( int fildes, off_t length );
 
 * 예제
-	- [mmap](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/mmap_ex2.c)
+	- [mmap.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/mmap_ex2.c)
 		- 다시 고쳐야 한다.
+		- ftruncate 나 파일 맨 마지막에 0을 입력하여 파일크기 확장을 해야 한다.
 
