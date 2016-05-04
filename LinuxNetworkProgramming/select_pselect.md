@@ -100,6 +100,6 @@ typedef struct
     다시 poller 를 호출하기 때문에 잦은 시스템 호출로 인해서 성능상 불이익이 생긴다.
 
 * 예제
-	- ex/io_select-blocking-accept.c
+	- [링크](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex "io_select-blocking-accept.c")
 	- ex/io_select-non-blocking-accept.c
 	- ex/client.c
