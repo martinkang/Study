@@ -12,7 +12,9 @@
 		- 향후 호환성이 좋다.
 		- 파일처럼 사용하되 그 파일의 위치가 공유되는 가상 메모리 공간에 만들어지는 개념
 			- 그냥 메모리 처럼 사용하기 위해서는 mmap 을 사용해야 한다.
-
+* 예제
+	- [lib_sysv_shm.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/lib_sysv_shm.c)
+	- [sysv_shm.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/sysv_shm.c)
 
 ## 공유 메모리의 사용
 
@@ -79,10 +81,6 @@ strcut shmid_ds
 		- 다른 프로세스가 사용하거나 할 수 있다.
 		- n attach 가 0 이 되어도 공유 메모리는 그대로 내용을 보존하고 시스템에 존재한다.
 
-
-* 예제
-	- [lib_sysv_shm.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/lib_sysv_shm.c)
-	- [sysv_shm.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/sysv_shm.c)
 
 ## POSIX 공유 메모리
 * POSIX 공유 메모리는 저수준의 파일 핸들링과 유사한 인터페이스를 제공
