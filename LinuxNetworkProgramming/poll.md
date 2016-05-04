@@ -1,4 +1,4 @@
-# poll(2), epoll(2) 의 사용
+# poll(2) 의 사용
 
 ## poll(2) 의 사용
 * poll(2) 는 자신이 관리하는 파일 기술자 번호를 struct pollfd 구조체에 넣어서 관리하므로,
@@ -29,7 +29,7 @@ struct pollfd
 	* short revents( 반환된 이벤트 )
 		- 지정한 이벤트 중에 발생한 것이 저장됨
 
-##### poll(2)의 이벤트 종류 1
+##### poll(2)의 이벤트 종류
 * 종류
 	* POLLIN
 		- 데이터가 일기 버퍼에 존재하는 경우
@@ -54,5 +54,13 @@ struct pollfd
 		- 따라서 events 에 쓸 수 없다.
 
 
-## poller 를 이용한 TCP 의 OOB 데이터 감지
+## poller 를 이용한 TCP 의 OOB( Out Of Band ) 데이터 감지
+* TCP 에서 OOB 데이터가 도착하는 것을 감지하기 위해서는 두가지 방법이 있다.
+	- poller 를 이용하여 예외 상황을 감지하는 방법
+		- poll(2) 의 이벤트중 POLLPRI 는 OOB 데이터를 감지한다.
+		- URG 플래그가 세팅된 데이터를 받았는지 감지한다.
+	- SIGURG 을 감시하는 방법.
+
+* 예제
+	= ex/io_poll.c
 

@@ -80,6 +80,9 @@ strcut shmid_ds
 		- n attach 가 0 이 되어도 공유 메모리는 그대로 내용을 보존하고 시스템에 존재한다.
 
 
+* 예제
+	- ex/lib_sysv_shm.c
+	- ex/sysv_shm.c
 
 ## POSIX 공유 메모리
 * POSIX 공유 메모리는 저수준의 파일 핸들링과 유사한 인터페이스를 제공

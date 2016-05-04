@@ -31,6 +31,10 @@
 	* 자식부터 실행이 되는 것을 보장한다.
 
 
+* 예제
+	- ex/vfork.c
+
+
 ##### vfork 사용 예제
 ```c++
 #include <stdio.h>                                                
