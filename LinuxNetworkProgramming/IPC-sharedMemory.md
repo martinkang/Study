@@ -81,8 +81,8 @@ strcut shmid_ds
 
 
 * 예제
-	- ex/lib_sysv_shm.c
-	- ex/sysv_shm.c
+	- [lib_sysv_shm.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/lib_sysv_shm.c)
+	- [sysv_shm.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/sysv_shm.c)
 
 ## POSIX 공유 메모리
 * POSIX 공유 메모리는 저수준의 파일 핸들링과 유사한 인터페이스를 제공
