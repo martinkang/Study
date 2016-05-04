@@ -55,3 +55,8 @@
 			- int truncate( const char *path, off_t length );
 		* 파일 기술자를 사용한 파일 크기 확장 
 			- int ftruncate( int fildes, off_t length );
+
+* 예제
+	- [mmap](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/mmap_ex2.c)
+		- 다시 고쳐야 한다.
+
