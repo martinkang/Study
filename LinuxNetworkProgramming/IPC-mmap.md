@@ -8,7 +8,10 @@
 			* munmap 시 동기화에 대해 보장할 수 없기 때문에 명시적으로 msync() 를 수행해야 한다.
 	- 크리티컬 섹션 보호에 신경써야한다. ( mmap 은 공유되므로 )
 	- 메모리맵의 크기를 넘어서는 경우에 파일에는 영향을 주지 않는다.
-	
+* 예제
+	- [mmap.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/mmap_ex2.c)
+		- 다시 고쳐야 한다.
+		- ftruncate 나 파일 맨 마지막에 0을 입력하여 파일크기 확장을 해야 한다.	
 
 ## mmap 의 사용
 > void *mmap( void *start, size_t length, int prot, int flags, int fd, off_t offset );
@@ -56,8 +59,5 @@
 		* 파일 기술자를 사용한 파일 크기 확장 
 			- int ftruncate( int fildes, off_t length );
 
-* 예제
-	- [mmap.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/mmap_ex2.c)
-		- 다시 고쳐야 한다.
-		- ftruncate 나 파일 맨 마지막에 0을 입력하여 파일크기 확장을 해야 한다.
+
 
