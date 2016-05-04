@@ -101,5 +101,5 @@ typedef struct
 
 * 예제
 	- [io_select-blocking-accept.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/io_select-blocking-accept.c )
-	- ex/io_select-non-blocking-accept.c
-	- ex/client.c
+	- [io_select-non-blocking-accept.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/io_select-non-blocking-accept.c )
+	- [client.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/client.c)
