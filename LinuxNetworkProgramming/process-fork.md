@@ -29,10 +29,8 @@
 	* fork 후에 곧바로 exec 계열 함수를 호출하는 경우, 모든 메모리가 복사되었다가 해제되므로 무겁다는 단점을 해결하기 위해 사용한다.
 	* 부모 프로세스와 자식 프로세스가 모든 것을 공유한다.
 	* 자식부터 실행이 되는 것을 보장한다.
-
-
 * 예제
-	- ex/vfork.c
+	- [vfork.c](https://github.com/martinkang/Study/tree/master/LinuxNetworkProgramming/ex/vfork.c)
 
 
 ##### vfork 사용 예제
