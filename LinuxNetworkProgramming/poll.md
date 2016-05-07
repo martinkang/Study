@@ -9,7 +9,7 @@
 * select(2) 를 개량하여 나온 기능, 성능상의 약간의 이점이 있지만 절대적으로 말할 정도는 아니다.
 	- 하지만 될 수 있으면 select(2) 보다는 poll(2) 을 쓰는 것이 좋다.
 * 예제
-	- ex/io_poll.c
+	- [poll.c](https://github.com/martinkang/Study/blob/master/LinuxNetworkProgramming/ex/io_poll.c)
 
 ##### poll(2) 의 함수 원형과 파일 기술자 구조체
 ```c++
