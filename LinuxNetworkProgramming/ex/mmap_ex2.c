@@ -3,12 +3,11 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <unistd.h>
 
-#define MMAP_FILENAME "shared_mmap"
-#define MMAP_SIZE	  64
-
-char contents[] = "(*)What`s differents between Shared mmap and Private mmap? -end-\n";
-
+#define MMAP_FILENAME "mmap.log"
+#define MMAP_SIZE	  1024
+#define INPUT_SIZE    64
 void err_handling( char *msg, int errno )
 {
 	printf( "%s\nerrno( %d : %s )\n", msg, errno, strerror( errno ) );
@@ -16,8 +15,14 @@ void err_handling( char *msg, int errno )
 
 int main( int argc, char **argv )
 {
-	int fd, flag_mmap, n_write;
-	char *p_map, a_input[100] = {0, };
+	int fd;
+	int mapCursor = 0;
+
+	int flag_mmap;
+	char *mmapPtr = NULL;
+
+	int len = 0;
+	char a_input[INPUT_SIZE] = {0, };
 
 	if ( argc != 2 )
 	{
@@ -25,7 +30,7 @@ int main( int argc, char **argv )
 		return -1;
 	}
 
-	fd = open( MMAP_FILENAME, O_RDWR | O_CREAT, 0664 );
+	fd = open( MMAP_FILENAME, O_RDWR | O_CREAT | O_TRUNC, 0664 );
 
 	if ( fd == -1 )
 	{
@@ -33,28 +38,28 @@ int main( int argc, char **argv )
 		return -1;
 	}
 
-	if ( ( n_write = write( fd, contents, sizeof( contents ) - 1 ) ) == -1 )
-	{
-		err_handling( "Fail : write()", errno );
-		return -1;
-	}
-
-	printf( "%d byte writing... to file -> %s\n", n_write, MMAP_FILENAME );
-
 	if ( *argv[1] == 's' )
 	{
 		flag_mmap = MAP_SHARED;
+		printf( "SHARED MMAP\n" );
 	}
 	else
 	{
-		flag_mmap = MAP_PRIVATE;
+		flag_mmap = MAP_PRIVATE;		
+		printf( "PRIVATE MMAP\n" );
 	}
 
-	p_map = mmap( ( void *)0, MMAP_SIZE, PROT_READ | PROT_WRITE, flag_mmap, fd, 0 );
+	mmapPtr = mmap( ( void *)0, MMAP_SIZE, PROT_READ | PROT_WRITE, flag_mmap, fd, 0 );
 
-	if ( p_map == MAP_FAILED )
+	if ( mmapPtr == MAP_FAILED )
 	{
 		err_handling( "Fail : mmap()", errno );
+		return -1;
+	}
+
+	if ( ftruncate( fd, (off_t)MMAP_SIZE ) == -1 )
+	{
+		err_handling( "ftruncate() error", errno );
 		return -1;
 	}
 
@@ -62,30 +67,41 @@ int main( int argc, char **argv )
 	{
 		printf( "'*' printf current mmap otherwise input text to mmap. >> " );
 
-		if ( fgets( a_input, sizeof( a_input ), stdin ) == NULL )
+		if ( fgets( a_input, INPUT_SIZE, stdin ) == NULL )
 		{
 			err_handling( "Fail : fgets()", errno );
 			return -1;
 		}
+		len = strlen( a_input );
 
-		a_input[strlen( a_input )] = 0;
-
-		if ( a_input[0] == '*' )
+		a_input[len] = 0;
+		if ( strcmp( a_input, "*\n" ) == 0 )
 		{
-			printf( "Current mmap -> '%.*s'\n", MMAP_SIZE, p_map );
+			/* %.* 폭 지정 * 는 숫자와 대응한다. */
+			printf( "Current mmap\n'%.*s'\n", MMAP_SIZE, mmapPtr );
+		}
+		else if ( strcmp( a_input, ".exit\n" ) == 0 )
+		{
+			printf( "Current mmap\n'%.*s'\n", MMAP_SIZE, mmapPtr );
+			fprintf( stderr, "exit\n" );		
+			break;
 		}
 		else
 		{
-			memcpy( p_map, a_input, strlen( a_input ) );
+			memcpy( mmapPtr + mapCursor, a_input, strlen( a_input ) );
+			mapCursor += strlen( a_input );
 		}
 	
-		if ( msync( p_map, MMAP_SIZE, MS_SYNC ) == -1 )
+		if ( msync( mmapPtr, mapCursor, MS_SYNC ) == -1 )
 		{
 			err_handling( "Fail : msync()", errno );
 			return -1;
 		}
 	}
 
+	munmap( (void*)mmapPtr, MMAP_SIZE );
+
+	close( fd );
 	return 0;
 }
 

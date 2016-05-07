@@ -4,21 +4,29 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <poll.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 
 #define MAX_FD_SOCKET 255
 #define BUF_SIZE 1024
 #define LISTEN_BACKLOG 5
 
 struct pollfd gPollFds[MAX_FD_SOCKET];
-int gCntFdSocket; /* pollfds[] 배열에 저장된 소켓 파일 기술자 개수 */
+int gCntFdSocket = 0; /* pollfds[] 배열에 저장된 소켓 파일 기술자 개수 */
 
-int createAndBindSocket( const int aPort, sockaddr_in *aAddrMy );
-void newAccept( const int aFdListener, sockaddr_in *aAddrOther );
+int recvData( const int aIdx );
+int createAndBindSocket( const int aPort, struct sockaddr_in *aAddrMy );
+void newAccept( const int aFdListener, struct sockaddr_in *aAddrOther );
 int addSocket( int aFd );
 int delSocket( int aFd );
 
 int main( int argc, char *argv[] )
 {
+	int sRC = 0;
+
 	int i = 0;
 
 	int sPort = 0;
@@ -28,13 +36,12 @@ int main( int argc, char *argv[] )
 	int sFdListener;
 	int sNRecv;
 
-	char sBuf[BUF_SIZE] = {0, };
 	int sRetPoll;
 
-	memset( &sAddrMy, 0x00, sizeof( struct sockaddr_in ) );
-	memset( &sAddrOther, 0x00, sizeof( struct sockaddr_in ) );
+	memset( (void*)(&sAddrMy), 0, sizeof( struct sockaddr_in ) );
+	memset( (void*)(&sAddrOther), 0, sizeof( struct sockaddr_in ) );
 
-	int ( argc != 2 )
+	if ( argc != 2 )
 	{
 		printf( "Usage : %s < listen port>\n", argv[0] );
 	}
@@ -45,51 +52,56 @@ int main( int argc, char *argv[] )
 
 	for( i = 0; i < MAX_FD_SOCKET; i++ )
 	{
-		gPollFds[i] = -1;
+		gPollFds[i].fd = -1;
 	}
 
 	sFdListener = createAndBindSocket( sPort, &sAddrMy );
+	fprintf( stderr,"sFdListener : %d\n", sFdListener );
 
 	/* pollfds 의 0 번째에 리스너 소켓을 저장한다. */
 	addSocket( sFdListener );
 	while( 1 )
 	{
 		sRetPoll = poll( gPollFds, gCntFdSocket, -1 );
+
 		if ( sRetPoll == -1 )
 		{
 			perror( "poll() error\n" );
 			break;
 		}
-		printf( "poll return : %d\n", sRetPoll );
-
-		if ( gPollFds[0].revents & POLLLIN ) /* 새로운 연결 요청이면 */
+		else if ( sRetPoll > 0 )
 		{
-			newAccept( sFdListener, &sAddrOther );
-		}
+			printf( "poll return : %d\n", sRetPoll );
 
-		for ( i = 0; i < gCntFdSocket; i++ )
-		{
-
-#ifdef ENABLE_MSG_OOB /* OOB 데이터를 처리하는 경우만 해당되는 소스 코드다 */
-
-			if ( gPollFds[i].revents & POLLPRI ) /* OOB 데이터 */
+			if ( gPollFds[0].revents & POLLIN ) /* 새로운 연결 요청이면 */
 			{
-				printf( "Urgent data detected\n" );
-				while( 1 )
-				{
-				}
+				newAccept( sFdListener, &sAddrOther );
 			}
-#endif
-			if ( gPollFds[i].revents & POLLIN ) /* 일반 데이터 수신 */
-			{
 
+			for ( i = 1; i < gCntFdSocket; i++ )
+			{
+				if ( gPollFds[i].revents & POLLIN ) /* 일반 데이터 수신 */
+				{
+					sRC = recvData( i );
+					if ( sRC == 0 )
+					{
+						delSocket( gPollFds[i].fd );
+						i--; /* 맨 마지막 소켓과 바꿔치기 했으므로 i 를 -- 해줘야 한다 */
+					}
+				}
+				if ( gPollFds[i].revents & POLLERR || gPollFds[i].revents & POLLNVAL ) 
+				{
+					fprintf( stderr, "ERROR received\n" );
+				}
 			}
 		}
 	}
+
+	return 0;
 }
 
 
-int createAndBindSocket( const int aPort, sockaddr_in *aAddrMy )
+int createAndBindSocket( const int aPort, struct sockaddr_in *aAddrMy )
 {
 	int sFdListener = 0;
 	socklen_t sLenAddr = 0;
@@ -97,7 +109,7 @@ int createAndBindSocket( const int aPort, sockaddr_in *aAddrMy )
 	sFdListener = socket( AF_INET, SOCK_STREAM, IPPROTO_IP );
 	if ( sFdListener == -1 )
 	{
-		perror( "Fail: socket() " );
+		perror( "Fail: socket()" );
 		exit( EXIT_FAILURE );
 	}
 
@@ -109,22 +121,22 @@ int createAndBindSocket( const int aPort, sockaddr_in *aAddrMy )
 
 	aAddrMy->sin_family = AF_INET;
 	aAddrMy->sin_addr.s_addr = INADDR_ANY;
-	aAddrMy->sin_port = htons( port );
+	aAddrMy->sin_port = htons( aPort );
 
-	sLenAddr = sizeof( sockaddr_in );
+	sLenAddr = sizeof( (*aAddrMy) );
 	if ( bind( sFdListener, ( struct sockaddr * )aAddrMy, sLenAddr ) == -1 )
 	{
 		perror( "Fail bind()" );
-		eixt( EXIT_FAILURE );
+		exit( EXIT_FAILURE );
 	}
-	fprintf( "Port : %d\n", sPort );
+	fprintf( stderr, "Port : %d\n", aPort );
 
 	listen( sFdListener, LISTEN_BACKLOG );
 
 	return sFdListener;
 }
 
-void newAccept( const int aFdListener, sockaddr_in *aAddrOther )
+void newAccept( const int aFdListener, struct sockaddr_in *aAddrOther )
 {
 	int sFd = 0;
 	socklen_t sLenAddr = 0;
@@ -153,6 +165,10 @@ void newAccept( const int aFdListener, sockaddr_in *aAddrOther )
 			fprintf( stderr, "too many client connected. force to disconnect.\n" );
 			break;
 		}
+		else
+		{
+			send( sFd, "accepted", 8, 0 );	
+		}
 		printf( "Add socket %d\n", sFd );
 	}
 }
@@ -164,13 +180,9 @@ int addSocket( int aFd )
 	if ( gCntFdSocket < MAX_FD_SOCKET )
 	{
 		gPollFds[gCntFdSocket].fd = aFd;
-#ifdef ENABLE_NSG_OOB
-		/* OOB 데이터를 처리하려면 POLLRPI 이벤트도 감시해야 한다 */
-		gPollFds[gCntFdSocket].events = POLLIN | POLLPRI;
-#else
-		gPollFds[gCntFdScoket].events = POLLIN;
-#endif
+		gPollFds[gCntFdSocket].events = POLLIN;
 		sRC = gCntFdSocket + 1;
+		gCntFdSocket++;
 	}
 	else
 	{
@@ -192,7 +204,7 @@ int delSocket( int aFd )
 			close( aFd );
 		
 			gPollFds[i] = gPollFds[gCntFdSocket - 1];
-			gPollFds[gCntFdSocket -1] = -1;
+			gPollFds[gCntFdSocket -1].fd = -1;
 			flag = 1;
 
 			gCntFdSocket--;
@@ -202,7 +214,28 @@ int delSocket( int aFd )
 	return flag;
 }
 
-void prSocket()
+int recvData( const int aIdx )
 {
-}
+	int sRecv = 0;
+	char sBuf[BUF_SIZE] = {0, };
 
+	sRecv = recv( gPollFds[aIdx].fd, sBuf, sizeof( sBuf ), 0 );
+	if ( sRecv == -1 )
+	{
+		perror( "recv Data error" );
+		return;
+	}
+
+	if ( sRecv == 0 )
+	{
+		fprintf( stderr, "fd(%d) was closed by foriegn host\n", gPollFds[aIdx].fd );
+	}
+	else
+	{
+		sBuf[sRecv] = '\0';
+		printf( "fd(%d) %d bytes received\n%s", gPollFds[aIdx].fd, sRecv, sBuf );
+		send( gPollFds[aIdx].fd, "ack", 3, 0 );
+	}
+
+	return sRecv;
+}
