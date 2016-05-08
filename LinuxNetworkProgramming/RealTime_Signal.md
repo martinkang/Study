@@ -121,13 +121,25 @@ union sigval
 }
 
 ```
+* sigwaitinfo(2), sigtimedwait(2)
+	- 시그널 마스크에 정의된 시그널 도착시 시그널 정보를 담아서 리턴
+	- 시그널이 발생한 정보를 2번째 인수에 siginfo_t 형에 담아 리턴.
+* sigqueue(2)
+		- 시그널을 큐를 통해 전송할 수 있게 해준다.
 
+
+## 시그널 큐를 통한 RTS 시그널 전송
+* 예제
+	- [pthread_cond_rts.c]()
 
 
 ## RTS 를 이용한 I/O multiplexing
+* 예제
+	- [io_rts.c]()
 
 
 ## RTS 를 이용한 디렉토리의 변화 감시
-
+* 예제 
+	- [dir_rts.c]()
 
 
