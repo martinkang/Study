@@ -14,9 +14,13 @@
 		- 상승 엣지와 하강 엣지 두 경우가 있음.
 
 ## select(2), pselect(2) 의 사용
-> int select( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout );    
-> int pselect( int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timespec *timespec, const sigset_t *sigmask );     
-
+```c++
+nt select( int n, fd_set *readfds, fd_set *writefds, 
+			fd_set *exceptfds, struct timeval *timeout );    
+int pselect( int n, fd_set *readfds, fd_set *writefds, 
+			fd_set *exceptfds, const struct timespec *timespec,
+			const sigset_t *sigmask );     
+```
 * fd_set    
 	* readfds ( 읽기 가능 이벤트 감시 )   
 		- 소켓 수신 버퍼에 데이터가 도착한 경우에 리턴      
@@ -29,21 +33,21 @@
 		- 스트림으로부터 데이터가 전송 가능한 경우에 리턴 ( e.g 넌블록킹 connect(2) 호출 )  
 	* exceptfds ( 예외 상황 이벤트 감시 )     
 		- TCP 의 OOB 데이터 ( URG 플래그 지정됨 ) 가 수신된 경우에 리턴    
-
-> FD_ZERO( fd_set * set )  
-> 	* set 을 초기화 한다.
-> FD_SET( int fd, fd_set * set )  
-> 	* 파일 기술자 세트인 set 에 파일 기술자 fd 를 더한다.
-> FD_CLR( int fd, fd_set * set )  
-> 	* 파일 기술자 세트인 set 에 파일 기술자 fd 를 뺀다.
-> FD_ISSET( int fd, fd_set * set )	    
->	* 파일 기술자 세트인 set 에서 파일 기술자 fd 에 이벤트가 발생하는 지를 체크한다.   
->	* fd 에 이벤트가 발생하면 1이 리턴, 이벤트가 없으면 0 이 리턴된다.
-
-* 파일 기술자 세트들이 select(2) 를 호출하여 리턴받은 다음에는 변경된다.
-	- select(2) 는 함수가 이벤트를 반환하기 위해서 해당 파일 기술자 세트들에 변경을 가하게 된다.
-		- 이벤트가 발생한 파일 기술자 비트가 1 로 변경된다.
-	- 그러므로 파일 기술자들을 따로 관리해야 한다.
+* 관련 매크로
+	* FD_ZERO( fd_set * set )  
+ 		* set 을 초기화 한다.
+	* FD_SET( int fd, fd_set * set )  
+	 	* 파일 기술자 세트인 set 에 파일 기술자 fd 를 더한다.
+	* FD_CLR( int fd, fd_set * set )  
+	 	* 파일 기술자 세트인 set 에 파일 기술자 fd 를 뺀다.
+	* FD_ISSET( int fd, fd_set * set )	    
+		* 파일 기술자 세트인 set 에서 파일 기술자 fd 에 이벤트가 발생하는 지를 체크한다.   
+		* fd 에 이벤트가 발생하면 1이 리턴, 이벤트가 없으면 0 이 리턴된다.
+* 주의점
+	- 파일 기술자 세트들이 select(2) 를 호출하여 리턴받은 다음에는 변경된다.
+		- select(2) 는 함수가 이벤트를 반환하기 위해서 해당 파일 기술자 세트들에 변경을 가하게 된다.
+			- 이벤트가 발생한 파일 기술자 비트가 1 로 변경된다.
+		- 그러므로 파일 기술자들을 따로 관리해야 한다.
 
 
 ##### fd_set 구조체 ( sys/select.h>
