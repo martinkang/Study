@@ -55,6 +55,6 @@ int recvfrom(int s, void *buf, size_t len, int flags,
 
 ## 예제
 * UDP 전송 예제
-	- [udp_send.c]()
+	- [udp_send.c]( https://github.com/martinkang/Study/blob/master/LinuxNetworkProgramming/ex/udp_send.c )
 * UDP 수신 예제
-	- [udp_`recv.c]()
+	- [udp_recv.c]( https://github.com/martinkang/Study/blob/master/LinuxNetworkProgramming/ex/udp_recv.c )
