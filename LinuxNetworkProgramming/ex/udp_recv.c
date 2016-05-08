@@ -48,7 +48,6 @@ int main( int argc, char *argv[] )
 		if ( sRC == -1 )
 			break;
 	}
-
 }
 
 int recvData( int aServFd )
