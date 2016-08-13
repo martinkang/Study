@@ -11,12 +11,12 @@
 #define READLINE 100
 
 #define ERR_TEST( a ) \
-	if ( a )		  \
+	if ( a )      \
 	return -1
 
 int getFile( char * aFileName, 
-			 int    aFlag, 
-			 int    aMode )
+             int    aFlag, 
+	     int    aMode )
 {
 	int fd = -1;
 		
@@ -69,15 +69,15 @@ int main( void )
 	printf( "source file : " );
 	gets( sSrcName );
 	sSrcFd = getFile( sSrcName, 
-			O_RDONLY, 
-			00400 );
+	  		  O_RDONLY, 
+			  00400 );
 	ERR_TEST( sSrcFd == -1 );
 
 	printf( "dest file : " );
 	gets( sDestName );
 	sDestFd = getFile( sDestName, 
-			O_CREAT | O_TRUNC | O_RDWR , 
-			00777 );
+			   O_CREAT | O_TRUNC | O_RDWR , 
+			   00777 );
 	ERR_TEST( sDestFd == -1 );
 
 	ERR_TEST( sourceCopyToDest( sSrcFd, sDestFd ) == - 1 );
