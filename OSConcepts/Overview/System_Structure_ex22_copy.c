@@ -69,18 +69,18 @@ int main( void )
 	printf( "source file : " );
 	gets( sSrcName );
 	sSrcFd = getFile( sSrcName, 
-					  O_RDONLY, 
-					  00400 );
+			O_RDONLY, 
+			00400 );
 	ERR_TEST( sSrcFd == -1 );
-	
+
 	printf( "dest file : " );
 	gets( sDestName );
 	sDestFd = getFile( sDestName, 
-					   O_CREAT | O_TRUNC | O_RDWR , 
-					   00777 );
+			O_CREAT | O_TRUNC | O_RDWR , 
+			00777 );
 	ERR_TEST( sDestFd == -1 );
 
 	ERR_TEST( sourceCopyToDest( sSrcFd, sDestFd ) == - 1 );
-	
+
 	return 0;
 }
