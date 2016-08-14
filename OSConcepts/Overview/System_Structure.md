@@ -58,6 +58,7 @@
 	- API 함수의 호출을 가로채어 필요한 운영체제 시스템 호출을 부르고
 	시스템 호출의 상태와 반환값을 돌려준다.
 	- 호출자는 시스템 호출이 어떻게 구현되고 실행 중 무슨 작업을 하는지 알 필요가 없다.
+
 ##### 시스템 호출 인터페이스
 ![2.6](http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures_files/image022.jpg)
 - 출처 http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures.htm
@@ -81,6 +82,7 @@
 ## 2.8 가상기계 ( Virtual Machines )
 * 한 컴퓨터의 하드웨어를 추상화 하여 다른 다수의 다른 실행 환경을 제공하도록 한다.
 	- 각각의 개별적인 실행 환경이 자신만의 개별적인 컴퓨터를 사용하는 것처럼 보인다.
+	
 ##### Virtual Machines
 ![2.17](http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures_files/image026.gif)
 - 출처 http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures.htm
@@ -100,6 +102,7 @@
 	- 프로그램을 실제 실행하는 시점에 기계어로 번역하는 컴파일 기법
 	- 실행 시점에서 기계어 코드를 생성하면서 그 코드를 캐싱함으로써, 
 	같은 함수가 여러 번 불릴 때 매번 기계어 코드를 생성하는 것을 방지
+
 ##### The Java Virtual Machine
 ![2.20](http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures_files/image028.jpg)
 - 출처 http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures.htm
