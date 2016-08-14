@@ -117,6 +117,10 @@
 	- Stub 은 메시지 전달 기법을 사용하여 서버에게 메시지를 전송
 	- 이에 대응하는 Stub 이 서버에도 존재하여 서버 측 Stub 이 메시지를 수신한 후 적절한 서버의 프로시저를 호출
 
+##### RPC 호출의 실행
+![3.21](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap3-rpc.jpeg)
+- 출처 OS System Concepts 3장
+
 #### 최대 한 번 기능성
 * 각 메시지에 타임스탬프를 매기는 것으로 보장.
 	- 서버는 이미 처리한 모든 메시지의 타임스탬프 기록을 갖거나 중복된 메시지를 검사해 낼 수 있을 만큼의 기록을 가져야 한다.
