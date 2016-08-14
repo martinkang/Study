@@ -190,9 +190,9 @@ int main( int argc, char *argv[] )
 ```
 
 ##### 프로세스 생성
-![3.11](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm)
+![3.11](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image016.jpg)
 - 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
-- 
+ 
 ##### 전형적인 Solaris 시스템의 프로세스 트리
 ![3.9](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image014.jpg)
 -출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
