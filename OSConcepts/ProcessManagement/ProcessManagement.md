@@ -63,7 +63,7 @@
 ##### PCB
 ![3.3](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image006.jpg)
 - 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
-- 
+
 ##### CPU 가 한 프로세스에서 다른 프로세스로 교환되는 과정
 ![3.4](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image008.jpg)
 - 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
