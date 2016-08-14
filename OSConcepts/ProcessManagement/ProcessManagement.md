@@ -77,7 +77,15 @@
 
 ### 3.2.1 스케줄링 큐 ( Scheduling Queues )
 
+##### 준비완료 큐와 다양한 입출력 장치 큐
+![3.6](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image010.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
+
 ### 3.2.2 스케줄러 ( Scheduling )
+
+##### 프로세스 스케줄링을 표현하는 큐잉 도표
+![3.7](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image012.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
 
 ### 3.2.3 문맥 교환 ( Context Switch )
 
@@ -86,6 +94,45 @@
 ## 3.3 프로세스에 대한 연산
 
 ### 3.3.1 프로세스 생성
+
+##### 새 프로세스를 fork 하는 c 프로그램
+```c++
+#include <stdio.h>
+
+int main( int argc, char *argv[] )
+{
+	int pid;
+	
+	pid = fork();
+	
+	if ( pid < 0 ) /* error */
+	{
+		fprintf( stderr, "Fork Failed" );
+		return 1;
+	}
+	else if ( pid == 0 ) /* child */
+	{
+		execlp( "/bin/ls", NULL );
+	}
+	else /* parent */
+	{
+		wait( NULL );
+		printf( "Child Complete" );
+	}
+	
+	reutnr 0;
+}
+```
+
+##### 프로세스 생성
+![3.11](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
+- 
+##### 전형적인 Solaris 시스템의 프로세스 트리
+![3.9](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image014.jpg)
+-출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
+
+
 ### 3.3.2 프로세스 종료
 
 
