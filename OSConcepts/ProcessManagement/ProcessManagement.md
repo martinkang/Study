@@ -212,15 +212,3 @@ int main( int argc, char *argv[] )
 		- 커널이 유지할 수 있는 task 구조체의 리스트 크기가 제한이 있으므로,
 		많은 좀비프로세스가 발생할 경우 시스템 성능에 악영향ㅇ르 미칠 수 있다.
 
-## 3.4 프로세스간 통신 ( Interprocess Communication : IPC )
-
-### 3.4.1 공유 메모리 시스템
-### 3.4.2 메시지 전달 시스템
-
-## 3.6 클라이언트 서버 환경에서 통신
-
-### 3.6.1 소켓 ( Socket )
-
-### 3.6.2 원격 프로시저 호출 ( Remote Procedure Calls, RPC )
-
-### 3.6.3 파이프 ( Pipes )
