@@ -13,6 +13,10 @@
 	- 회계
 	- 보호 와 보안
 
+##### 운영체제 서비스 개관
+![2.1](http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures_files/image020.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring10/lectures/OSStructures.htm
+
 
 ## 2.2 사용자 운영체제 인터페이스
 * 사용자 운영체제 인터페이스는 사용자가 운영체제와 접촉하는 방식으로 다음과 같은 방법에 있다.
