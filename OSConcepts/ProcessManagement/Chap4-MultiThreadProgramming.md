@@ -57,10 +57,10 @@
 		이런 병행 프로그램을 시험하고 디버깅 하는 것은 매우 어렵다.
 
 ##### 단일 코어 시스템에서의 병행 실행
-![4.3](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap4-singlecore.png)
+![4.3](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap4-singlecore2.png)
 
 ##### 다중코어 시스템에서의 병렬 실행
-![4.4](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap4-multicore.png)
+![4.4](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap4-multicore2.png)
 
 
 ## 4.2 다중 스레드 모델
@@ -112,7 +112,7 @@
 - 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/threads.htm
 
 ##### 두 수준 모델
-![4.8](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap4-two-level-model.png)
+![4.8](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/chap4-two-level-model2.png)
 
 
 ## 4.4 스레드와 관련된 문제들
