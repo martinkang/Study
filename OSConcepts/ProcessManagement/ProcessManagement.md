@@ -23,8 +23,10 @@
 			- 전역 변수
 		- 텍스트 섹션
 			- 프로그램 코드
+
 ##### 메모리 상의 프로세스
-![img]()
+![3.1](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image002.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
 
 
 ### 3.1.2 프로세스 상태
@@ -36,7 +38,8 @@
 	- terminated : 프로세스가 실행을 종료하였다.
 
 ##### state diagram
-![img]()
+![3.2](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image004.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
 
 
 ### 3.1.3 프로세스 제어 블록 ( Process Control Block : PCB )
@@ -57,8 +60,13 @@
 	- 입출력 상태 정보
 		- 프로세스에 할당된 입출력장치들과 열린 파일의 목록 등을 포함
 
+##### PCB
+![3.3](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image006.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
+- 
 ##### CPU 가 한 프로세스에서 다른 프로세스로 교환되는 과정
-![img]()
+![3.4](http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes_files/image008.jpg)
+- 출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Processes.htm
 
 
 ## 3.2 프로세스 스케줄링 ( Process Scheduling )
