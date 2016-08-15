@@ -33,7 +33,7 @@ int main( void )
 	ssize_t sReadSize = 0;
 
 	fd = socket( PF_INET, SOCK_STREAM, 0 );
-    ERR_TEST( fd == -1, "sock() error" );
+    	ERR_TEST( fd == -1, "sock() error" );
 	printf( "client socket() success\n" );
 
 	addrlen = sizeof( addr ); 
@@ -42,8 +42,7 @@ int main( void )
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons( PORT );
 	addr.sin_addr.s_addr = inet_addr( ADDR );
-	ERR_TEST( connect( fd, ( struct sockaddr *)&addr, addrlen ) == -1,
-			"connect() error" );
+	ERR_TEST( connect( fd, ( struct sockaddr *)&addr, addrlen ) == -1, "connect() error" );
 	printf( "connect() to server success\n" );
 
 	fprintf( stderr, "input : " );
