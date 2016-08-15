@@ -56,6 +56,8 @@ int echoLoop( int aSerFd )
 
 		close( clnt_fd );
 	}
+	
+	return 0;
 }
 
 int main( void )
