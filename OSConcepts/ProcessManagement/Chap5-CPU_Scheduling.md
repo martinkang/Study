@@ -15,7 +15,7 @@
 		- 입출력을 대기하는 시간
 
 ##### CPU 와 입출력 버스트의 교차
-![5.1](http://www.cs.odu.edu/~cs471w/spring11/lectures/Scheduling_files/image002.jpg)
+![5.1](http://www.cs.odu.edu/~cs471w/spring11/lectures/Scheduling_files/image002.jpg)   
 -출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Scheduling.htm
 
 
@@ -72,9 +72,77 @@
 		- 프로세스의 제출 시간과 완료 시간의 간격
 	- 대기 시간 ( waiting time )
 	- 응답 시간 ( response time )
+		- 하나의 요구를 제출한 후 첫 번째 응답이 나올 때 까지의 시간
+		- Interactive System 에서 중요한 기준이 된다.
 
 
 ## 5.3 스케줄링 알고리즘
+
+### 5.3.1 선입 선처리 스케줄링 ( First Come, First Served Scheduling : FCFS )
+* CPU 를 먼저 요청하는 프로세스가 CPU 를 먼저 할당 받는다.
+	- FIFO 큐로 관리
+	- 비선점형 방식
+* 절차
+	- 프로세스가 준비 완료 큐에 진입하면, 이 프로세스의 PCB 를 큐의 끝에 연결한다.
+	- CPU 가 자유상태가 되면, 준비완료 큐의 앞부분에 있는 프로세스에게 할당된다.
+	- 이 실행중인 프로세스는 이어 준비완료 큐에서 제거된다.
+* 단점
+	- 평균 대기 시간은 종종 대단히 길 수 있다.
+* ex )
+	- P1 : 20 ms, P2 : 1 ms, P3 1 ms
+	- P1, P2, P3 순으로 도착할 때 FCFS 평균 대기시간 = ( 0 + 20 + 21 ) / 3 = 41 / 3
+	- P2, P3, P1 순으로 도착할 때 FCFS 평균 대기시간 = ( 0 + 1 + 1 ) / 3 = 2 / 3
+
+##### Gantt 차트
+![5.2](http://www.cs.odu.edu/~cs471w/spring11/lectures/Scheduling_files/image004.gif)  
+-출처 http://www.cs.odu.edu/~cs471w/spring11/lectures/Scheduling.htm
+
+#### 용어
+* 호위효과 ( Convoy Effect )
+	- 모든 다른 프로세스들이 하나의 긴 프로세스가 CPU 를 양도하기 기다림
+
+
+### 5.3.2 최단 작업 우선 스케줄링 ( Shortest Job First Scheduling : SJF )
+* CPU 가 이용 가능해지면 CPU Burst 가 가장 작은 프로세스에게 할당.
+	- 실제적으로 단기 CPU 스케줄링 상에선 구현이 어려운데, 이는 실제 CPU Burst 길이를 알 수 없기 때문
+		- CPU Burst 를 이전 CPU Burst 들과 비슷하다고 가정하고 스케줄링
+* 선점형/비선점형 모두 가능
+	- 선점형일 경우 새로운 프로세스가 현재 실행하고 있는 프로세스의 남은 시간보다 더 짧은 CPU 버스트를 가질 경우,
+	선점형 SJF 알고리즘은 현재 실행하는 프로세스를 선점할 것이다.
+* ex )
+	* 스케줄링 예제
+		- P1 도착시간 0, 버스트 시간 8
+		- P2 도착시간 1, 버스트 시간 4
+		- P3 도착시간 2, 버스트 시간 9
+		- P4 도착시간 3, 버스트 시간 5
+	* 
+
+
+### 5.3.3 우선순위 알고리즘 ( Priority Scheduling )
+* CPU 는 가장 높은 우선운위를 가진 프로세스에게 할당
+* 우선순위는 내부적/ 외부적으로 정의될 수 있다.
+* 선점형/비선점형 모두 가능
+	- 선점형일 경우 실행중인 프로세스보다 높은 우선운위 프로세스가 나타나면 새로운 프로세스가 CPU 를 점유한다.
+* 단점
+	- 선점형 우선순위 알고리즘의 경우, 낮은 우선순위 프로세스들이 CPU 를 무기한 대기하는 경우가 발생
+
+#### 용어
+* 노화 ( aging )
+	- 오랜 시간 시스템에서 대기하는 프로세스들의 우선순위를 점진적으로 증가시킨다.
+	- 선점형 우선순위 알고리즘에서, 낮은 우선순위 프로세스들이 CPU 를 무기한 대기하는 걸 방지하기 위한 방법
+
+
+### 5.3.4 라운드 로빈 스케줄링 ( Round Robin Scheduling )
+
+
+
+### 5.3.5 다단계 큐 스케줄링 ( Multilevel Queue Scheduling )
+
+
+
+### 5.3.6 다단계 피드백 큐 스케줄링 ( Multilevel Feedback Queue Scheduling )
+
+
 
 ## 5.4 스레드 스케줄링
 
