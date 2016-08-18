@@ -1,31 +1,56 @@
 #include <iostream>
 
+using namespace std;
+
 class ThreadPool 
 {
-Public:
-	static ThreadPool getInstance();
+public:
+	static ThreadPool * getInstance();
+	static void createThread();
 
-Private:
+private:
+	static int mMaxNumThread;
+	static int mNumThread;
 	static ThreadPool * _ThreadPoolManager;
 
-Protected: 
+protected: 
 	ThreadPool() {}
 };
 
+int ThreadPool::mMaxNumThread = 5;
+int ThreadPool::mNumThread = 0;
 ThreadPool * ThreadPool::_ThreadPoolManager = NULL;
 
 ThreadPool * ThreadPool::getInstance()
 {
-	if( ThreadPool == null) 
+	if( _ThreadPoolManager == NULL ) 
 	{
-		ThreadPoolManager = new ThreadPool();
+		_ThreadPoolManager = new ThreadPool();
 	}
-	return ThreadPoolManager;
+	return _ThreadPoolManager;
+}
+
+void ThreadPool::createThread()
+{
+	if ( mMaxNumThread > mNumThread )
+	{
+		mNumThread += 1;
+		cout << "Thread Create Success NumOfThread : " << mNumThread << endl;
+	}
+	else
+	{
+		cout << "Thread Num : " << mNumThread << " No More Thred" << endl;
+	}
 }
 
 int main( void )
 {
-	ThreadPool sTheadPool = ThreadPool::getInstance();  
+	int i = 0;
+
+	ThreadPool * sThreadPool = ThreadPool::getInstance();  
+
+	for ( i = 0 ; i < 6; i++ )
+		sThreadPool->createThread();
 
 	return 0;
 }
