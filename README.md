@@ -1,2 +1,1 @@
-MyText
-asa
+My Study
