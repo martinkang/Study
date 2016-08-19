@@ -13,8 +13,9 @@ private:
 	static int mNumThread;
 	static ThreadPool * _ThreadPoolManager;
 
+/* protected 로 선언한건 서브클래싱을 위해서이며 서브클래싱을 하지 않는다면 private 로 해도 괜찮다. */
 protected: 
-	ThreadPool() {}
+	ThreadPool() {};
 };
 
 int ThreadPool::mMaxNumThread = 5;
@@ -32,6 +33,7 @@ ThreadPool * ThreadPool::getInstance()
 
 void ThreadPool::createThread()
 {
+	/* 멀티쓰레딩에서는 Lock 이 필요하다. 동시에 접근하였을 경우에 문제가 된다. */
 	if ( mMaxNumThread > mNumThread )
 	{
 		mNumThread += 1;
@@ -46,7 +48,6 @@ void ThreadPool::createThread()
 int main( void )
 {
 	int i = 0;
-
 	ThreadPool * sThreadPool = ThreadPool::getInstance();  
 
 	for ( i = 0 ; i < 6; i++ )
