@@ -1,9 +1,13 @@
 #include <iostream>
 #include <cstring>
 
+using namespace std;
+
 #define MAX_STR 255
 #define MIN(a, b) ( a < b ? a : b )
-using namespace std;
+
+#define ASCII (0)
+#define TEX   (1)
 
 class RTFReader
 {
@@ -63,21 +67,6 @@ private:
 	char _TexText[MAX_STR];
 };
 
-class TextWidgetConverter()
-{
-public:
-	virtual void convertCharactor( char * aChar );
-	virtual void convertFontChange( int aType );
-	virtual void convertParagraph( void );
-
-	virtual TextConverter * getConverter();
-
-private:
-	char * getTextWidget() { return _TextWidget; };
-	
-	char _TextWidget[10];
-};
-
 class RTFReader()
 {
 public:
@@ -91,11 +80,9 @@ char * RTFReader::ParseRTF( int aType, char *aMsg )
 	char * sText = NULL;
 	switch( aType )
 	{
-		case TextConverter:
+		case ASCII:
 			break;
-		case ASCIIConverter:
-			break;
-		case TextWidgetConverter:
+		case TEX:
 			break;
 		default:
 			break;
