@@ -65,3 +65,7 @@
 		- 생성 시점의 차이?
 			- Factory 는 그때 그때 인풋에 따라 동적으로 생성을 해주고
 			Builder 는 미리 만들어진 객체의 틀을 불러온다.
+	- Abstract Factory 와 Builder 으 ㅣ차이는?
+		- 생상 후 처리 과정이 다름
+		- Abstract Factory 는 생성한 후 아무 작업도 하지 않고, Builder 는 객체 생성 후
+		알맞게 조립.
