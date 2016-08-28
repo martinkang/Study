@@ -14,17 +14,36 @@ class Text
 {
 public:
 	virtual void setType();
-
+	virtual void setMsg( char *aMsg );
 private :
 	int _type;
 	char text[MAX_STR];
 }
 
 /* Director */
-class RTFReader
+class RTFReader()
 {
 public:
+	char * ParseRTF( char *aType, char *aMsg );
+
 private:
+}
+
+char * RTFReader::ParseRTF( int aType, char *aMsg )
+{
+	Converter * sConverter;
+
+	char * sText = NULL;
+	switch( aType )
+	{
+		case ASCII:
+			
+			break;
+		case TEX:
+			break;
+		default:
+			break;
+	}
 }
 
 /* Builder */
@@ -100,31 +119,6 @@ TextConverter * TeXConverter::getConverter()
 {
 	_Converter = new TeXConverter();
 	return _TeXConverter;
-}
-
-class RTFReader()
-{
-public:
-	char * ParseRTF( char *aToken );
-
-private:
-}
-
-char * RTFReader::ParseRTF( int aType, char *aMsg )
-{
-	Converter * sConverter;
-
-	char * sText = NULL;
-	switch( aType )
-	{
-		case ASCII:
-			
-			break;
-		case TEX:
-			break;
-		default:
-			break;
-	}
 }
 
 int main( void )
