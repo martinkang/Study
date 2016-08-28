@@ -9,6 +9,8 @@
 
 using namespace std;
 
+class MazeFactory;
+
 enum Direction
 {
 	North = 0,
@@ -163,7 +165,7 @@ public:
 	}
 
 	Maze * CreateMaze();
-
+	Maze * CreateMaze( MazeFactory & factory );
 private:
 };
 
