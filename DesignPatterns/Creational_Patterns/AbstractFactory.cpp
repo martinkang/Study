@@ -16,7 +16,10 @@ enum MazeType
 class MazeFactory
 {
 public:
-	MazeFactory();
+	MazeFactory()
+	{ 
+		cout << "MazeFactory" << endl;
+	}
 
 	virtual Maze * MakeMaze() const 
 	{ 
@@ -103,7 +106,10 @@ private:
 class EnchantedMazeFactory : public MazeFactory
 {
 public:
-	EnchantedMazeFactory();
+	EnchantedMazeFactory()
+	{
+		cout << "EnchantedMazeFactory" << endl;
+	};
 	/* 이 때 Room 을 상속받은 EnchantedRoom 의 인스턴스를 생성하여 반환함 */
 	virtual Room * MakeRoom( int aRoomNo ) const
 	{
@@ -148,7 +154,10 @@ public:
 class BombedMazeFactory : public MazeFactory
 {
 public:
-	BombedMazeFactory();
+	BombedMazeFactory()
+	{
+		cout << "BombedMazeFactory" << endl;
+	}
 
 	virtual Room * MakeRoom( int aRoomNo ) const
 	{
@@ -172,13 +181,13 @@ int main( void )
 
 	MazeGame sGame;
 
-	MazeFactory sN_Factory();
-	EnchantedMazeFactory sE_Factory();
-	BombedMazeFactory sB_Factory();
+	MazeFactory sN_Factory;
+	EnchantedMazeFactory sE_Factory;
+	BombedMazeFactory sB_Factory;
 
 	sMaze1 = sGame.CreateMaze( sN_Factory );
-/*	sMaze2 = sGame.CreateMaze( sE_Factory );
+	sMaze2 = sGame.CreateMaze( sE_Factory );
 	sMaze3 = sGame.CreateMaze( sB_Factory );
-*/
+
 	return 0;
 }

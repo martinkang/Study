@@ -5,7 +5,7 @@
 동일한 생성 절차에서 서로 다른 표현 결과를 만들 수 있게 한다.
 
 
-## 동기
+## 동기 - Maze 사례로 변경하기
 * RTF ( Rich Text Format ) 문서 판독기가 있다. 
 이 판독기는 RTF 포맷에서 다른 텍스트 포맷으로 바꿀 수 있어야 한다. 
 어떻게 설계 하는게 좋을까?
@@ -29,17 +29,21 @@
 
 
 #### Builder 구조
-![img1](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Builder_UML_class_diagram.svg/700px-Builder_UML_class_diagram.svg.png)
+![img1](http://www.codeproject.com/KB/architecture/csdespat_1/dpcs_b.gif)
+
+#### Builder 의 상호작용
+![img2]()
+
 
 ## 참여자
-* Builder ( TextConveter )
+* Builder ( Class MazeBuilder )
 	- Product 객체의 일부 요소들을 생성하기 위한 추상 인터페이스를 정의
-* ConcreteBuilder ( ASCIIConverter, TexConverter... )
+* ConcreteBuilder ( )
 	- 빌더 클래스에 정의된 인터페이스를 구현하며, 제품의 부품들을 모아 빌더를 복합한다.
 	- 생성한 요소의 표현을 정의하고 관리한다.
-* Director ( RTFReader )
+* Director (  )
 	- 빌더 인터페이스를 사용하는 객체를 합성한다.
-* Product ( ASCIIText, TeXText )
+* Product ( )
 	- 생성할 복합 객체를 표현.
 
 
