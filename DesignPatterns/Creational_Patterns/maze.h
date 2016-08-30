@@ -7,23 +7,27 @@
 #define MAX_ROOM 256
 #define START_ROOM 0
 
+#define DIRECTION 4
+
 using namespace std;
 
 class MazeFactory;
-class MazeBilder;
+class MazeBuilder;
 
 enum Direction
 {
-	North = 0,
-	South = 1,
-	East  = 2,
-	West  = 3
+	Invalid = -1,
+	North   = 0,
+	South   = 1,
+	East    = 2,
+	West    = 3
 };
 
 enum MapSiteType
 {
 	Wall_t = 0,
-	Door_t = 1
+	Door_t = 1,
+	Room_t = 2
 };
 
 /* 미로의 구성요소들에 필요한 모든 연산을 정의한 공통 추상 클래스 */
@@ -31,9 +35,15 @@ class MapSite
 {
 public:
 	/* 무엇에 Enter 를 하느냐에 따라 그 의미가 달라진다. */
-	virtual void Enter() = 0; /* 멤버함수 선언 = 0  =>  순수 가상 함수로 정의. 구현부를 갖지 않는다. */
-
-private:
+	virtual void Enter() = 0; 
+	/* 멤버함수 선언 = 0  =>  순수 가상 함수로 정의. 구현부를 갖지 않는다. */
+	
+	MapSiteType GetType()
+	{
+		return _type;
+	}
+protected:
+	MapSiteType _type;
 };
 
 
@@ -42,7 +52,8 @@ class Room : public MapSite
 public:
 	Room( int aRoomNo ) 
 	{ 
-		_roomNumber = aRoomNo; 
+		_roomNumber = aRoomNo;
+		_type = Room_t;
 	}
 
 	MapSite * GetSide( Direction aDirection ) const 
@@ -86,7 +97,6 @@ public:
 	}
 
 private:
-	MapSiteType _type;
 };
 
 
@@ -111,8 +121,6 @@ public:
 	Room * OtherSideFrom( Room* );
 
 private:	
-	MapSiteType _type;
-
 	Room* _room1;
 	Room* _room2;
 	bool _isOpen;
@@ -136,10 +144,6 @@ public:
 		_numOfRooms++;
 	}
 
-private:
-	Room * _room[MAX_ROOM];
-	int _numOfRooms;
-
 	Room * getRoomByNo ( int aRoomNo ) const
 	{
 		int i = 0;
@@ -154,6 +158,10 @@ private:
 
 		return NULL;
 	}
+
+private:
+	Room * _room[MAX_ROOM];
+	int _numOfRooms;
 };
 
 
@@ -165,8 +173,16 @@ public:
 		cout << "New MazeGame!" << endl;
 	}
 
+	/* normal */
 	Maze * CreateMaze();
+	
+	/* Abstract Factory */
 	Maze * CreateMaze( MazeFactory & aFactory );
+	
+	/* Builder */
+	Maze * CreateMaze( MazeBuilder & aBuilder );
+	Maze * CreateComplexMaze( MazeBuilder & aBuilder );
+
 private:
 
 };

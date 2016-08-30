@@ -39,3 +39,98 @@ Maze * MazeGame::CreateComplexMaze( MazeBuilder & aBuilder )
 	
 	return aBuilder.GetMaze();
 };
+
+
+class StandardMazeBuilder : public MazeBuilder
+{
+public:
+	StandardMazeBuilder()
+	{
+		_currentMaze = NULL;
+	};
+
+	virtual void BuildMaze()
+	{
+		_currentMaze = new Maze;
+	};
+
+	virtual void BuildRoom( int aRoomNo )
+	{
+		if ( _currentMaze->getRoomByNo( aRoomNo ) != NULL )
+		{
+			Room * sRoom = new Room( aRoomNo );
+			_currentMaze->AddRoom( sRoom );
+
+			sRoom->SetSide( North, new Wall );
+			sRoom->SetSide( South, new Wall );
+			sRoom->SetSide( East, new Wall );
+			sRoom->SetSide( West, new Wall );
+		}
+		else
+		{
+			cout << "Already Room_No " << aRoomNo << "Exist!" << endl;
+		}
+	};
+
+	virtual void BuildDoor( int aRoomFrom, int aRoomTo )
+	{
+		Room * sR1 = _currentMaze->getRoomByNo( aRoomFrom );
+		Room * sR2 = _currentMaze->getRoomByNo( aRoomTo );
+
+		if ( ( sR1 != NULL ) && ( sR2 != NULL) )
+		{
+			Door *sD = new Door( sR1, sR2 );
+			
+			sR1->SetSide( CommonWall( sR1, sR2 ), sD );
+			sR2->SetSide( CommonWall( sR2, sR1 ), sD );
+		}
+		else
+		{
+			if ( sR1 == NULL )
+			{
+				cout << "Room_No " << aRoomFrom << "does not Exist!" << endl;
+			}
+
+			if ( sR2 == NULL )
+			{
+				cout << "Room_No " << aRoomTo << "does not Exist!" << endl;
+			}
+		}
+	}
+
+	virtual Maze * GetMaze()
+	{
+		return _currentMaze;
+	}
+
+private:
+	Maze * _currentMaze;
+	
+	Direction CommonWall( Room * aR1, Room * aR2 )
+	{
+		int i = 0;
+
+		GetDirection( aR1, aR2, North, South );
+	};
+
+	Direction GetDirection( Room * aR1, 
+			Room * aR2, 
+			Direction aD1, 
+			Direction aD2 )
+	{
+		if ( aR1->GetSide[aD1]->GetType() == Wall_t )
+		{
+			if ( aR1->GetSide[aD2]->GetType() == Wall_t )
+			{
+				return aD1;
+			}
+		}	
+
+		return Invalid;
+	};
+};
+
+int main( void )
+{
+	return 0;
+}

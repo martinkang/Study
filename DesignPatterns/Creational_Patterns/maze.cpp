@@ -1,4 +1,3 @@
-#include <iostream>
 #include "maze.h"
 
 Maze * MazeGame::CreateMaze()
