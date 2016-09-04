@@ -7,7 +7,11 @@
 
 
 ##### 교착상태
-![deadlock]()
+![deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/Chap6/deadlock.png)
+* 교착상태
+	- Process 1 은 mtxA 의 Lock 을 잡은 후 mtxB 를 잡으려 하고 Process 2 는 mtxB 를 잡고 mtxA 를 잡으려 한다.
+	- Process 1 이 mtxA 를 잡은 후 mtxB 를 잡으려 하는데, Process 2 가 mtxB 를 이미 잡은 상태에서
+	mtxA 를 잡으려 하면, 어느 한쪽이 Lock 을 풀기 전까진 양쪽 모두 작업을 더 이상 수행하지 못한다.
 
 * 기아상태
 	- 프로세스가 끊임없이 필요한 자원을 못 가져오는 상태
