@@ -7,8 +7,7 @@
 
 
 ##### 교착상태
-![deadlock](http://2.bp.blogspot.com/-63RZ-BTlAFs/VfGeHMnGdFI/AAAAAAAADuw/gwqtrVliMsM/s1600/Deadlock%2Bof%2BThreads.jpg)
--출처 : http://javarevisited.blogspot.com/2010/10/what-is-deadlock-in-java-how-to-fix-it.html
+![deadlock]()
 
 * 기아상태
 	- 프로세스가 끊임없이 필요한 자원을 못 가져오는 상태
