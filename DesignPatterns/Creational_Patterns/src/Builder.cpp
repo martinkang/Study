@@ -3,6 +3,7 @@
 /* 미로를 복합하는데 필요한 인터페이스를 정의 
    어떤 구현도 정의하지 않는다. 이는 Builder 의 서브클래스에서
    관심 있을 때만 이들 연산을 재정의할 수 있도록 하기 위해서 */
+/* 미로 자체를 만들지 않고 단지 미로를 생성하는 인터페이스를 정의 */
 class MazeBuilder
 {
 public:
@@ -17,6 +18,11 @@ protected:
 
 };
 
+/* 미로의 내부 표현을 은닉하였다.
+   어떤 미로인지, 방과 문의 관계는 알 수 없고 
+   오로지 구성 요소를 만들 뿐이다.
+   이 때문에 builder 의 메서드만 재정의 하면 
+   새로운 형태의 미로를 만들 수 있게 된다. */
 Maze * MazeGame::CreateMaze( MazeBuilder & aBuilder )
 {
 	aBuilder.BuildMaze();
@@ -130,7 +136,53 @@ private:
 	};
 };
 
+class CountingMazeBuilder : public MazeBuilder
+{
+public:
+	CountingMazeBuilder()
+	{
+		_doors = 0;
+		_rooms = 0;
+	}
+
+	virtual void BuildMaze();
+	virtual void BuildRoom( int );
+	{
+		_rooms++;
+	}
+
+	virtual void BuildDoor( int, int );
+	{
+		_doors++;
+	}
+
+	virtual void AddWall( int, Direction );
+
+	void GetCounts( int & aRooms, int & aDoors ) const
+	{
+		aRooms = _rooms;
+		aDoors = _doors;
+	}
+
+private:
+	int _doors;
+	int _rooms;
+};
+
+
 int main( void )
 {
+	int sRooms = 0;
+	int sDoors = 0;
+
+	MazeGame sGame;
+	CountingMazeBuilder sCountingBuilder;
+
+	sGame.CreateMaze( sCountingBuilder );
+	sCountingBuilder.GetCounts( sRooms, sDoors );
+
+	cout << "The Maze Has " << sRooms << " Rooms And "
+		<< sDoors <<" Doors" << endl;
+
 	return 0;
 }

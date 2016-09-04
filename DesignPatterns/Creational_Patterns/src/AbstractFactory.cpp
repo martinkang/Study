@@ -13,6 +13,8 @@ enum MazeType
 	Bomb = 2
 };
 
+/* Abstract Factory *
+   개념적 제품에 대한 객체를 생성하는 연산으로 인터페이스를 정의 */
 class MazeFactory
 {
 public:
@@ -68,6 +70,8 @@ Maze * MazeGame::CreateMaze( MazeFactory & aFactory )
 	return sMaze;
 };
 
+/* Room 은 Abstract Product 이고 
+   EnchantedRoom 은 Concrete Product 이다. */
 class EnchantedRoom : public Room
 {
 public:
@@ -151,6 +155,7 @@ public:
 	}
 };
 
+/* Concrete Factory */
 class BombedMazeFactory : public MazeFactory
 {
 public:
