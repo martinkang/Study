@@ -83,7 +83,7 @@
 	- 시스템 고장 시 복구 루틴은 가장 최근 체크포인트가 실행되기 전에 실행을 시작했던
 	가장 최근의 트랜잭션 Ti 를 결정 하기 위하여 로그를 조사.
 	- 로그를 거꾸로 조사하면서 먼저 첫 번째 < checkpoint > 레코드를 찾고,
-	다시 < Ti start> 를 찾는다.
+	다시 < Ti start > 를 찾는다.
 	- Ti 를 찾으면 그 Ti 와 Ti 이후에 시작된 모든 트랜잭션에 대해서만 redo/undo 를 적용한다.
 		- T 에 속한 모든 Tk 에 대해 < Tk commit > 가 로그에 기록되어 있으면, 
 		redo ( Tk ) 를 실행시킨다.
@@ -92,8 +92,14 @@
 
 
 #### 체크포인트로 인한  복구 과정의 변화
-![checkpoint]()
-	
+![checkpoint](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/Chap6/checkpoint.png)
+* 체크포인트 복구 과정
+	- 시스템 다운시 로그를 거꾸로 읽어가며 첫번째 Checkpoint 를 찾는다.
+	- 첫번째 Checkpoint 바로 이전 트랜잭션을 찾는다. => T2
+	- T2 이전의 트랜잭션을 이미 Commit 됬음을 보장한다.
+		- 만약 < T2 commit > 로그가 있다면 redo 를 실행하고 없다면 undo 를 한다.
+	- 기존 방식은 T1 부터 전체 로그에 대해 rede/undo 를 했다면 체크 포인트로 인하여
+	T2 부터 복구를 시작하여 복구작업의 효율을 높여준다.
 
 
 ## 동시 실행 원자적 트랜잭션 ( Concurrent Atomic Transactions )
