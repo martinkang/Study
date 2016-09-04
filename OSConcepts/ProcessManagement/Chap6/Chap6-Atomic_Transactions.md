@@ -92,7 +92,7 @@
 
 
 #### 체크포인트로 인한  복구 과정의 변화
-![checkpoint](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/Chap6/checkpoint.png)
+![checkpoint](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-checkpoint.png)
 * 체크포인트 복구 과정
 	- 시스템 다운시 로그를 거꾸로 읽어가며 첫번째 Checkpoint 를 찾는다.
 	- 첫번째 Checkpoint 바로 이전 트랜잭션을 찾는다. => T2
