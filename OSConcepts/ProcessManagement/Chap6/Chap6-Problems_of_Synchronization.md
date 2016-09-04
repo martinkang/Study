@@ -7,7 +7,7 @@
 
 
 ##### 교착상태
-![deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/Chap6/deadlock.png)
+![deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-deadlock.png)
 * 교착상태
 	- Process 1 은 mtxA 의 Lock 을 잡은 후 mtxB 를 잡으려 하고 Process 2 는 mtxB 를 잡고 mtxA 를 잡으려 한다.
 	- Process 1 이 mtxA 를 잡은 후 mtxB 를 잡으려 하는데, Process 2 가 mtxB 를 이미 잡은 상태에서
