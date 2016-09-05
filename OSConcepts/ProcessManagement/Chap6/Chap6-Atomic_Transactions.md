@@ -103,7 +103,23 @@
 
 
 ## 동시 실행 원자적 트랜잭션 ( Concurrent Atomic Transactions )
+
 ### 직렬가능성 ( Serializability )
+##### 스케줄 1 : T0 후에 T1 이 실행되는 직렬 스케줄
+![serialize1](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize1.png)
+
+* 어떤 트랜잭션을 병렬로 실행시키면 그 결과는, 이 모든 트랜잭션을 어떤 임의의 순서에 따라 하나씩 순차적으로 실행 시킨 것과 같아야 한다.
+* 만약 T0 에서 Write(A) 를 하는동안 T1 이 Read(A) 를 한다면 충돌 ( conflict ) 한다고 한다.
+* swap
+	- 어떤 연산 Oi 와 Oj 가 다른 트랜잭션에 있으면서 충돌하지 않는다면, Oi 와 Oj 의 순서를 바꾸어 새로운 스케줄을 만들 수 있다.
+
+##### 스케줄 2 : 동시 실행 직렬 가능 스케줄
+![serialize2](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize2.png)
+
+##### 스케줄 3 : 타임스탬프 프로토콜에 의해 가능한 스케줄
+![serialize3](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize3.png)
+
+
 ### 락킹 프로토콜 ( Locking Protocol )
 ### 타임스탬프 기반 프로토콜 ( Timestamp Based Protocols )
 
