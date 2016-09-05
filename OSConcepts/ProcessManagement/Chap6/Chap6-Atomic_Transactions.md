@@ -166,7 +166,10 @@ Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새
 	- 트랜잭션은 최초에는 확장 단계에서 시작하고, 필요한 만큼의 락을 확보한다.
 		- 트랜잭션이 일단 한 개의 락을 해제하기 시작하면 수축 단계로 들어가며 그 이후부터는 새로운 락을 획득해서는 안된다.
 	- 교착상태 문제로부터 자유롭지 못한다.
-		- 왜일까?
+
+
+##### 락킹 프로토콜의 교착상태
+![locking-deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-locking-deadlock.png)	
 
 
 ### 타임스탬프 기반 프로토콜 ( Timestamp Based Protocols )
