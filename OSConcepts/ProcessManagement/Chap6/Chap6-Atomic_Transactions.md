@@ -169,7 +169,9 @@ Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새
 
 
 ##### 락킹 프로토콜의 교착상태
-![locking-deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-locking-deadlock.png)	
+![locking-deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-locking-deadlock.png)
+* T0 가 Write_Lock(B) 를 잡으려 하지만 T1 가 Read_Lock(B) 를 잡고 있기 때문에 Lock 획득을 하지 못하고
+ 마찬가지로 T1 도 Write_Lock(A) 를 획득하지 못하는 교착상태가 발생한다.
 
 
 ### 타임스탬프 기반 프로토콜 ( Timestamp Based Protocols )
