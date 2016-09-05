@@ -103,18 +103,48 @@
 
 
 ## 동시 실행 원자적 트랜잭션 ( Concurrent Atomic Transactions )
+* 다수의 트랜잭션들이 동시에 활성화 되는 경우를 고려한다.
+	- 각 트랜잭션은 원자적이기 때문에 여러 트랜잭션을 병렬로 실행시키면 그 결과는, 
+	이 모든 트랜잭션을 어떤 임의의 순서에 따라 하나씩 순차적으로 실행 시킨 것과 같아야 한다.
+
 
 ### 직렬가능성 ( Serializability )
+* 어떤 트랜잭션을 병렬로 실행시키면 그 결과는, 이 모든 트랜잭션을 어떤 임의의 순서에 따라 하나씩 순차적으로 실행 시킨 것과 같아야 한다.
+
 ##### 스케줄 1 : T0 후에 T1 이 실행되는 직렬 스케줄
 ![serialize1](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize1.png)
+* 직렬 스케줄은 여러 트랜잭션들의 명령어들이 순서로 구성되고 특정 트랜잭션에 속한
+명령어들은 연속된 한 집합 형태로 나타낸다.
+	- 따라서 n 개의 트랜잭션이 있다면 n! 개의 유효한 직렬 스케줄이 존재한다.
+* 두 개의 트랜잭션을 중첩되게 실행시키면 그 결과는 더이상 직렬 스케줄이 아니다.
+	- 그러나 이 비직렬 스케줄이 반드시 잘못된 스케줄은 아니다.
 
-* 어떤 트랜잭션을 병렬로 실행시키면 그 결과는, 이 모든 트랜잭션을 어떤 임의의 순서에 따라 하나씩 순차적으로 실행 시킨 것과 같아야 한다.
-* 만약 T0 에서 Write(A) 를 하는동안 T1 이 Read(A) 를 한다면 충돌 ( conflict ) 한다고 한다.
-* swap
-	- 어떤 연산 Oi 와 Oj 가 다른 트랜잭션에 있으면서 충돌하지 않는다면, Oi 와 Oj 의 순서를 바꾸어 새로운 스케줄을 만들 수 있다.
 
 ##### 스케줄 2 : 동시 실행 직렬 가능 스케줄
 ![serialize2](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize2.png)
+* T0 의 Write(A) 연산은 T1 의 Read(A) 연산과 충돌한다. 
+* Oi 와 Oj 가 스케줄 S 에서 인접해 나오는 연산이라고 하자. Oi 와 Oj 가 서로 다른 트랜잭션에 속했으면서
+Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새로운 스케줄 S` 를 만들 수 있다.
+	- 이 때 원래의 스케줄 S 와 S` 는 동등하다고 기대할 수 있다.
+		- 직렬 가능성에 의해.
+	- 이와 같은 요령으로 서로 충돌하지 않는 연산들의 순서를 계속해서 다음과 같이 바꿀 수 있다. => 스케줄 2
+		- T0 의 Read(B) 연산과 T1 의 Read(A) 연산을 swap
+		- T0 의 Write(B) 연산과 T1 의 Write(A) 연산을 swap
+		- T0 의 Write(B) 연산과 T1 의 Read(A) 연산을 swap
+	- 이처럼 일련의 swap 을 하면 그 결과는 스케줄 1과 같이 된다.
+
+
+#### 용어
+* 직렬 스케줄 ( Serial Schedule )
+	- 각 트랜잭션들이 원자적으로 실행되는 스케줄
+* 충돌 ( Conflict )
+	- Oi 와 Oj 가 동일한 데이터 항목을 액세스하며, 그 중 적어도 하나가 쓰기 연산일 대 Oi 와 Oj 가 충돌 ( conflict ) 한다고 한다.
+* swap
+	- 어떤 연산 Oi 와 Oj 가 다른 트랜잭션에 있으면서 충돌하지 않는다면, Oi 와 Oj 의 순서를 바꾸어 새로운 스케줄을 만들 수 있다.
+* 충돌 직렬가능 ( conflict serializable )
+	- 스케줄 S 에 있는 일련의 비충돌 연산들을 서로 swap 시켜줌으로써 직렬 스케줄 S` 로 변환시켜 줄 수 있다면
+	S 가 충돌 직렬가능 하다고 한다.
+
 
 ##### 스케줄 3 : 타임스탬프 프로토콜에 의해 가능한 스케줄
 ![serialize3](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize3.png)
