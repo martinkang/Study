@@ -45,7 +45,6 @@ void sync()
 	- 임계영역의 끝
 * 나머지 영역 ( Remainder Section )
 	- 그 외 영역
-
 * 바쁜 대기 ( Busy Waiting )
 	- 임계영역에 진입 하려고 진입 코드를 계속 반복 실행
 	- 프로세스가 락을 기다리는 동안 반복문을 반복하며 CPU 시간을 낭비한다.
@@ -101,9 +100,14 @@ do
 		- 따라서 상호 배제가 지켜진다.
 
 
-#### 진행에 대한 요구 조건이 만족하는가? ( Progress )
+#### 대기 시간이 한없이 길어지지 않는가? ( Bounded Waiting ), 진행에 대한 요구 조건이 만족하는가? ( Progress )
+* turn 값은 0 또는 1 둘 중 하나의 값을 가지기 때문에 Pi 또는 Pj 중 하나는 임계영역에 진입할 수 있다.
+	- turn 이 i 라면 Pi 가 진입할 것이다.
+	- Pi 가 임계 영역에 있고 Pj 가 while loop 에서 대기중에는 turn 과 flag 값이 변경되지 않는다.
+	- Pi 가 임계 영역을 빠져 나올 때 flag[i] = FALSE 가 되어 Pj 로 하여금 임계영역에 진입하도록 만들어주고 
+	Pj 역시 임계 영역에서 빠져 나올때 flag 값을 바꿔준다.
+	- 따라서 둘 중 하나가 진입하였다면 그 다음번에는 반드시 다른 프로세스가 들어갈 수 있도록 보장된다.
 
-#### 대기 시간이 한없이 길어지지 않는가? ( Bounded Waiting )
 
 ## 6.4 동기화 하드웨어
 * 임계 영역 문제에 대한 소프트웨어 기반 해결책은 현대의 컴퓨터 구조에서 올바르게 동작한다는 것을
@@ -143,4 +147,113 @@ do
 
 
 ### 멀티 프로세서 환경에서 임계 영역과 인터럽트
+* 발생 가능한 문제
+	- 싱글 프로세서 환경과 동일
+* 해결방법
+	* 인터럽트 불능화는 사용할 수 없다.
+		- 다중처리기 상에서 인터럽트의 불능화는 상당한 시간을 소비
+			- 인터럽트가 불능화되었다는 메시지가 모든 프로세서에게 전달되어야 하기 때문에, 
+			이런 메시지 전달은 매 임계 역역에 진입하는 것을 지연시켜 시스템 효율이 떨어짐.
+		- 만약 인터럽트에 의해 클록이 갱신된다면, 시스템 클록에 대한 영향도 고려해야 한다.
+	* 워드의 내용을 원자적으로 교환 할 수 있는, 인터럽트되지 않는 하나의 단위로서 특별한 하드웨어 명령어를 제공
+		- TestAndSet() 과 Swap() 명령어 제공
+		- 원자적 실행을 보장
 
+
+#### TestAndSet() 과 Swap() 을 이용한 상호 배제
+```c++
+/* TestAndSet() 명령어 정의 */
+Boolean TestAndSet( boolean *target )
+{
+	boolean rv = *target;
+	*target = true;
+	return rv;
+}
+
+
+/* TestAndSet() 명령어를 사용한 상호 배제를 구현 */
+do
+{
+	while ( TestAndSet( &lock ) );
+
+	// critical section
+
+	lock = FALSE;
+
+	// remainder section
+} while ( TRUE );
+
+/* Swap() 명령어 정의 */
+void Swap( boolean *a, boolean *b )
+{
+	boolean temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+/* Swap() 명령어를 사용한 상호 배제 구현 */
+do
+{
+	key = TRUE;
+	while ( key == TRUE )
+	{
+		Swap( &lock, &key );
+	}
+
+	// critical section
+
+	lock = FALSE;
+
+	// remaider section
+} while ( TRUE );
+```
+* 위의 TestAndSet() 은 상호 배제 조건은 만족시키지만 한정된 대기 조건을 만족시키지 못함.
+
+
+#### TestAndSet() 명령어를 사용한 한정된 대기 조건을 만족시키는 상호 배제 
+```c++
+/* 모두 False 로 초기화 */
+boolean wainting[n];
+boolean lock;
+
+/* TestAndSet() 명령어를 사용한 한정된 대기 조건을 만족시키는 상호 배제 */
+{
+	do
+	{
+		waiting[i] = TRUE;
+		key = TURE;
+		while ( waiting[i] && key )
+		{
+			key = TestAndSet( &lock );
+		}
+		waiting[i] = FALSE;
+
+		// critical section
+
+		j = ( i + 1 ) % n;
+		while ( ( j != i ) && !waiting[j] )
+		{
+			j = ( j + 1 ) % n;
+		}
+
+		if ( j == i )
+		{
+			lock = FALSE;
+		}
+		else
+		{
+			waiting[j] = FALSE;
+		}
+
+		// remainder section
+	} while ( TRUE );
+}
+```
+* 맨 처음 key = TestAndSet( &lock ) 에 접근한 Process 는 lock 의 초기값 FALSE 를 리턴 받아 While 을 빠져나오고 임계 영역에 진입한다.
+	- 나머지는 lock 값이 TRUE 이므로 while 에서 대기하게 된다.
+* 만약 진입한 Pi 가 P1 이고 n 이 10 이라면
+	- j = 2 가 된다. j = ( i + 1 ) % n  이므로 
+	- 만약 P2 가 진입영역에 있다면 j != i 이고 waiting[2] == TRUE 이기 때문에 while ( ( j != i ) && !waiting[j] ) 에서 대기하지 않는다.
+		- 만약 진입영역에 있지 않다면 waiting[2] 초기값은 FALSE 이기 때문에 while 문에서 진입영역에 진입한 j 를 찾게된다.
+	- j!= i 이기 때문에 waiting[2] = FALSE 가 되고 P2 는  while ( waiting[i] && key ) 조건을 만족하지 않으므로 임계영역에 진입하게 된다.
+		- 이로서 진입영역에 있는 모든 프로세스는 한정된 대기 조건을 만족시킨다.
