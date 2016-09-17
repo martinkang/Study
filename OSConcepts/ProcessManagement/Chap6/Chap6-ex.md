@@ -49,8 +49,14 @@ void signal( semaphores *S )
 ```c++
 boolean lock = FALSE;
 
+struct sem
+{
+	int value; // 세마포 카운트
+	plist list; // 대기중인 Process list
+}
+
 /* wait */
-wait( s )
+wait( sem s )
 {
 	boolean key = TestAndSet( &lock );
 
@@ -59,7 +65,7 @@ wait( s )
 		key = TestAndSet( &lock );
 	}
 
-	s->valuee--;
+	s->value--;
 
 	if ( s->value < 0 )
 	{
@@ -74,7 +80,7 @@ wait( s )
 }
 
 /* signal */
-signal( s )
+signal( sem s )
 {
 	boolean key = TestAndSet( &lock );
 	
