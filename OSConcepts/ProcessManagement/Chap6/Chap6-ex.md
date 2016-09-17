@@ -47,19 +47,48 @@ void signal( semaphores *S )
 * 6.12 다중처리기 환경에서 TestAndSet() 명령을 사용하여 wait() 와 signal() 세마포 연산을 구현하는 방법을 보이시오.
 해결 방안은 바쁜 대기를 최소로 실행 해야 한다.
 ```c++
-/* wait */
-wait()
-{
-	while( TestAndSet( &lock ) == TRUE )
-	{
+boolean lock = FALSE;
 
+/* wait */
+wait( s )
+{
+	boolean key = TestAndSet( &lock );
+
+	while ( key == TRUE  )
+	{
+		key = TestAndSet( &lock );
 	}
+
+	s->valuee--;
+
+	if ( s->value < 0 )
+	{
+		s->list.put( P );
+		while ( s->value < 0 )
+		{
+			/* busy waiting */
+		}
+	}	
+	
+	lock = TRUE;
 }
 
 /* signal */
-signal()
-{	
-	TestAndSet( &lock )
+signal( s )
+{
+	boolean key = TestAndSet( &lock );
+	
+	while ( key == TRUE  )
+	{
+		key = TestAndSet( &lock );
+	}
+
+	s->value++;
+	if ( s->value <= 0 )
+		s->list.pop( &P ); 
+	}
+
+	lock = FALSE;
 }
 ```
 * 6.14 두 단계 락킹 프로토콜이 충돌 직렬가능성을 보장하는 것을 보이시오.
@@ -77,8 +106,7 @@ signal()
 		- 정보가 손실될 일이 없음 ( 거의 )
 * 6.19 경쟁 조건이 발생할 가능성이 있는 커널 자료구조를 기술하시오. 
 경쟁 조건이 어떤 경우에 발생할 수 있는 지에 대한 설명을 반드시 포함하라.
-	- 파일 디스크립터
-		- 프로세스 P1 에서 파일 F 를 수정하고 있을 때 프로세스 P2 에서 이 파일 디스크립터를 읽으려 함.
+	-
 * 6.21 다중처리기에서는 spinlock 이 종종 사용되는 데 비해 단일처리기 시스템에서는 부적당한 이유를 설명하시오.
 	- spinlock 은 lock 을 획득할 수 없어 대기하는 동안 cpu 를 사용하면서 lock 을 획득할 수 있을때까지 loop 를 돌고있다.
 	단일 처리기에서는 처리기가 단 하나뿐이므로 lock 을 반납하는 처리기와 획득하는 처리기가 결국 같은 처리기므로
