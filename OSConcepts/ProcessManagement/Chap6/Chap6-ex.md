@@ -56,7 +56,7 @@ struct sem
 }
 
 /* wait */
-wait( sem s )
+wait( struct sem s )
 {
 	boolean key = TestAndSet( &lock );
 
@@ -80,7 +80,7 @@ wait( sem s )
 }
 
 /* signal */
-signal( sem s )
+signal( struct sem s )
 {
 	boolean key = TestAndSet( &lock );
 	
