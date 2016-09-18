@@ -30,6 +30,95 @@
 
 ## 비선점
 * 이미 할당된 자원이 선점되지 않아야 한다는 조건이 성립되지 않는다는 것을 보장하기 위해 다음의 프로토콜이 사용 가능
+	- 대안 프로토콜 1
+		- 어떤 자원을 점유하고 있는 프로세스가 즉시 할당할 수 없는 자원을 요청하면,
+		이 프로세스가 현재 점유하고 있는 모든 자원들이 선점된다.
+			- 자원이 방출된 뒤에 이 프로세스가 기다리고 있는 자원 리스트에 추가됨.
+		- 프로세스는 자신이 요청하고 있는 새로운 자원과 가지고 있었던 ( 방출된 ) 자원을 모드 얻은 후에 시작된다.
+	- 대안 프로토콜 2
+		- 한 프로세스가 자원을 오쳥하면, 이들이 사용 가능한지 검사.
+			- 사용 가능
+				- 할당
+			- 사용 불가능
+				- 대기 프로세스가 점유하고 있음
+					- 필요로 하는 자원을 선점해 요청 프로세스에게 할당
+				- 대기 프로세스가 점유하지 않음
+					- 요청 프로세스는 대기
+		- 대기중인 프로세스는 자원의 일부를 선점될 수 있다.
+		- 프로세스는 요청한 자원을 할당 받고, 대기 중 빼앗겼던 모든 자원을 할당 받은 후에 시작
 
 
 ## 순환대기
+* 순환 대기가 성립하지 않도록 하는 대안 프로토콜
+	- 대안 프로토콜 1
+		- 모든 자원 타입들에게 전체적인 순서를 부여하여 각 프로세스가 열거된 순서대로 
+		오름차순으로 자원을 요청하도록 강제하여 순환대기를 성립되지 않도록 한다.
+	- 대안 프로토콜 2
+		- 프로세스가 자원 타입 Rj 의 인스턴스를 요청할 때마다 F(Ri) >= F(Rj) 인 모든 자원 Ri 를 방출하도록 요구.
+* 위 프로토콜이 순환 대기 조건이 발생하지 않는다는 증명
+	- 자원
+		- F( 테이프 드라이브 ) = 1
+		- F( 디스크 드라이브 ) = 5
+		- F( 프린터 ) = 12
+	- 만약 프로세스가 필요한 자원이 디스크 드라이브와 프린터일때 프로세스는 디스크 드라이브를 할당 받은 후
+	프린터를 할당받을 수 있다.
+		- F( 디스크 드라이브 ) < F( 프린터 ) 이기 때문
+	- 프로세스 { P1, P2, Pn } 이 있고 자원 { R1, R2, ... Rn } 이 있을 때, Pi 는 Ri 를 요청하고
+		이 Ri 는 P( i + 1 ) 이 가지고 있다고 하자.
+		- Pn 은 Rn 을 요청하고 이 Rn 은 P0 이 가지고 있다.
+	- P( i + 1 ) 이 Ri 를 가지고 있으면서 R( i + 1 ) 을 요청하므로 F( Ri ) < F( R( i + 1 ) ) 이다.
+		- 이는 모든 i 에 F( R0 ) < F( R1 ) < ... < F( Rn ) < F( R0 ) 를 의미한다.
+			- F( R0 ) < F( R0 ) 는 성립할 수 없기 때문에 순환대기가 일어날 수 없다.
+* 락이 동적으로 획득될 수 있다면 락 순서 부여는 교착상태의 예방을 보장할 수 없다.
+
+
+#### 순환대기 예방책에서 락이 동적으로 획득될 때 교착상태 예방을 보장할 수 없는 경우
+```c++
+/* 락이 동적으로 획득될 때 교착상태 예방을 보장할 수 없는 경우 */
+void transaction( Acount from, Acount to, double amount )
+{
+	Semaphore lock1, lock2;
+	lock1 = getLock( from );
+	lock2 = getLock( to );
+
+	wait( lock1 );
+	wait( lock2 );
+
+	withdraw( from, amount );
+	deposit( to, amount );
+
+	signal( lock2 );
+	signal( lock1 );
+}
+
+// Thread 1 : transaction( checkingAccount, savingAccount, 25 );
+// Thread 2 : transaction( savingAccount, checkingAccount, 50 );
+
+```
+* 위 예제에서 교착상태가 발생한다.
+	- Thread1 은 checkingAccount 의 lock 을 Thread2 는 savingAccount 의 lock 을 잡고 서로의 lock 을 획득하려 하여
+	교착상태가 발생한다.
+
+	
+#### 순환대기 예방책에서 락이 동적으로 획득될 때 교착방법 예방을 보장할 수 없는 경우 해결방법
+```c++
+void transaction( Acount from, Acount to, double amount )
+{
+	Semaphore lock1, lock2;
+	lock1 = getLock( from );
+	lock2 = getLock( to );
+
+	wait( lock1 );
+	wait( lock2 );
+
+	withdraw( from, amount );
+	deposit( to, amount );
+
+	signal( lock2 );
+	signal( lock1 );
+}
+
+// Thread 1 : transaction( checkingAccount, savingAccount, 25 );
+// Thread 2 : transaction( savingAccount, checkingAccount, 50 );
+
+
