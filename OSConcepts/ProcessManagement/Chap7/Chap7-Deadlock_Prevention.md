@@ -1,6 +1,10 @@
 # 교착상태 예방
 * 교착상태가 발생하는 네 가지 필요조건 중 하나라도 성립하지 않도록 보장함으로써
 교착상태를 예방할 수 있다.
+* 문제점
+	- 장치의 이용률이 저하되고 시스템 처리율이 감소된다.
+		- 예방을 위해서 자원을 모두 할당받을 때까지 기다리거나, 또는 자원을 모두 방출한 뒤 다시
+		할당받는 식으로 자원 이용률이 저하되기 때문에 시스템 처리율 역시 감소하게 된다.
 
 
 ## 상호 배제
@@ -102,11 +106,15 @@ void transaction( Acount from, Acount to, double amount )
 	
 #### 순환대기 예방책에서 락이 동적으로 획득될 때 교착방법 예방을 보장할 수 없는 경우 해결방법
 ```c++
+pthread_mutex_t gTransMtx;
+
 void transaction( Acount from, Acount to, double amount )
 {
 	Semaphore lock1, lock2;
 	lock1 = getLock( from );
 	lock2 = getLock( to );
+
+	pthread_mutex_lock( &gTransMtx );
 
 	wait( lock1 );
 	wait( lock2 );
@@ -116,9 +124,11 @@ void transaction( Acount from, Acount to, double amount )
 
 	signal( lock2 );
 	signal( lock1 );
+
+	pthread_mutex_lock( g&TransMtx );
 }
 
 // Thread 1 : transaction( checkingAccount, savingAccount, 25 );
 // Thread 2 : transaction( savingAccount, checkingAccount, 50 );
-
-
+```
+* Transaction Mutex 를 따로 만들어서 결국 한번에 한 Thread 만이 checkingAccount 와 savingAccount 의 모든 lock 을 획득하도록 한다.
