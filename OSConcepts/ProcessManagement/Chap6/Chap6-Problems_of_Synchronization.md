@@ -93,7 +93,7 @@ do
 			- 이 때 새로운 Reader 가 계속 권한을 요청하면 Writer 는 계속 Lock 을 획득하지 못한다.
 			- Writer 가 Lock 을 잡는 동안에도 마찬가지.
 
-#### Readers-Writers 기아 문제 해결방안
+#### Readers-Writers 문제 해결방안
 ```c++
 semaphore mutex, wrt; // 1 로 초기화
 int readCount = 0;
