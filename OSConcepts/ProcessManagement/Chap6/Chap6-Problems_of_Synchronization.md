@@ -140,6 +140,15 @@ void Reader()
 }
 ```
 
+#### Readers-Writers 기아 문제 해결방안
+```c++
+semaphore mutex, wrt; // 1 로 초기화
+int readCount = 0;
+
+
+/* Writer Process */
+/* Reader Process */
+```
 
 ## 식사하는 철학자들 문제 ( The Dining Philosophers Problem )
 * 문제
