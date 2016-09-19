@@ -111,28 +111,38 @@
 ### 직렬가능성 ( Serializability )
 * 어떤 트랜잭션을 병렬로 실행시키면 그 결과는, 이 모든 트랜잭션을 어떤 임의의 순서에 따라 하나씩 순차적으로 실행 시킨 것과 같아야 한다.
 
-##### 스케줄 1 : T0 후에 T1 이 실행되는 직렬 스케줄
-![serialize1](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize1.png)
+##### 스케줄 : 직렬 스케줄
+![serialize0](http://dbscthumb.phinf.naver.net/4515_000_1/20160715113241551_5K1E4JJCF.jpg/ka26_218_i1.jpg?type=w690_fst_n&wm=Y)
 * 직렬 스케줄은 여러 트랜잭션들의 명령어들이 순서로 구성되고 특정 트랜잭션에 속한
 명령어들은 연속된 한 집합 형태로 나타낸다.
 	- 따라서 n 개의 트랜잭션이 있다면 n! 개의 유효한 직렬 스케줄이 존재한다.
 * 두 개의 트랜잭션을 중첩되게 실행시키면 그 결과는 더이상 직렬 스케줄이 아니다.
 	- 그러나 이 비직렬 스케줄이 반드시 잘못된 스케줄은 아니다.
+* 출처 http://terms.naver.com/entry.nhn?docId=3431282&cid=58430&categoryId=58430&expCategoryId=58430
 
 
-##### 스케줄 2 : 동시 실행 직렬 가능 스케줄
-![serialize2](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize2.png)
-* T0 의 Write(A) 연산은 T1 의 Read(A) 연산과 충돌한다. 
+##### 스케줄 : 비직렬 스케줄
+![noserial](http://dbscthumb.phinf.naver.net/4515_000_1/20160715113251086_OHA8Y1PZQ.jpg/ka26_219_i2.jpg?type=w690_fst_n&wm=Y)
+* 비직렬 스케줄은 인터리빙 방식을이용하여 트랜잭션을 병행해서 수행시키는 것이다.
+	- 트랜잭션의 병렬 수행으로 갱신 분실, 모순성, 연쇄 복귀 등의 문제가 발생할 수 있어 
+	최종 수행 결과의 정확성을 보장할 수 없다.
+	- 최종 결과값은 X = 4000, Y = 1500 으로 상기 직렬 스케줄과 다른 결과가 생겼기 때문에 
+	직렬 가능한 스케줄이 아니다.
+* 출처 http://terms.naver.com/entry.nhn?docId=3431282&cid=58430&categoryId=58430&expCategoryId=58430
+
+
+
+##### 스케줄 : 동시 실행 직렬 가능 스케줄
+![serialize1](http://dbscthumb.phinf.naver.net/4515_000_1/20160715113249910_989S3DRM2.jpg/ka26_219_i1.jpg?type=w690_fst_n&wm=Y)
+* 직렬 스케줄에 따라 수행한 것과 같이 정확한 결과를 생성하는 비직렬 스케줄이다.
+	- 그림에서 T1 과 T2 의 실행결과는 X = 2000, Y = 2000 으로 상기 직렬 스케줄의 최종 값과 동일하다.
 * Oi 와 Oj 가 스케줄 S 에서 인접해 나오는 연산이라고 하자. Oi 와 Oj 가 서로 다른 트랜잭션에 속했으면서
 Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새로운 스케줄 S` 를 만들 수 있다.
 	- 이 때 원래의 스케줄 S 와 S` 는 동등하다고 기대할 수 있다.
 		- 직렬 가능성에 의해.
 	- 이와 같은 요령으로 서로 충돌하지 않는 연산들의 순서를 계속해서 다음과 같이 바꿀 수 있다. => 스케줄 2
-		- T0 의 Read(B) 연산과 T1 의 Read(A) 연산을 swap
-		- T0 의 Write(B) 연산과 T1 의 Write(A) 연산을 swap
-		- T0 의 Write(B) 연산과 T1 의 Read(A) 연산을 swap
-	- 이처럼 일련의 swap 을 하면 그 결과는 스케줄 1과 같이 된다.
-
+		- T1 의 Read(Y) ~ Write(Y) 연산과 T2 의 Read(X) ~ Write(X) 연산을 swap
+* 출처 http://terms.naver.com/entry.nhn?docId=3431282&cid=58430&categoryId=58430&expCategoryId=58430
 
 #### 용어
 * 직렬 스케줄 ( Serial Schedule )
@@ -155,24 +165,39 @@ Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새
 			- 트랜잭션 Ti 가 데이터 항목 Q 에 대한 독점 모드락 ( X ) 를 가지고 있으면 Ti 는 Q 에 읽기아 쓰기를 모두 할 수 있다.
 	* 트랜잭션들은 그들의 데이터 항목 Q 에 처리해야 할 작업의 유형에 맞추어 적절한 모드의 락을 요청해야 한다.
 	* 두 개의 충돌하는 트랜잭션 사이의 실행순서는 실행 중에 결정된다.
-	- 데이터 항목에 대한 마지막 액세스가 끝나자마자 바로 락을 해제하는 것은 직렬가능성이 보장되지 않을 수 있기 때문에
-	바람직하지 않을 수 있다.
-		- 교착상태는 발생할 수 있는데 직렬가능성은 왜 보장되지 않을 수 있다는 걸까?
-* 두 단계 락킹 프로토콜 ( Two phase Locking Protocol )
-	- 직렬가능성을 보장해 주는 프로토콜의 하나.
-		- 확장 단계 ( growing phase )
-			- 트랜잭션은 락을 새로 얻을 수는 있지만 얻었던 락을 반납해서는 안된다.
-		- 수축 단계 ( shrinking phase )
-			- 트랜잭션은 얻었던 락을 반납할 수는 있지만 새로운 락을 얻어서는 안된다.
-	- 트랜잭션은 최초에는 확장 단계에서 시작하고, 필요한 만큼의 락을 확보한다.
-		- 트랜잭션이 일단 한 개의 락을 해제하기 시작하면 수축 단계로 들어가며 그 이후부터는 새로운 락을 획득해서는 안된다.
-	- 교착상태 문제로부터 자유롭지 못한다.
+	- 데이터 항목에 대한 마지막 액세스가 끝나자마자 바로 락을 해제하는 것은 
+	직렬가능성이 보장되지 않을 수 있기 때문에 바람직하지 않을 수 있다.
 
 
-##### 락킹 프로토콜의 교착상태
+###### 락킹 프로토콜로도 직렬 가능성이 보장되지 않는 스케줄의 예
+![locking](http://dbscthumb.phinf.naver.net/4515_000_1/20160715113254706_4JGY5SDM0.jpg/ka26_222_i1.jpg?type=w690_fst_n&wm=Y)
+* 상기 그림은 위의 직렬 스케줄과 같은 트랜잭션들로 이루어진 스케줄이다.
+	- 최종 결과는 X = 2000, Y = 2500 으로 직렬 가능성이 보장되지 않는다.
+	- 이는 T1 이 너무 빨리 unlock(X) 연산을 실행하여, 트랜잭션 T2 는 일관성 없는 데이터에 접근했기 때문에 발생
+		- 트랜잭션 스케줄의 직렬 가능성을 보장하기 위한 두 단계 락킹 프로토콜 생겨남.
+* 출처 http://terms.naver.com/entry.nhn?docId=3431282&cid=58430&categoryId=58430&expCategoryId=58430
+
+
+#### 두 단계 락킹 프로토콜 ( Two phase Locking Protocol )
+![two](http://dbscthumb.phinf.naver.net/4515_000_1/20160715113257956_999RM3T1V.jpg/ka26_223_i1.jpg?type=w690_fst_n&wm=Y)
+* 직렬가능성을 보장해 주는 프로토콜의 하나.
+	- 확장 단계 ( growing phase )
+		- 트랜잭션은 락을 새로 얻을 수는 있지만 얻었던 락을 반납해서는 안된다.
+	- 수축 단계 ( shrinking phase )
+		- 트랜잭션은 얻었던 락을 반납할 수는 있지만 새로운 락을 얻어서는 안된다.
+- 트랜잭션은 최초에는 확장 단계에서 시작하고, 필요한 만큼의 락을 확보한다.
+	- 트랜잭션이 일단 한 개의 락을 해제하기 시작하면 수축 단계로 들어가며 그 이후부터는 새로운 락을 획득해서는 안된다.
+- 락킹 프로토콜로도 직렬 가능성이 보장되지 않는 스케줄과는 다르게 트랜잭션 T1과 T2 모두 첫 번째 unlock 연산을 실행하기 전에 모든 lock 연산을 실행하여 직렬 가능성을 보장한다.
+- 하지만 교착상태 문제로부터 자유롭지 못한다.
+- 출처 http://terms.naver.com/entry.nhn?docId=3431287&cid=58430&categoryId=58430&expCategoryId=58430
+
+
+
+###### 두 단계 락킹 프로토콜의 교착상태
 ![locking-deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-locking-deadlock.png)
 * T0 가 Write_Lock(B) 를 잡으려 하지만 T1 가 Read_Lock(B) 를 잡고 있기 때문에 Lock 획득을 하지 못하고,
  마찬가지로 T1 도 Write_Lock(A) 를 획득하지 못하는 교착상태가 발생한다.
+
 
 
 ### 타임스탬프 기반 프로토콜 ( Timestamp Based Protocols )
