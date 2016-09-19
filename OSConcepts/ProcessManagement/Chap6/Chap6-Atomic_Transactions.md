@@ -194,7 +194,7 @@ Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새
 
 
 ##### 두 단계 락킹 프로토콜의 교착상태
-![locking-deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-locking-deadlock.png)
+![locking-deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize-dead.png)
 * T0 가 Write_Lock(B) 를 잡으려 하지만 T1 가 Read_Lock(B) 를 잡고 있기 때문에 Lock 획득을 하지 못하고,
  마찬가지로 T1 도 Write_Lock(A) 를 획득하지 못하는 교착상태가 발생한다.
 
@@ -237,7 +237,7 @@ Oi 와 Oj 가 서로 충돌하지 않는다면 Oi 와 Oj 순서를 바꾸어 새
 		- 충돌하는 트랜잭션의 순서를 미리 정하였기 때문에 서로를 기다리는 일이 없다.
 
 
-##### 스케줄 3 : 타임스탬프 프로토콜에 의해 가능한 스케줄
+##### 스케줄 : 타임스탬프 프로토콜에 의해 가능한 스케줄
 ![serialize3](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/Chap6-serialize3.png)
 * 두 개의 트랜잭션 T0 과 T1 을 실행시키고 있다.
 	- 스케줄 3 에 의하면 TS(T0) < TS(T1) 이다.
