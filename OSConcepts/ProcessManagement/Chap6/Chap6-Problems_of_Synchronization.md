@@ -100,7 +100,6 @@ int readCount = 0;
 
 
 /* Writer Process */
-
 void Writer()
 {
 	do
@@ -113,6 +112,7 @@ void Writer()
 
 	}
 }
+
 
 /* Reader Process */
 void Reader()
