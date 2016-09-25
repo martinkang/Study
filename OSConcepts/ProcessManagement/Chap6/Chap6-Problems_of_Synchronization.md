@@ -93,14 +93,13 @@ do
 			- 이 때 새로운 Reader 가 계속 권한을 요청하면 Writer 는 계속 Lock 을 획득하지 못한다.
 			- Writer 가 Lock 을 잡는 동안에도 마찬가지.
 
-#### Readers-Writers 기아 문제 해결방안
+#### Readers-Writers 문제 해결방안
 ```c++
 semaphore mutex, wrt; // 1 로 초기화
 int readCount = 0;
 
 
 /* Writer Process */
-
 void Writer()
 {
 	do
@@ -113,6 +112,7 @@ void Writer()
 
 	}
 }
+
 
 /* Reader Process */
 void Reader()
@@ -140,13 +140,22 @@ void Reader()
 }
 ```
 
+#### Readers-Writers 기아 문제 해결방안
+```c++
+semaphore mutex, wrt; // 1 로 초기화
+int readCount = 0;
+
+
+/* Writer Process */
+/* Reader Process */
+```
 
 ## 식사하는 철학자들 문제 ( The Dining Philosophers Problem )
 * 문제
 	- 다섯 명의 철학자가 원탁에 앉아 있고, 각자의 앞에는 스파게티가 있고 양옆에 젓가락이 한 짝씩 있다. 
 	그리고 각각의 철학자는 다른 철학자에게 말을 할 수 없다. 
-	이때 철학자가 스파게티를 먹기 위해서는 양 옆의 젓가락 짝을 동시에 들고 있어야 한다. 
-	이때 각각의 철학자가 왼쪽의 젓가락 짝을 들고 그 다음 오른쪽의 젓가락 짝을 들어서 
+	- 이때 철학자가 스파게티를 먹기 위해서는 양 옆의 젓가락 짝을 동시에 들고 있어야 한다. 
+	- 이때 각각의 철학자가 왼쪽의 젓가락 짝을 들고 그 다음 오른쪽의 젓가락 짝을 들어서 
 	스파게티를 먹는 알고리즘을 가지고 있으면, 
 	다섯 철학자가 동시에 왼쪽의 젓가락 짝을 든 다음 오른쪽의 젓가락 짝을 들 때까지 
 	무한정 기다리는 교착 상태에 빠지게 될 수 있다.
