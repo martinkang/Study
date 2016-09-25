@@ -2,50 +2,43 @@
 * 7.1 외나무 다리에서 두 농부가 만났을 때, 동시에 다리의 중간에 도착하면 교착상태가 발생한다.
 이런 교착 상태를 예방하는 알고리즘을 세마포를 사용하여 설계하시오. ( 기아 상태 무시 )
 ```c++
-Sem BridgeSem; // Semaphore 는 1 로 초기화.
-
-void CrossBridge( Sem * aSem, farmer * aFam, City *A, City *B )
-{
-	wait( aSem );
-
-	if ( aFam->mFrom == A ) // 농부가 A 마을방향에서 왔다.
-		crossBridgeFromTo( aFam, A, B ); // A 마을에서 B 마을 방향으로 다리를 건넌다.
-	else
-		crossBridgeFromTo( aFam, B, A );
-
-	post( aSem );
-}
 ```
+
 * 7.2 7.1 의 해결책을 기아 현상이 발생하지 않도록 수정하시오.
 ```c++
-Sem BridgeSem; // Semaphore 는 1 로 초기화.
+Sem gBridgeSem; // Semaphore 는 1 로 초기화.
 
-void moveFamer( Farmer *aFam, City *A, City *B )
+City *gCityA
+City *gCityB
+
+void moveFamer( Farmer *aFam )
 {
 	aFam->mLocate = B;
 
-	A->mCount--;
-	B->mCount++;
+	gCityA->mCount--;
+	gCityB->mCount++;
 }
 
-void CrossBridge( Sem * aSem, Farmer * aFam, City *A, City *B )
+void CrossBridge( Farmer * aFam )
 {
-	wait( aSem );
+	wait( gBridgeSem );
 
-	wait( A->mSem );
-	wait( B->mSem );
+	wait( gCityA->mSem );
+	wait( gCityB->mSem );
 
-	if ( aFam->mLocate == A ) // 농부가 A 마을방향에서 왔다.
-		moveFarmer( aFam, A, B ); // A 마을에서 B 마을 방향으로 다리를 건넌다.
+	if ( aFam->mLocate == gCityA ) // 농부가 A 마을방향에서 왔다.
+		moveFarmer( aFam, gCityA, gCityB ); // A 마을에서 B 마을 방향으로 다리를 건넌다.
 	else
-		moveFarmer( aFam, B, A );
+		moveFarmer( aFam, gCityB, gCityA );
 
-	post( B->mSem );
-	post( A->mSem );
+	post( gCityB->mSem );
+	post( gCityA->mSem );
 
-	post( aSem );
+	post( gBridgeSem );
 }
 ```
+- 이 방법은 결국 gBridgeSem 을 먼저 wait() 한 순서대로 동작을 하고, 앞에 먼저 요청한 작업이 끝나면 자신의 순서가 돌아오기 대문에
+기아 상태가 발생하지 않음을 알 수 있다.
 * 7.3 세 개의 프로세스에 의해 공유되는 동일한 타입의 네 개의 자원으로 구성된 시스템을 고려해보자.
 이들 각 프로세스는 최대 두 개의 자원을 필요로 한다. 시스템에 교착상태가 발생하지 않음을 보이시오.
 	- 최악의 경우 세 개의 프로세스 모두 두개의 자원을 필요로 한다고 가정하자.
