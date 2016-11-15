@@ -1,9 +1,9 @@
 # 연습문제
 9.2 가상 주소와 물리 주소가 모두 16 비트이고, 페이지의 크기가 4,096 바이트인 시스템을 고려해보자. 
 레퍼런스 비트는 페이지가 레퍼런스 되었을때 1이 되고, 주기적으로 스레드가 레퍼런스 비트를 감소시킨다.
-- 는 해당 페이지가 메모리에 존재하지 않는 페이지 프레임을 듯한다.
-페이지 교체알고리즘은 localized LRU 이고, 모든 숫자는 십진수를 지원한다.
-![img1](https://github.com/martinkang/Study/blob/master/OSConcepts/MemoryManagement/img/chap9-ex2.png)
+Dash( - ) 는 해당 페이지가 메모리에 존재하지 않는 페이지 프레임을 듯한다.
+페이지 교체알고리즘은 localized LRU 이고, 모든 숫자는 십진수를 지원한다.   
+![img1](https://github.com/martinkang/Study/blob/master/OSConcepts/MemoryManagement/img/chap9-ex2.png)  
 	- 다음의 가상 주소 ( 16 진수 ) 를 물리주소로 변경시켜라.
 	그리고 페이지 테이블의 레퍼런스 비트를 적절하게 세팅하라.
 		- 0xE12C
