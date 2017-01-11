@@ -28,7 +28,8 @@
 		Pj 들이 마칠때까지 기다리게 한다.
 		- 반대로 모든 프로세스들을 무사히 마칠 수 있는 순서를 찾을 수 없으면 불안전 하다고 한다.
 	- 시스템이 안전하다면 교착상태가 아니다.
-	- 시스템이 불안전한 상태라면 교착상태가 될 수도 있다.
+	- 시스템이 불안전한 상태라면 교착상태가 될 수도 있다.  
+	
 ![deadlock](https://github.com/martinkang/Study/blob/master/OSConcepts/ProcessManagement/img/cahp7-safe.png)
 
 
