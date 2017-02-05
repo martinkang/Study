@@ -27,7 +27,7 @@
 	- 우선순위 A < B < C
 		1. A 가 커널 데이터를 접근하여 lock.
 		2. C 는 A 가 커널 데이터를 다 쓰기를 기다림.
-		3. B 가 준비 완료가 되어 프로세스 A 를 .점함
+		3. B 가 준비 완료가 되어 프로세스 A 를 선점함
 		4. C 는 B 에 의해 대기 시간이 더 길어짐.
 * 해결방법
 	- 셋 이상의 우선순위를 가질 때 발생하므로 우선 순위를 두개만 갖도록 한다.
@@ -147,7 +147,47 @@ int readCount = 0;
 
 
 /* Writer Process */
+void Writer()
+{
+	do
+	{
+		wait( wrt );
+
+		signal( mutex );
+		// ... Writing is Performed //
+
+		signal( wrt );
+	} while ( TRUE );
+
+	}
+}
+
+
 /* Reader Process */
+void Reader()
+{
+	do 
+	{
+		wait( mutex );
+
+		readCount++;
+		if ( readCount == 1 )
+			wait( wrt ); // 이미 Writer 가 Lock 을 획득했다면 여기서 대기하게 된다.
+		
+		signal( mutex ); // 다른 Reader 도 병렬 접근이 가능하도록 한다.
+
+		// ... reading is Performed
+
+		wait( mutex );
+		
+		readCount--;
+		if ( readCount == 0 )
+			signal( wrt );
+		
+		signal( mutex );
+	} while( TRUE );
+}
+```
 ```
 
 ## 식사하는 철학자들 문제 ( The Dining Philosophers Problem )
