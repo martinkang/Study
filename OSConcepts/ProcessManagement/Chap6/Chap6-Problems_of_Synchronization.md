@@ -38,7 +38,7 @@
 
 
 ## 유한 버퍼 문제 ( The Bounded Buffer Problem )
-* 유한한 개수의 물건(데이터)을 임시로 보관하는 보관함(버퍼)에 여러 명의 생산자들과 소비자들이 접근한다. 
+* 유한한 개수의 물건(데이터)을 임시로 보관하는 보관함(버퍼)에 여러 명의 생산자들과 소비자들이 접근한다.
 생산자는 물건이 하나 만들어지면 그 공간에 저장하고 물건의 Count 를 증가시키고
 , 소비자는 물건이 필요할 때 보관함에서 물건을 하나 가져오고 Count 를 감소시킨다.
 	- 만약 아래 source 에서 Buffer 상에 아이템이 1개만 있을때 두 개의 소비자 프로세스가 동시에 접근하게 된다면
@@ -51,7 +51,7 @@ int tailIdx = 1; // 생산자가 생성한 아이템이 저장될 Index */
 int curItemCount = 1;
 
 /* 생산자 프로세스 */
-do 
+do
 {
 	buffer[curItemIdx] = item;
 	curItemIdx++;
@@ -60,7 +60,7 @@ do
 
 
 /* 소비자 프로세스 */
-do 
+do
 {
 	// curItemCount 가 1 인 상황에서 두 개의 서로 다른 프로세스가 동시에 접근할 수 있다.
 	if ( curItemCount > 0 )
@@ -82,7 +82,7 @@ do
 * Readers 와 Writers 가 공존시 문제가 발생한다.
 	- Readers 가 읽고있는 데이터를 Writers 가 변경한다면 문제가 발생한다.
 * 해결방법
-	- Reader Lock 과 Writer Lock 
+	- Reader Lock 과 Writer Lock
 		- Reader Lock
 			- 동시에 여러 프로세스가 읽기 가능
 		- Writer Lock
@@ -117,94 +117,51 @@ void Writer()
 /* Reader Process */
 void Reader()
 {
-	do 
+	do
 	{
 		wait( mutex );
 
 		readCount++;
 		if ( readCount == 1 )
 			wait( wrt ); // 이미 Writer 가 Lock 을 획득했다면 여기서 대기하게 된다.
-		
+
 		signal( mutex ); // 다른 Reader 도 병렬 접근이 가능하도록 한다.
 
 		// ... reading is Performed
 
 		wait( mutex );
-		
+
 		readCount--;
 		if ( readCount == 0 )
 			signal( wrt );
-		
+
 		signal( mutex );
 	} while( TRUE );
 }
 ```
 
 #### Readers-Writers 기아 문제 해결방안
-```c++
-semaphore mutex, wrt; // 1 로 초기화
-int readCount = 0;
+- Reader 가 lock 을 잡고있는 상황에서 Writer 가 lock 을 잡으려 하지만 Reader 가 계속 lock 요청을 하면
+결국 Writer 는 lock 을 잡지 못하여 자료에 접근하지 못해 기아현상이 발생할 수 있음.
+- Reader 가 lock 을 잡고있는 상황에서 Writer 가 lock 을 요청하면 새로운 Reader 의 lock 요청은 블럭 ( 또는 lock 획득 실패 ) 시키고
+기존에 잡고있던 Reader 가 전부 끝나면 Writer 가 lock 을 잡아 자료에 접근하게 한다.
 
-
-/* Writer Process */
-void Writer()
-{
-	do
-	{
-		wait( wrt );
-
-		signal( mutex );
-		// ... Writing is Performed //
-
-		signal( wrt );
-	} while ( TRUE );
-
-	}
-}
-
-
-/* Reader Process */
-void Reader()
-{
-	do 
-	{
-		wait( mutex );
-
-		readCount++;
-		if ( readCount == 1 )
-			wait( wrt ); // 이미 Writer 가 Lock 을 획득했다면 여기서 대기하게 된다.
-		
-		signal( mutex ); // 다른 Reader 도 병렬 접근이 가능하도록 한다.
-
-		// ... reading is Performed
-
-		wait( mutex );
-		
-		readCount--;
-		if ( readCount == 0 )
-			signal( wrt );
-		
-		signal( mutex );
-	} while( TRUE );
-}
-```
-```
 
 ## 식사하는 철학자들 문제 ( The Dining Philosophers Problem )
 * 문제
-	- 다섯 명의 철학자가 원탁에 앉아 있고, 각자의 앞에는 스파게티가 있고 양옆에 젓가락이 한 짝씩 있다. 
-	그리고 각각의 철학자는 다른 철학자에게 말을 할 수 없다. 
-	- 이때 철학자가 스파게티를 먹기 위해서는 양 옆의 젓가락 짝을 동시에 들고 있어야 한다. 
-	- 이때 각각의 철학자가 왼쪽의 젓가락 짝을 들고 그 다음 오른쪽의 젓가락 짝을 들어서 
-	스파게티를 먹는 알고리즘을 가지고 있으면, 
-	다섯 철학자가 동시에 왼쪽의 젓가락 짝을 든 다음 오른쪽의 젓가락 짝을 들 때까지 
+	- 다섯 명의 철학자가 원탁에 앉아 있고, 각자의 앞에는 스파게티가 있고 양옆에 젓가락이 한 짝씩 있다.
+	그리고 각각의 철학자는 다른 철학자에게 말을 할 수 없다.
+	- 이때 철학자가 스파게티를 먹기 위해서는 양 옆의 젓가락 짝을 동시에 들고 있어야 한다.
+	- 이때 각각의 철학자가 왼쪽의 젓가락 짝을 들고 그 다음 오른쪽의 젓가락 짝을 들어서
+	스파게티를 먹는 알고리즘을 가지고 있으면,
+	다섯 철학자가 동시에 왼쪽의 젓가락 짝을 든 다음 오른쪽의 젓가락 짝을 들 때까지
 	무한정 기다리는 교착 상태에 빠지게 될 수 있다.
-	-  또한 어떤 경우에는 동시에 젓가락 양짝을 집을 수 없어 식사를 하지 못하는 
+	-  또한 어떤 경우에는 동시에 젓가락 양짝을 집을 수 없어 식사를 하지 못하는
 	기아 상태가 발생할 수도 있고, 몇몇 철학자가 다른 철학자보다 식사를 적게 하는 경우가 발생하기도 한다.
 * 해결 방법
 	- 최대 4 명의 철학자들만이 테이블에 동시에 앉을 수 있도록 한다.
 	- 한 철학자가 젓가락 두 개를 모두 집을 수 있을 때만 젓가락을 집도록 허용한다.
 		- 철학자는 임계 영역에서만 젓가락을 집어야 한다.
 	- 비대칭 해결안을 사용한다. 즉, 홀수 번호의 철학자는 먼저 왼쪽 젓가락을 집고
-	다음에 오른쪽 젓가락을 집는다. 반면에 짝수 번호의 철학자는 
+	다음에 오른쪽 젓가락을 집는다. 반면에 짝수 번호의 철학자는
 	오른쪽 젓가락을 집고 다음에 왼쪽 젓가락을 집는다.
