@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+# pip3 install beautifulsoup4
 from bs4 import BeautifulSoup
 import re
 import string
@@ -84,6 +85,7 @@ for word in sSortedNGrams:
 		sMostGram.append( sItem.lower() )
 		print( word )
 
+print( "\n" )
 print( "가장 많이 쓰인 단어가 포함된 문장 리스트" )
 i = 0
 for content in sContent.split( "." ):
