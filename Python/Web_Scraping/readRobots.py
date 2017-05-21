@@ -9,7 +9,7 @@
 #   return : True or False
 #       Allow 리스트에 있으면 True 없으면 False
 #
-# gAllowDicts = 딕셔너리 형태로 "주소" : "True" or "False"  형태로 저장한다.
+# gAllowDicts = 딕셔너리 형태로 "주소" : "disallow" or "allow"  형태로 저장한다.
 
 from urllib.request import HTTPError
 from urllib.request import urlopen
