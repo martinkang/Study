@@ -16,8 +16,14 @@ from urllib.request import urlopen
 
 class readRobots:
 	gAllowDicts = dict()
+	def clearAllowDicts( self ):
+		# 새로운 AllowDict 을 만드는 것이기 때문에 기존의 딕셔너리 삭제	
+		gAllowDicts.clear()
 
 	def classifyAllowDict( self, aRobotsTxt ):
+		# 명시적으로 기존의 AllowDicts 를 초기화 해주지 않을 경우 새로운 Dicts 를 만들때 초기화 해준다.
+		self.clearAllowDicts
+
 		sTxt = aRobotsTxt.decode( 'utf-8' ).replace( ' ', '' ).replace( ':', '' ).lower()
 		for item in sTxt.split( '\n' ):
 			if item[0:8] == 'disallow':
@@ -44,7 +50,7 @@ class readRobots:
 			return True
 
 	def isAllowed( self, aUrl ):
-		# 검사할 주소
+		# 검사할 주소				
 		sUrl = aUrl.lower()
 		try:
 			if self.gAllowDicts[sUrl] == 'disallow':
