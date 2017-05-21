@@ -9,9 +9,12 @@ from urllib.request import urlopen, urlretrieve, urlparse
 from urllib.parse import parse_qs
 from bs4 import BeautifulSoup
 
-#sUrl = input( "input youtube url : " )
+KB_SIZE = 1024
+MB_SIZE = KB_SIZE * 1024
 
-sUrl = "https://www.youtube.com/watch?v=t4pbzzKo2G0"
+# 테스트용 주소
+#sUrl = "https://www.youtube.com/watch?v=bJqwSFFSHdI"
+#sUrl = "https://www.youtube.com/watch?v=t4pbzzKo2G0" 403 Error 나는 주소
 
 def getVideoID( aUrl ):
 	sUrl = aUrl.split( '/' )
@@ -32,7 +35,7 @@ def getTitle( aInfo ):
 		sTitle = aInfo['title'][0]
 		sTitle = sTitle.replace( string.punctuation, '' )
 	except:
-		sTitle = "non title"
+		sTitle = "non_title"
 	
 	return sTitle
 
@@ -56,11 +59,24 @@ def getVideo( aUrl ):
 		for video in sVideoURL:
 			sItem = parse_qs(video)
 			sUrl = sItem['url'][0]
-			print( sUrl )
 
-#			sHtml = urlopen( sUrl )
-#			print( sHtml )
-#sSize = int( sHtml.headers['Content-Length'] )
+			sHtml = urlopen( sUrl )
+			sSize = int( sHtml.headers['Content-Length'] )
+
+			sFile = open( sTitle + '.mp4', 'wb+' )
+
+			sDownSize = 0
+			sBuf = sHtml.read( KB_SIZE )
+			while sBuf:
+				sFile.write( sBuf )
+				sDownSize += KB_SIZE
+				sBuf = sHtml.read( KB_SIZE )
+
+			sFile.close()
+			sHtml.close()
+
+			print( 'Download ' + sTitle + ' is Complete!! [ Size = ' + str( sDownSize / KB_SIZE ) + ' KB ] ' )
+			break
 
 	except Exception as e:
 		print( 'Error During Download : ' + str(e) )
@@ -68,4 +84,5 @@ def getVideo( aUrl ):
 	
 
 
+sUrl = input( "input youtube url : " )
 getVideo( sUrl )
