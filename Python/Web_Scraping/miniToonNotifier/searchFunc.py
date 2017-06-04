@@ -1,9 +1,10 @@
 import string
 import time
-import csvFunc
 from urllib.parse import quote
 from urllib.request import urlopen, urlretrieve
 from bs4 import BeautifulSoup
+
+from csvFunc import csvFunc
 
 
 class searchFunc():
@@ -13,12 +14,12 @@ class searchFunc():
 	gComicTitle = []
 	gResultFromCvs = []
 
-	def __init__( self, aUrl, aBbsUrl, aSearchUrl, aComicTitle, aResultFromCvs ):
-		gUrl = aUrl
-		gBbsUrl = aBbsUrl
-		gSearchUrl = aSearchUrl
-		gComicTitle = aComicTitle
-		gResultFromCvs = aResultFromCvs
+	def __init__( self, aUrl, aBbsUrl, aSearchUrl, aComicTitle, aResultFromCsv ):
+		self.gUrl = aUrl
+		self.gBbsUrl = aBbsUrl
+		self.gSearchUrl = aSearchUrl
+		self.gComicTitle = aComicTitle
+		self.gResultFromCsv = aResultFromCsv
 
 
 # 구두점 리스트 !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ 와 공백을 찾고 제거
@@ -36,7 +37,7 @@ class searchFunc():
 		sSearchKeyword = aTitle.upper().split(' ')[0]
 		sComicTitle = self.getOnlyText( aTitle.upper() )
 
-		for titleList in gResultFromCsv:
+		for titleList in self.gResultFromCsv:
 			sTitle = self.getOnlyText( titleList[0].upper() )
 			if sComicTitle in sTitle:
 				return titleList
