@@ -66,6 +66,7 @@ def getFileName( aTitle ):
 # 미완성
 # youtube 동영상중 signature, s 도는 sig 항복을 포함하는 동영상이 있다.
 # s 나 sig 는 이를 해독하여 url 에 합쳐 보내줘야 한다.
+# 해독 방법은 주기적으로 바뀌는듯 하다.
 def getSignature( aInfo ):
 	try:
 		return  aInfo['s'][0]
