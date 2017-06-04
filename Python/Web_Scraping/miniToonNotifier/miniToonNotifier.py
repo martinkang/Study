@@ -1,10 +1,11 @@
 import string
 import time
 import csv
+from urllib.parse import quote 
 from readRobots import readRobots
 from urllib.request import urlopen, urlretrieve
 from bs4 import BeautifulSoup
-from urllib.parse import parse_qs
+
 
 gUrl = "http://minitoon.net"
 gBbsUrl = "http://minitoon.net/bbs"
@@ -22,6 +23,7 @@ sBsObj = BeautifulSoup( sHtml, "html.parser" )
 sCharSet = sBsObj.find( "meta" )['charset']
 
 # miniToonNotifier.py 와 같은 폴더에 miniBook.txt 를 읽어온다.
+# 검색할 만화의 리스트가 있다.
 sReadFile = open( './miniBook.txt' )
 gComicTitle = sReadFile.readlines()
 sReadFile.close()
@@ -44,11 +46,13 @@ def readCsv():
 	return sResultSet
 
 
-def writeCsv( aComicSet ):
-	sFile = open( './miniBook.csv', 'a', encoding='utf-8', newline='' )
+def writeCsv( aComicList ):
+	sFile = open( './miniBook.csv', 'w', encoding='utf-8', newline='' )
 	sCsv = csv.writer( sFile )
-	
-	sCsv.writerow( [ aComicSet[0], aComicSet[1], aComicSet[2] ] )
+
+	for comic in aComicList:
+		sCsv.writerow( [ comic[0], comic[1], comic[2] ] )
+
 	sFile.close()
 
 
@@ -70,7 +74,6 @@ def searchComicsFromCsv( aTitle ):
 
 	for titleList in gResultFromCsv:
 		sTitle = getOnlyText( titleList[0].upper() )
-
 		if sComicTitle in sTitle:
 			return titleList
 
@@ -86,13 +89,12 @@ def searchComicsFromWeb( aTitle ):
 	sSearchKeyword = aTitle.upper().split(' ')[0]
 	sComicTitle = getOnlyText( aTitle.upper() )
 
-	sSearchUrl = gSearchUrl + sSearchKeyword 
+	sSearchUrl = gSearchUrl + quote( sSearchKeyword.encode( 'utf8' ) )
 
 	sHtml = urlopen( sSearchUrl )
 	sBsObj = BeautifulSoup( sHtml, "html.parser" )
 
 	sResult = sBsObj.findAll( "a", { "class":"sch_res_title" } )
-	sResultList = []
 	for res in sResult:
 		sTitle = getOnlyText( res.get_text().upper() )
 
@@ -119,33 +121,68 @@ def searchLastVol( aUrl ):
 	return sResultList
 
 
+def findNew():
+	sResultList = []
+	sIsModify = False
+
+	for title in gComicTitle:
+		sTitle = title.strip( '\n' )
+		if sTitle == '':
+			continue
+
+		sResult = []
+		sRes =  searchComicsFromCsv( sTitle )
+		if sRes is not None:
+			# 이미 이전에 찾아서 해당 만화에 대한 url 이 있음
+			sResult = searchLastVol( sRes[1] )
+
+			if sRes[0] == sResult[0]:
+				pass # 마지막에 찾은 결과와 같다.
+				#print( "[" + sTitle + "] 마지막 화 : " + sRes[0] + " url : " + sRes[2] )
+			else:
+				sIsModify = True
+				print( "신간 - [" + sTitle + "] 마지막 화 : " + sResult[0] + " url : " + sResult[2] )
+		else:
+			# 새로운 만화라 url 이 없음
+			sResult = searchComicsFromWeb( sTitle )
+			if sResult is None:
+				print( "[" + sTitle + "] 은 존재하지 않습니다." )
+			else:			
+				sIsModify = True
+				print( "신간 - [" + sTitle + "] 마지막 화 : " + sResult[0] + " url : " + sResult[2] )
+
+		if sResult is not None:
+			sResultList.append( sResult )
+		# 서버의 부담을 줄이기 위해
+		time.sleep( 1 )
+		
+	# 추가되거나 변경된 사항이 있으면파일을 다시 쓴다.
+	if sIsModify == True:
+		writeCsv( sResultList )
+
+
+
 
 # 이전에 찾은 만화 리스트가 있으면 불러온다.
 gResultFromCsv = readCsv()
 
-for title in gComicTitle:
-	sTitle = title.strip( '\n' )
+while 1:
+	print( " ==================================================" )
+	print( " 1. 검색 리스트 출력" )
+	print( " 2. 결과 리스트 출력" )
+	print( " 3. 신간 찾아보기" )
+	print( " 4. 종료" )
+	print( " ==================================================" )
+	sInput = input( "원하는 메뉴 : " )
+	sInput = sInput.strip('\n')
 
-	sRes =  searchComicsFromCsv( sTitle )
-	if sRes is not None:
-		# 이미 이전에 찾아서 해당 만화에 대한 url 이 있음
-		sResult = searchLastVol( sRes[1] )
-
-		if sRes[0] == sResult[0]:
-			print( sTitle + " 마지막 화 : " + sRes[0] + " url : " + sRes[2] )
-		else:
-			print( "신간 - " + sTitle + " 마지막 화 : " + sRes[0] + " url : " + sRes[2] )
+	if sInput == '1':
+		print( gComicTitle )
+	elif sInput == '2':
+		print( gResultFromCsv )
+	elif sInput == '3':
+		findNew()
+	elif sInput == '4':
+		break;
 	else:
-		# 새로운 만화라 url 이 없음
-		sResult = searchComicsFromWeb( sTitle )
-		if sResult is None:
-			print( sTitle + "은 존재하지 않습니다." )
-		else:
-
-			print( "신간 - " + sTitle + " 마지막 화 : " + sResult[0] + " url : " + sResult[2] )
-
-			writeCsv( sResult )
-
-	# 서버의 부담을 줄이기 위해
-	time.sleep( 1 )
-
+		print( "1~4 번 메뉴중 하나를 선택해 주세요" )
