@@ -11,7 +11,7 @@ class searchFunc():
 	gUrl = ""
 	gBbsUrl = ""
 	gSearchUrl = ""
-	gComicTitle = []
+	gComicTitle = None
 	gResultFromCvs = None
 
 	def __init__( self, aUrl, aBbsUrl, aSearchUrl, aComicTitle, aResultFromCsv ):
@@ -35,7 +35,6 @@ class searchFunc():
 			return None
 
 		sList = []
-
 		for comicList in self.gResultFromCsv:
 			sTitle = self.getOnlyText( comicList[0].upper() )
 			if aTitle in sTitle:
