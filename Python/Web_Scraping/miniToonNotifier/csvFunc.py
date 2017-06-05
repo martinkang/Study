@@ -14,6 +14,7 @@ class csvFunc:
 			sFile.close()
 		except:
 			print( "Create new miniBook.csv file" )
+			sResultSet = None
 
 		return sResultSet
 
