@@ -12,7 +12,7 @@ class searchFunc():
 	gBbsUrl = ""
 	gSearchUrl = ""
 	gComicTitle = []
-	gResultFromCvs = []
+	gResultFromCvs = None
 
 	def __init__( self, aUrl, aBbsUrl, aSearchUrl, aComicTitle, aResultFromCsv ):
 		self.gUrl = aUrl
@@ -30,18 +30,32 @@ class searchFunc():
 
 		return sStr
 
-	def searchComicsFromCsv( self, aTitle ):
+	def searchComic( self, aTitle ):
 		if aTitle is None or aTitle is '':
-			return
-
-		sSearchKeyword = self.getOnlyText( aTitle.upper() )
-		sComicTitle = self.getOnlyText( aTitle.upper() )
+			return None
 
 		sList = []
+
 		for comicList in self.gResultFromCsv:
 			sTitle = self.getOnlyText( comicList[0].upper() )
-			if sComicTitle in sTitle:
+			if aTitle in sTitle:
 				sList.append( comicList )
+
+		if len( sList ) > 0:
+			return sList
+		else:
+			return None
+
+
+	def searchComicsFromCsv( self, aTitle ):
+		if aTitle is None or aTitle is '':
+			return None
+
+		if self.gResultFromCsv is None:
+			return None
+
+		sComicTitle = self.getOnlyText( aTitle.upper() )
+		sList = self.searchComic( sComicTitle )
 
 		if len( sList ) > 0:
 			return sList
@@ -65,11 +79,15 @@ class searchFunc():
 		sComicTitle = self.getOnlyText( aTitle.upper() )
 
 		# 기본 searchUrl 에 URL 조합 키워드를 더한다.
-		sSearchUrl = self.gSearchUrl + sSearchKeyword
-		sHtml = urlopen( sSearchUrl )
-		sBsObj = BeautifulSoup( sHtml, "html.parser" )
+		try:
+			sSearchUrl = self.gSearchUrl + sSearchKeyword
+			sHtml = urlopen( sSearchUrl )
+			sBsObj = BeautifulSoup( sHtml, "html.parser" )
 
-		sResult = sBsObj.findAll( "a", { "class":"sch_res_title" } )
+			sResult = sBsObj.findAll( "a", { "class":"sch_res_title" } )
+		except:
+			return None
+
 		for res in sResult:
 			sTitle = self.getOnlyText( res.get_text().upper() )
 
@@ -85,10 +103,14 @@ class searchFunc():
 
 
 	def searchLastVol( self, aUrl ):
-		sHtml = urlopen( aUrl )
-		sBsObj = BeautifulSoup( sHtml, "html.parser" )
+		try:
+			sHtml = urlopen( aUrl )
+			sBsObj = BeautifulSoup( sHtml, "html.parser" )
 
-		sResult = sBsObj.findAll( "a", { "class":"gal_subject" } )
+			sResult = sBsObj.findAll( "a", { "class":"gal_subject" } )
+		except:
+			return None
+
 		if sResult is None:
 			return None
 
@@ -108,28 +130,41 @@ class searchFunc():
 	def searchNew( self ):
 		sResultList = []
 		sIsModify = False
+		sCount = 0
 
 		for title in self.gComicTitle:
 			sTitle = title.strip( '\n' )
 			if sTitle == '':
 				continue
 	
+			sIsFromCsv = False
 			sResult =  self.searchComicsFromCsv( sTitle )
 			if sResult is None: 
 				sResult = self.searchComicsFromWeb( sTitle )
+			else:
+				sIsFromCsv = True
 
 			if sResult is not None:
 				for res in sResult:
 					sRes = self.searchLastVol( res[1] )
 					if sRes is not None:
 						sResultList.append( sRes )
-						# 기존의 자료와 다르면 신작이다.
-						if sRes[0] == res[0]:
+						# 기존의 자료와 다르거나 웹에서 부터 얻어오면 신작이다.
+						if sIsFromCsv == True and sRes[0] != res[0] \
+									   or sIsFromCsv == False:
 							sIsModify = True
 							print( "[" + sTitle + "] 신작 : " + sRes[0] + "\n\tURL : " + sRes[1] +
 									"\n\tLast Vol URL : " + sRes[2] )
+						else:
+							print( "[" + sTitle + "] 신작이 없습니다." )
+							print( "가장 최근 신간 : " + sRes[0] + "\n\tURL : " + sRes[1] + \
+									"\n\tLast Vol URL : " + sRes[2] )
 
-			time.sleep( 1 )
+
+			# 서버 부담을 줄이기 위해 3 번에 한번꼴로 1 초씩 쉰다.
+			sCount += 1
+			if sCount % 3 == 0:
+				time.sleep( 1 )
 
 		if sIsModify == True:
 			csvFunc.writeCsv( sResultList )

@@ -11,5 +11,6 @@ class printFunc():
 			print( "결과 리스트가 없습니다." )
 		else:
 			for result in aResultList:
-				print( "[" + result[0] + "] URL : " + result[2] )
+				print( "[" + result[0] + "]" ) 
+				print( "\tURL : " + result[2] )
 
