@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 
 from csvFunc import csvFunc
 
-
 class searchFunc():
 	gUrl = ""
 	gBbsUrl = ""
@@ -69,7 +68,6 @@ class searchFunc():
 			return None
 
 		sKeyword = ''
-		sResultList = []
 
 		for title in aTitle.split( ' ' ):
 			sKeyword = sKeyword + ' ' + quote( self.getOnlyText( title ).encode( self.gCharSet ) )
@@ -131,6 +129,32 @@ class searchFunc():
 			return None
 
 
+	def getNPrintLastVol( self, aTitle, aComicUrlList, aIsFromCsv ):
+		if aComicUrlList is None:
+			print( "결과가 없습니다." )
+			return False
+
+		sIsModify = False
+		sResultList = []
+
+		for res in aComicUrlList:
+			sRes = self.searchLastVol( res[1] )
+			if sRes is not None:
+				sResultList.append( sRes )
+				# 기존의 자료와 다르거나 웹에서 부터 얻어오면 신작이다.
+				if aIsFromCsv == True and sRes[0] != res[0] \
+							   or aIsFromCsv == False:
+					sIsModify = True
+					print( "[" + aTitle + "] 신작 : " + sRes[0] + "\n\tURL : " + sRes[1] +
+								"\n\tLast Vol URL : " + sRes[2] )
+				else:
+					print( "[" + aTitle + "] 신작이 없습니다." )
+					print( "가장 최근 신간 : " + sRes[0] + "\n\tURL : " + sRes[1] + \
+								"\n\tLast Vol URL : " + sRes[2] )
+
+		return sIsModify
+
+
 	def searchNew( self ):
 		sResultList = []
 		sIsModify = False
@@ -148,22 +172,7 @@ class searchFunc():
 			else:
 				sIsFromCsv = True
 
-			if sResult is not None:
-				for res in sResult:
-					sRes = self.searchLastVol( res[1] )
-					if sRes is not None:
-						sResultList.append( sRes )
-						# 기존의 자료와 다르거나 웹에서 부터 얻어오면 신작이다.
-						if sIsFromCsv == True and sRes[0] != res[0] \
-									   or sIsFromCsv == False:
-							sIsModify = True
-							print( "[" + sTitle + "] 신작 : " + sRes[0] + "\n\tURL : " + sRes[1] +
-									"\n\tLast Vol URL : " + sRes[2] )
-						else:
-							print( "[" + sTitle + "] 신작이 없습니다." )
-							print( "가장 최근 신간 : " + sRes[0] + "\n\tURL : " + sRes[1] + \
-									"\n\tLast Vol URL : " + sRes[2] )
-
+			sIsModify = self.getNPrintLastVol( sTitle, sResult, sIsFromCsv )
 
 			# 서버 부담을 줄이기 위해 3 번에 한번꼴로 1 초씩 쉰다.
 			sCount += 1
