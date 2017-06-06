@@ -1,5 +1,4 @@
 from urllib.request import urlopen, urlretrieve
-from bs4 import BeautifulSoup
 
 from readRobots import readRobots
 from printFunc import printFunc
@@ -17,8 +16,8 @@ gReadBot.checkNReadRobots( gUrl )
 
 # charset 받아오기
 sHtml = urlopen( gUrl )
-sBsObj = BeautifulSoup( sHtml, "html.parser" )
-sCharSet = sBsObj.find( "meta" )['charset']
+sCharSet = sHtml.info().get_content_charset()
+sHtml.close()
 
 # miniToonNotifier.py 와 같은 폴더에 miniBook.txt 를 읽어온다.
 # 검색할 만화의 리스트가 있다.
@@ -26,9 +25,11 @@ sReadFile = open( './miniBook.txt' )
 gComicTitle = sReadFile.readlines()
 sReadFile.close()
 
+gCsv = csvFunc( sCharSet )
 # 이전에 찾은 만화 리스트가 있으면 불러온다.
-gResultFromCsv = csvFunc.readCsv()
-gSearch = searchFunc( gUrl, gBbsUrl, gSearchUrl, gComicTitle, gResultFromCsv )
+gResultFromCsv = gCsv.readCsv()
+
+gSearch = searchFunc( gUrl, gBbsUrl, gSearchUrl, gComicTitle, gResultFromCsv, sCharSet )
 
 while 1:
 	print( " ==================================================" )
@@ -48,7 +49,7 @@ while 1:
 	elif sInput == '3':
 		gSearch.searchNew()
 		# 신간 찾은 후 리스트가 바뀌었을 수 있으므로 새로 읽어옴
-		gResultFromCsv = csvFunc.readCsv()
+		gResultFromCsv = gCsv.readCsv()
 	elif sInput == '4':
 		sTitle = input( "찾는 만화 : " )
 		sComic = gSearch.searchComic( sTitle.strip().strip('\n' ) )

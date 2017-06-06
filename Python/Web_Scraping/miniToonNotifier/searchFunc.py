@@ -13,13 +13,15 @@ class searchFunc():
 	gSearchUrl = ""
 	gComicTitle = None
 	gResultFromCvs = None
+	gCharSet = "utf-8"
 
-	def __init__( self, aUrl, aBbsUrl, aSearchUrl, aComicTitle, aResultFromCsv ):
+	def __init__( self, aUrl, aBbsUrl, aSearchUrl, aComicTitle, aResultFromCsv, aCharSet ):
 		self.gUrl = aUrl
 		self.gBbsUrl = aBbsUrl
 		self.gSearchUrl = aSearchUrl
 		self.gComicTitle = aComicTitle
 		self.gResultFromCsv = aResultFromCsv
+		self.gCharSet = aCharSet
 
 
 	# 구두점 리스트 !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ 와 공백을 찾고 제거
@@ -70,7 +72,7 @@ class searchFunc():
 		sResultList = []
 
 		for title in aTitle.split( ' ' ):
-			sKeyword = sKeyword + ' ' + quote( self.getOnlyText( title ).encode( 'utf8' ) )
+			sKeyword = sKeyword + ' ' + quote( self.getOnlyText( title ).encode( self.gCharSet ) )
 
 		# URL 에 조합할 키워드
 		sSearchKeyword = sKeyword.strip( ' ' ).replace( ' ', '+' ).upper() 
@@ -86,6 +88,8 @@ class searchFunc():
 			sResult = sBsObj.findAll( "a", { "class":"sch_res_title" } )
 		except:
 			return None
+		finally:
+			sHtml.close()
 
 		for res in sResult:
 			sTitle = self.getOnlyText( res.get_text().upper() )
@@ -105,10 +109,11 @@ class searchFunc():
 		try:
 			sHtml = urlopen( aUrl )
 			sBsObj = BeautifulSoup( sHtml, "html.parser" )
-
 			sResult = sBsObj.findAll( "a", { "class":"gal_subject" } )
 		except:
 			return None
+		finally:
+			sHtml.close()
 
 		if sResult is None:
 			return None

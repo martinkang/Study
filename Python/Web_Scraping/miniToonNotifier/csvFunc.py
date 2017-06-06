@@ -1,26 +1,33 @@
 import csv
 
 class csvFunc:
-	def readCsv():
+	gCharSet = "utf-8"
+
+	def __init__ ( self, aCharSet ):
+		self.gCharSet = aCharSet
+
+
+	def readCsv( self ):
 		sResultSet = []
 
 		try:
-			sFile = open( './miniBook.csv', 'r', encoding='utf-8' )
+			sFile = open( './miniBook.csv', 'r', encoding = self.gCharSet )
 			sCsv = csv.reader( sFile )
 
 			for line in sCsv:
 				sResultSet.append( tuple( line ) )
 
-			sFile.close()
 		except:
 			print( "Create new miniBook.csv file" )
 			sResultSet = None
+		else:
+			sFile.close()
 
 		return sResultSet
 
 
-	def writeCsv( aComicList ):
-		sFile = open( './miniBook.csv', 'w', encoding='utf-8', newline='' )
+	def writeCsv( self, aComicList ):
+		sFile = open( './miniBook.csv', 'w', encoding = self.gCharSet, newline = '' )
 		sCsv = csv.writer( sFile )
 
 		for comic in aComicList:
