@@ -57,7 +57,9 @@ class searchFunc():
 		sComicTitle = self.getOnlyText( aTitle.upper() )
 		sList = self.searchComic( sComicTitle )
 
-		if len( sList ) > 0:
+		if sList is None:
+			return None	
+		elif len( sList ) > 0:
 			return sList
 		else:
 			return None
@@ -68,6 +70,7 @@ class searchFunc():
 			return None
 
 		sKeyword = ''
+		sResultList = []
 
 		for title in aTitle.split( ' ' ):
 			sKeyword = sKeyword + ' ' + quote( self.getOnlyText( title ).encode( self.gCharSet ) )
@@ -95,9 +98,12 @@ class searchFunc():
 			if sComicTitle in sTitle:
 				sVolUrl = self.gBbsUrl + res['href'].lstrip( '.' )
 				sList = [ sComicTitle, sVolUrl, '' ]
-				sResultList.append( sList )
+				if sList is not None:
+					sResultList.append( sList )
 
-		if len( sResultList ) > 0:
+		if sResultList is None:
+			return None
+		elif len( sResultList ) > 0:
 			return sResultList
 		else:
 			return None
@@ -123,7 +129,9 @@ class searchFunc():
 		sUrl = self.gUrl + res['href'].lstrip( '.' )
 		sResultList = [ res.get_text(), aUrl, sUrl ]
 
-		if len( sResultList ) > 0:
+		if sResultList is None:
+			return None
+		elif len( sResultList ) > 0:
 			return sResultList
 		else:
 			return None

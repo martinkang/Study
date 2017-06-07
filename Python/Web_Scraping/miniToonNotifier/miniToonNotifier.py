@@ -5,6 +5,8 @@ from printFunc import printFunc
 from csvFunc import csvFunc
 from searchFunc import searchFunc
 
+import codecs
+
 gUrl = "http://minitoon.net"
 gBbsUrl = "http://minitoon.net/bbs"
 gSearchUrl = "http://minitoon.net/bbs/search.php?sfl=wr_subject&sop=and&stx=" 
@@ -21,9 +23,12 @@ sHtml.close()
 
 # miniToonNotifier.py 와 같은 폴더에 miniBook.txt 를 읽어온다.
 # 검색할 만화의 리스트가 있다.
-sReadFile = open( './miniBook.txt' )
-gComicTitle = sReadFile.readlines()
-sReadFile.close()
+try:
+	sReadFile = codecs.open( './miniBook.txt', 'r', 'utf-8' )
+	gComicTitle = sReadFile.readlines()
+	sReadFile.close()
+except:
+	print( "./miniBook.txt 을 작성하고 실행해 주세요" )
 
 gCsv = csvFunc( sCharSet )
 # 이전에 찾은 만화 리스트가 있으면 불러온다.
