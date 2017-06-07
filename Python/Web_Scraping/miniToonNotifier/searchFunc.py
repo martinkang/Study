@@ -31,6 +31,7 @@ class searchFunc():
 
 		return sStr
 
+
 	def searchComic( self, aTitle ):
 		if aTitle is None or aTitle is '':
 			return None
@@ -87,17 +88,16 @@ class searchFunc():
 			sBsObj = BeautifulSoup( sHtml, "html.parser" )
 
 			sResult = sBsObj.findAll( "a", { "class":"sch_res_title" } )
+			sHtml.close()
 		except:
 			return None
-		finally:
-			sHtml.close()
 
 		for res in sResult:
 			sTitle = self.getOnlyText( res.get_text().upper() )
 
 			if sComicTitle in sTitle:
 				sVolUrl = self.gBbsUrl + res['href'].lstrip( '.' )
-				sList = [ sComicTitle, sVolUrl, '' ]
+				sList = ( sComicTitle, sVolUrl, '' )
 				if sList is not None:
 					sResultList.append( sList )
 
@@ -114,10 +114,9 @@ class searchFunc():
 			sHtml = urlopen( aUrl )
 			sBsObj = BeautifulSoup( sHtml, "html.parser" )
 			sResult = sBsObj.findAll( "a", { "class":"gal_subject" } )
+			sHtml.close()
 		except:
 			return None
-		finally:
-			sHtml.close()
 
 		if sResult is None:
 			return None
@@ -127,8 +126,8 @@ class searchFunc():
 
 		# 리스트의 마지막만 가져온다.
 		sUrl = self.gUrl + res['href'].lstrip( '.' )
-		sResultList = [ res.get_text(), aUrl, sUrl ]
-
+		sResultList = ( res.get_text(), aUrl, sUrl )
+	
 		if sResultList is None:
 			return None
 		elif len( sResultList ) > 0:
@@ -139,7 +138,7 @@ class searchFunc():
 
 	def getNPrintLastVol( self, aTitle, aComicUrlList, aIsFromCsv ):
 		if aComicUrlList is None:
-			print( "결과가 없습니다." )
+			print( "[" + aTitle + "] 검색 결과가 없습니다." )
 			return False
 
 		sIsModify = False
@@ -159,13 +158,14 @@ class searchFunc():
 					print( "[" + aTitle + "] 신작이 없습니다." )
 					print( "가장 최근 신간 : " + sRes[0] + "\n\tURL : " + sRes[1] + \
 								"\n\tLast Vol URL : " + sRes[2] )
-
-		return sIsModify
+		if sIsModify == True:	
+			return sResultList	
+		else:
+			return None
 
 
 	def searchNew( self ):
 		sResultList = []
-		sIsModify = False
 		sCount = 0
 
 		for title in self.gComicTitle:
@@ -180,12 +180,19 @@ class searchFunc():
 			else:
 				sIsFromCsv = True
 
-			sIsModify = self.getNPrintLastVol( sTitle, sResult, sIsFromCsv )
+			sTempList = self.getNPrintLastVol( sTitle, sResult, sIsFromCsv ) 
+			if sTempList is not None:
+				sResultList.append( sTempList )
 
 			# 서버 부담을 줄이기 위해 3 번에 한번꼴로 1 초씩 쉰다.
 			sCount += 1
 			if sCount % 3 == 0:
 				time.sleep( 1 )
 
-		if sIsModify == True:
-			csvFunc.writeCsv( sResultList )
+		if sResultList is None:
+			return None
+		elif len( sResultList ) > 0:
+			sCsv = csvFunc( self.gCharSet )
+			sCsv.writeCsv( sResultList )
+		else:
+			return None
