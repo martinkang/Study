@@ -30,8 +30,9 @@ class csvFunc:
 		sFile = open( './miniBook.csv', 'w', encoding = self.gCharSet, newline = '' )
 		sCsv = csv.writer( sFile )
 
-		for comic in aComicList:
-			sCsv.writerow( [ comic[0], comic[1], comic[2] ] )
+		for comicTuple in aComicList:
+			for comic in comicTuple:
+				sCsv.writerow( [ comic[0], comic[1], comic[2] ] )
 
 		sFile.close()
 
