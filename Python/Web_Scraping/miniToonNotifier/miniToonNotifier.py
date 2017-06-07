@@ -29,6 +29,7 @@ try:
 	sReadFile.close()
 except:
 	print( "./miniBook.txt 을 작성하고 실행해 주세요" )
+	exit()
 
 gCsv = csvFunc( sCharSet )
 # 이전에 찾은 만화 리스트가 있으면 불러온다.
