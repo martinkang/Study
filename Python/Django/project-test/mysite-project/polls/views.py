@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from polls.models import Choice, Question
@@ -6,7 +6,7 @@ from polls.models import Choice, Question
 
 def index( aRequest ):
 	lastest_question_list = Question.objects.all().order_by( '-pub_date' )[:5]
-	sContext = { 'lastest_question_list:': lastest_question_list }
+	sContext = { 'lastest_question_list': lastest_question_list }
 	return render( aRequest, 'polls/index.html', sContext )
 
 def detail( aRequest, aQuestion_id ):
