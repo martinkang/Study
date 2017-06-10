@@ -19,6 +19,6 @@ class Choice( models.Model ):
 	votes = models.IntegerField( default = 0 )
 
 	def __str__( self ):
-		return slef.choice_text
+		return self.choice_text
 
 # Create your models here.
