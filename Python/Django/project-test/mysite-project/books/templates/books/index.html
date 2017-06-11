@@ -1,0 +1,14 @@
+{% extends "base_books.html" %}
+
+{% block content %}
+    <h2>Books Management System</h2>
+    <ul>
+        {% for modelname in object_list %}
+            {# urlvar 에 books:modelname_list 를 저장. modelname_list 가 authur 라면 books:authur_list 가 urlvar 에 저장된다. #}
+            {% with "books:"|add:modelname|lower|add:"_list" as urlvar %}
+                <li><a href = "{% url urlval %}">{{ modelname }}</a></li>
+            {% endwith %}
+        {% endfor %}
+    </ul>
+{% endblock content %}
+        
