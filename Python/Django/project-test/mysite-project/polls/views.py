@@ -18,7 +18,7 @@ def vote( aRequest, aQuestion_id ):
 	try:
 		sSelect_choice = sP.choice_set.get( pk = aRequest.POST['choice'] )
 	except ( KeyError, Choice.DoesNotExist ):
-		return render( aRequest, 'poll/detail.html',
+		return render( aRequest, 'polls/detail.html',
 		{ 'question' : sP,
 		'error_message': "You didn`t select a choice." 
 		} )
@@ -29,4 +29,4 @@ def vote( aRequest, aQuestion_id ):
 
 def results( aRequest, aQuestion_id ):
 	sQuestion = get_object_or_404( Question, pk = aQuestion_id )
-	return render( aRequest, 'pools/requests.html', {'question': sQuestion } )
+	return render( aRequest, 'polls/results.html', {'question': sQuestion } )

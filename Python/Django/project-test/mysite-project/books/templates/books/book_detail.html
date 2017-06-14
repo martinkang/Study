@@ -6,9 +6,7 @@
     <li>Authors:
         {% for author in object.authors.all %}
             {{author }}
-            {% if not forloop.last %},
-            {% else %}
-            {%endif %}
+            {% if not forloop.last %},{% else %}{% endif %}
         {% endfor %}
     </li>
     <li>Publisher: {{ object.publisher }}</li>
