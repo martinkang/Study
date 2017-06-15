@@ -3,6 +3,10 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from polls.models import Choice, Question
 
+import logging
+
+#logging
+gLogger = logging.getLogger( __name__ )
 
 def index( aRequest ):
 	lastest_question_list = Question.objects.all().order_by( '-pub_date' )[:5]
@@ -14,6 +18,8 @@ def detail( aRequest, aQuestion_id ):
 	return render( aRequest, 'polls/detail.html', { 'question': sQuestion } )
 
 def vote( aRequest, aQuestion_id ):
+	gLogger.debug( "vote().question_id: %s" % aQuestion_id )
+	
 	sP = get_object_or_404( Question, pk = aQuestion_id )
 	try:
 		sSelect_choice = sP.choice_set.get( pk = aRequest.POST['choice'] )
@@ -30,3 +36,6 @@ def vote( aRequest, aQuestion_id ):
 def results( aRequest, aQuestion_id ):
 	sQuestion = get_object_or_404( Question, pk = aQuestion_id )
 	return render( aRequest, 'polls/results.html', {'question': sQuestion } )
+
+
+

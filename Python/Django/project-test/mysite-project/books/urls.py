@@ -9,8 +9,8 @@ urlpatterns = [
 	url( r'^author/$', views.AuthorList.as_view(), name = 'author_list' ),
 	url( r'^publisher/$', views.PublisherList.as_view(), name = 'publisher_list' ),
 	
-	url( r'^book/(?P<pk>\d+)/$', views.BookList.as_view(), name = 'book_detail' ),
-	url( r'^author/(?P<pk>\d+)$', views.AuthorList.as_view(), name = 'author_detail' ),
-	url( r'^publisher/(?P<pk>\d+)$', views.PublisherList.as_view(), name = 'publisher_detail' ),
+	url( r'^book/(?P<pk>\d+)/$', views.BookDetail.as_view(), name = 'book_detail' ),
+	url( r'^author/(?P<pk>\d+)$', views.AuthorDetail.as_view(), name = 'author_detail' ),
+	url( r'^publisher/(?P<pk>\d+)$', views.PublisherDetail.as_view(), name = 'publisher_detail' ),
 ]
 
