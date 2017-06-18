@@ -1,0 +1,7 @@
+pyinstaller name.py
+
+pyinstaller -w name.py
+ - 터미널창 없이
+
+pyinstaller --onefile -w name.py
+ - 부가적 파일 없이 EXE 파일 하나만 생성
