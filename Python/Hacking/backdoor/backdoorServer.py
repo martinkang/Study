@@ -10,15 +10,17 @@ sSock.listen( 10 )
 sConn, sAddr = sSock.accept()
 print( "Conneted by", sAddr )
 sData = sConn.recv( 1024 )
+print( sData.decode() )
 
 while 1:
     sCmd = input( "Enter shell command or quit: " )
-    sConn.send( sCmd )
+    sConn.send( sCmd.encode() )
     if sCmd == ".quit" :
         print( "send quit message to clinet")
         break
     
-    sData = sConn.recv( 1024 )
+    sData = sConn.recv( 1024 ).decode()
     print( sData )
 
 sConn.close()
+

