@@ -1,0 +1,17 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BLACK	../../main.py	/^BLACK = ( 0, 0, 0 )$/;"	kind:variable	line:3
+FIGHTER_HEIGHT	../../main.py	/^FIGHTER_HEIGHT = 38$/;"	kind:variable	line:7
+FIGHTER_WITH	../../main.py	/^FIGHTER_WITH = 36$/;"	kind:variable	line:6
+PAD_HEIGHT	../../main.py	/^PAD_HEIGHT = 640$/;"	kind:variable	line:5
+PAD_WIDTH	../../main.py	/^PAD_WIDTH = 480$/;"	kind:variable	line:4
+drawObject	../../main.py	/^def drawObject( aObj, x, y ):$/;"	kind:function	line:9
+initGame	../../main.py	/^def initGame():$/;"	kind:function	line:55
+main.py	../../main.py	1;"	kind:file	line:1
+pygame	../../main.py	/^import pygame$/;"	kind:namespace	line:1
+runEvent	../../main.py	/^def runEvent( x, y, x_change ):$/;"	kind:function	line:13
+runGame	../../main.py	/^def runGame():$/;"	kind:function	line:31
